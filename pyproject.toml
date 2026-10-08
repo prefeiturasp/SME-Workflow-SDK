@@ -1,0 +1,126 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sme-workflow-sdk"
+version = "0.1.0"
+description = "SDK para gerenciamento de workflows configuráveis e transições de estado."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [
+    { name = "SME São Paulo" },
+]
+keywords = ["workflow", "sdk", "state-machine", "transitions"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "PyYAML>=6.0.3,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.4.2",
+    "pytest-cov==6.3.0",
+    "black==24.10.0",
+    "ruff==0.4.10",
+    "mypy==1.10.0",
+    "pre-commit==4.6.2",
+]
+
+docs = [
+    "sphinx>=7.3",
+    "sphinx-rtd-theme>=2.0",
+    "sphinx-autodoc-typehints>=2.1",
+    "myst-parser>=3.0",
+    "sphinx-autobuild>=2024.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/prefeiturasp/SME-Workflow-SDK"
+Documentation = "https://prefeiturasp.github.io/SME-Workflow-SDK/"
+Repository = "https://github.com/prefeiturasp/SME-Workflow-SDK"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sme_workflow_sdk*"]
+
+[tool.setuptools.package-data]
+sme_workflow_sdk = ["py.typed"]
+
+[tool.black]
+line-length = 79
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 79
+
+[tool.ruff]
+line-length = 79
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "N",
+    "B",
+    "C4",
+    "SIM",
+    "UP",
+    "D",
+]
+ignore = [
+    "D203",
+    "D213",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+"docs/**" = ["D"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--cov=sme_workflow_sdk",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["sme_workflow_sdk"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]

@@ -1,0 +1,1 @@
+"""Exceções específicas do SDK."""
