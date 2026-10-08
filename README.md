@@ -1,21 +1,48 @@
 # SME-Workflow-SDK
 
-## Instalar as dependências para desenvolvimento
+[![python](https://img.shields.io/badge/python-3.12-blue.svg)]()
+[![license](https://img.shields.io/badge/license-AGPL--3.0-green.svg)]()
 
-As dependências de desenvolvimento são definidas no pyproject.toml.
+## Objetivo e escopo
 
-Instale o projeto com as dependências de desenvolvimento:
+Descrição em breve
 
-```bash
-pip install -e ".[dev]"
-```
-
-# Instalaçao da bibçioteca:
+## Instalação
 
 ```bash
-pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git@feature/158285-setup-inicial
+pip install git+https://github.com/prefeiturasp/SME-Sidecar-SDK.git@feature/nome-branch
 ```
 
-## Materiais de consulta:
+A aplicação consome o SDK assim:
 
-- [Writing your pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/)
+```python
+import sme_workflow_sdk
+```
+
+## Features
+
+Descrição em breve
+
+## Integração com Django
+
+Descrição em breve
+
+## Desenvolvimento
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev,docs]"
+pre-commit install
+
+pytest
+pre-commit run --all-files
+```
+
+## Documentação viva (Sphinx)
+
+Em breve
+
+## Licença
+
+GNU Affero General Public License v3.0 (AGPL-3.0). Texto completo em
+[`LICENSE`](LICENSE).
