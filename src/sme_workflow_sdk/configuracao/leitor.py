@@ -13,10 +13,10 @@ class LeitorWorkflow:
         """Carrega a configuração de um arquivo YAML.
 
         Args:
-            caminho: Caminho do arquivo de configuração.
+            caminho (str): Caminho do arquivo de configuração.
 
         Returns:
-            Configuração do workflow.
+            dict[str, Any]: Configuração do workflow.
         """
         with Path(caminho).open(encoding="utf-8") as arquivo:
             configuracao: dict[str, Any] = yaml.safe_load(arquivo)
