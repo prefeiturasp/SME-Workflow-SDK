@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
-from sme_workflow_sdk.excecoes import ConfiguracaoWorkflowInvalidaError
+from sme_workflow_sdk.excecoes import ConfiguracaoYamlError
 
 
 def test_deve_validar_configuracao_valida(
@@ -21,7 +21,7 @@ def test_deve_rejeitar_configuracao_que_nao_e_dicionario(
 ) -> None:
     """Rejeita configuração que não é um dicionário."""
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="A configuração fornecida é inválida.",
     ):
         validador.validar(configuracao)
@@ -43,7 +43,7 @@ def test_deve_rejeitar_configuracao_sem_estados_validos(
 ) -> None:
     """Rejeita configurações sem um dicionário de estados válido."""
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="Campo 'estados' ausente ou inválido.",
     ):
         validador.validar(configuracao)
@@ -56,7 +56,7 @@ def test_deve_rejeitar_estado_sem_acoes(
     configuracao: dict[str, Any] = {"estados": {"aberto": {}}}
 
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="O estado 'aberto' deve possuir o campo 'acoes'.",
     ):
         validador.validar(configuracao)
@@ -69,7 +69,7 @@ def test_deve_rejeitar_acoes_em_formato_invalido(
     configuracao: dict[str, Any] = {"estados": {"aberto": []}}
 
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="Dados do estado 'aberto' inválidos.",
     ):
         validador.validar(configuracao)
@@ -92,7 +92,7 @@ def test_deve_rejeitar_nome_de_estado_invalido(
 ) -> None:
     """Rejeita estados cujo nome não é uma string não vazia."""
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="O nome de cada estado deve ser uma string não vazia.",
     ):
         validador.validar(configuracao)
@@ -110,7 +110,7 @@ def test_deve_rejeitar_acoes_que_nao_e_dicionario(
 
     configuracao = {"estados": {"aberto": {"acoes": acoes}}}
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="As ações do estado 'aberto' estão no formato inválido",
     ):
         validador.validar(configuracao)
@@ -139,7 +139,7 @@ def test_deve_rejeitar_nome_de_acao_invalido(
         }
     }
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="O estado 'aberto' possui uma ação com nome inválido",
     ):
         validador.validar(configuracao)
@@ -153,7 +153,7 @@ def test_deve_rejeitar_dados_de_acao_que_nao_e_dicionario(
     """Rejeita ações cujos dados não são um dicionário."""
     configuracao = {"estados": {"aberto": {"acoes": {"aprovar": dados}}}}
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="A ação 'aprovar' do estado 'aberto' está no formato inválido",
     ):
         validador.validar(configuracao)
@@ -167,7 +167,7 @@ def test_deve_rejeitar_acao_sem_campo_proximo_estado(
     """Rejeita ações que não possuem o campo 'proximo_estado'."""
     configuracao = {"estados": {"aberto": {"acoes": {"aprovar": dados}}}}
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="A ação 'aprovar' do estado 'aberto' deve possuir o campo "
         "'proximo_estado'",
     ):
@@ -191,7 +191,7 @@ def test_deve_rejeitar_proximo_estado_invalido(
         }
     }
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="O próximo estado da ação 'aprovar' do estado 'aberto' deve ser "
         "uma string não vazia",
     ):
@@ -209,7 +209,7 @@ def test_deve_rejeitar_acao_sem_campo_terminal(
     }
 
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="A ação 'aprovar' do estado 'aberto' deve possuir o campo "
         "'terminal'",
     ):
@@ -237,7 +237,7 @@ def test_deve_rejeitar_terminal_que_nao_e_booleano(
         }
     }
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="O campo 'terminal' da ação 'aprovar' do estado 'aberto' deve "
         "ser booleano.",
     ):
@@ -283,7 +283,7 @@ def test_deve_rejeitar_referencia_a_estado_inexistente(
     }
 
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="A ação 'aprovar' do estado 'aberto' referencia o estado "
         "inexistente 'aprovado'.",
     ):
@@ -316,7 +316,7 @@ def test_deve_rejeitar_destino_terminal_com_acoes(
     }
 
     with pytest.raises(
-        ConfiguracaoWorkflowInvalidaError,
+        ConfiguracaoYamlError,
         match="A ação 'finalizar' do estado 'aberto' é terminal, mas "
         "o estado de destino 'concluido' possui ações configuradas.",
     ):

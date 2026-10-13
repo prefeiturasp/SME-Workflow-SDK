@@ -1,7 +1,7 @@
 """Exceções específicas do SDK."""
 
 from sme_workflow_sdk.excecoes.configuracao import (
-    ConfiguracaoWorkflowInvalidaError,
+    ConfiguracaoYamlError,
 )
 
-__all__ = ["ConfiguracaoWorkflowInvalidaError"]
+__all__ = ["ConfiguracaoYamlError"]
