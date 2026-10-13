@@ -254,11 +254,70 @@ def test_deve_aceitar_acao_valida(
                 "acoes": {
                     "aprovar": {
                         "proximo_estado": "aprovado",
-                        "terminal": False,
+                        "terminal": True,
+                    }
+                }
+            },
+            "aprovado": {"acoes": {}},
+        }
+    }
+
+    validador.validar(configuracao)
+
+
+def test_deve_rejeitar_referencia_a_estado_inexistente(
+    validador: ValidadorWorkflow,
+) -> None:
+    """Rejeita transições para estados não declarados."""
+    configuracao = {
+        "estados": {
+            "aberto": {
+                "acoes": {
+                    "aprovar": {
+                        "proximo_estado": "aprovado",
+                        "terminal": True,
                     }
                 }
             }
         }
     }
 
-    validador.validar(configuracao)
+    with pytest.raises(
+        ConfiguracaoWorkflowInvalidaError,
+        match="A ação 'aprovar' do estado 'aberto' referencia o estado "
+        "inexistente 'aprovado'.",
+    ):
+        validador.validar(configuracao)
+
+
+def test_deve_rejeitar_destino_terminal_com_acoes(
+    validador: ValidadorWorkflow,
+) -> None:
+    """Rejeita estado terminal que possui ações configuradas."""
+    configuracao = {
+        "estados": {
+            "aberto": {
+                "acoes": {
+                    "finalizar": {
+                        "proximo_estado": "concluido",
+                        "terminal": True,
+                    }
+                }
+            },
+            "concluido": {
+                "acoes": {
+                    "reabrir": {
+                        "proximo_estado": "aberto",
+                        "terminal": False,
+                    }
+                }
+            },
+        }
+    }
+
+    with pytest.raises(
+        ConfiguracaoWorkflowInvalidaError,
+        match="A ação 'finalizar' do estado 'aberto' é terminal, mas "
+        "o estado de destino 'concluido' possui ações configuradas.",
+    ):
+        validador.validar(configuracao)
