@@ -12,7 +12,9 @@ from __future__ import annotations
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../src"))
+docs = os.path.abspath(os.path.dirname(__file__))
+root = os.path.abspath(os.path.join(docs, ".."))
+sys.path.insert(0, os.path.join(root, "src"))
 
 project = "SME Workflow SDK"
 copyright = "2026, SME São Paulo"
