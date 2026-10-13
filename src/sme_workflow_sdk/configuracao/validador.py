@@ -34,6 +34,8 @@ class ValidadorWorkflow:
         for nome_estado, dados_estado in estados.items():
             self._validar_estado(nome_estado, dados_estado)
 
+        self._validar_transicoes(estados)
+
     def _validar_estado(
         self,
         nome_estado: str,
@@ -146,3 +148,38 @@ class ValidadorWorkflow:
                 f"O campo 'terminal' da ação '{nome_acao}' "
                 f"do estado '{nome_estado}' deve ser booleano."
             )
+
+    def _validar_transicoes(
+        self,
+        estados: dict[str, Any],
+    ) -> None:
+        """Valida referências entre estados e estados terminais.
+
+        Args:
+            estados (dict[str, Any]): _description_
+
+        Raises:
+            ConfiguracaoWorkflowInvalidaError: _description_
+            ConfiguracaoWorkflowInvalidaError: _description_
+        """
+        for nome_estado, dados_estado in estados.items():
+            for nome_acao, dados_acao in dados_estado["acoes"].items():
+                proximo_estado = dados_acao["proximo_estado"]
+
+                if proximo_estado not in estados:
+                    raise ConfiguracaoWorkflowInvalidaError(
+                        f"A ação '{nome_acao}' do estado "
+                        f"'{nome_estado}' referencia o estado "
+                        f"inexistente '{proximo_estado}'."
+                    )
+
+                if dados_acao["terminal"]:
+                    acoes_destino = estados[proximo_estado]["acoes"]
+
+                    if acoes_destino:
+                        raise ConfiguracaoWorkflowInvalidaError(
+                            f"A ação '{nome_acao}' do estado "
+                            f"'{nome_estado}' é terminal, mas o "
+                            f"estado de destino '{proximo_estado}' "
+                            "possui ações configuradas."
+                        )
