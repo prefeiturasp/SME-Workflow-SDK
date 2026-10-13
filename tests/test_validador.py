@@ -99,22 +99,19 @@ def test_deve_rejeitar_nome_de_estado_invalido(
 
 
 @pytest.mark.parametrize(
-    "configuracao",
-    [
-        {"estados": {"aberto": {"acoes": []}}},
-        {"estados": {"aberto": {"acoes": None}}},
-        {"estados": {"aberto": {"acoes": "nao_e_dict"}}},
-        {"estados": {"aberto": {"acoes": 42}}},
-    ],
+    "acoes",
+    [[], (), None, "nao_e_dict", 42],
 )
 def test_deve_rejeitar_acoes_que_nao_e_dicionario(
     validador: ValidadorWorkflow,
-    configuracao: Any,
+    acoes: Any,
 ) -> None:
     """Rejeita estados cujo campo 'acoes' não é um dicionário."""
+
+    configuracao = {"estados": {"aberto": {"acoes": acoes}}}
     with pytest.raises(
         ConfiguracaoWorkflowInvalidaError,
-        match="estão no formato inválido",
+        match="As ações do estado 'aberto' estão no formato inválido",
     ):
         validador.validar(configuracao)
 
@@ -128,246 +125,121 @@ def test_deve_aceitar_estado_sem_acoes(
     validador.validar(configuracao)
 
 
-@pytest.mark.parametrize(
-    "configuracao",
-    [
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {"": {"proximo_estado": "x", "terminal": False}}
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {
-                        "   ": {"proximo_estado": "x", "terminal": False}
-                    }
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {None: {"proximo_estado": "x", "terminal": False}}
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {123: {"proximo_estado": "x", "terminal": False}}
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {1.5: {"proximo_estado": "x", "terminal": False}}
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {True: {"proximo_estado": "x", "terminal": False}}
-                }
-            }
-        },
-    ],
-)
+@pytest.mark.parametrize("acao", ["", "   ", None, 123, 1.5, True])
 def test_deve_rejeitar_nome_de_acao_invalido(
     validador: ValidadorWorkflow,
-    configuracao: Any,
+    acao: Any,
 ) -> None:
     """Rejeita ações cujo nome não é uma string não vazia."""
+    configuracao = {
+        "estados": {
+            "aberto": {
+                "acoes": {acao: {"proximo_estado": "x", "terminal": False}}
+            }
+        }
+    }
     with pytest.raises(
         ConfiguracaoWorkflowInvalidaError,
-        match="ação com nome inválido",
+        match="O estado 'aberto' possui uma ação com nome inválido",
     ):
         validador.validar(configuracao)
 
 
-@pytest.mark.parametrize(
-    "configuracao",
-    [
-        {"estados": {"aberto": {"acoes": {"aprovar": "nao_e_dict"}}}},
-        {"estados": {"aberto": {"acoes": {"aprovar": []}}}},
-        {"estados": {"aberto": {"acoes": {"aprovar": None}}}},
-        {"estados": {"aberto": {"acoes": {"aprovar": 42}}}},
-    ],
-)
+@pytest.mark.parametrize("dados", ["nao_e_dict", [], None, 42])
 def test_deve_rejeitar_dados_de_acao_que_nao_e_dicionario(
     validador: ValidadorWorkflow,
-    configuracao: Any,
+    dados: Any,
 ) -> None:
     """Rejeita ações cujos dados não são um dicionário."""
+    configuracao = {"estados": {"aberto": {"acoes": {"aprovar": dados}}}}
     with pytest.raises(
         ConfiguracaoWorkflowInvalidaError,
-        match="está no formato inválido",
+        match="A ação 'aprovar' do estado 'aberto' está no formato inválido",
     ):
         validador.validar(configuracao)
 
 
-@pytest.mark.parametrize(
-    "configuracao",
-    [
-        {"estados": {"aberto": {"acoes": {"aprovar": {}}}}},
-        {"estados": {"aberto": {"acoes": {"aprovar": {"terminal": False}}}}},
-    ],
-)
+@pytest.mark.parametrize("dados", [{}, {"terminal": False}])
 def test_deve_rejeitar_acao_sem_campo_proximo_estado(
     validador: ValidadorWorkflow,
-    configuracao: Any,
+    dados: Any,
 ) -> None:
     """Rejeita ações que não possuem o campo 'proximo_estado'."""
+    configuracao = {"estados": {"aberto": {"acoes": {"aprovar": dados}}}}
     with pytest.raises(
         ConfiguracaoWorkflowInvalidaError,
-        match="deve possuir o campo 'proximo_estado'",
+        match="A ação 'aprovar' do estado 'aberto' deve possuir o campo "
+        "'proximo_estado'",
     ):
         validador.validar(configuracao)
 
 
 @pytest.mark.parametrize(
-    "configuracao",
-    [
-        {
-            "estados": {
-                "aberto": {"acoes": {"aprovar": {"proximo_estado": ""}}}
-            }
-        },
-        {
-            "estados": {
-                "aberto": {"acoes": {"aprovar": {"proximo_estado": "   "}}}
-            }
-        },
-        {
-            "estados": {
-                "aberto": {"acoes": {"aprovar": {"proximo_estado": None}}}
-            }
-        },
-        {
-            "estados": {
-                "aberto": {"acoes": {"aprovar": {"proximo_estado": 123}}}
-            }
-        },
-        {
-            "estados": {
-                "aberto": {"acoes": {"aprovar": {"proximo_estado": []}}}
-            }
-        },
-    ],
+    "proximo_estado",
+    ["", "   ", None, 123, []],
 )
 def test_deve_rejeitar_proximo_estado_invalido(
     validador: ValidadorWorkflow,
-    configuracao: Any,
+    proximo_estado: Any,
 ) -> None:
     """Rejeita ações cujo 'proximo_estado' não é string não vazia."""
+    configuracao = {
+        "estados": {
+            "aberto": {
+                "acoes": {"aprovar": {"proximo_estado": proximo_estado}}
+            }
+        }
+    }
     with pytest.raises(
         ConfiguracaoWorkflowInvalidaError,
-        match="deve ser uma string não vazia",
+        match="O próximo estado da ação 'aprovar' do estado 'aberto' deve ser "
+        "uma string não vazia",
     ):
         validador.validar(configuracao)
 
 
-@pytest.mark.parametrize(
-    "configuracao",
-    [
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {"aprovar": {"proximo_estado": "aprovado"}}
-                }
-            }
-        },
-    ],
-)
 def test_deve_rejeitar_acao_sem_campo_terminal(
     validador: ValidadorWorkflow,
-    configuracao: Any,
 ) -> None:
     """Rejeita ações que não possuem o campo 'terminal'."""
+    configuracao = {
+        "estados": {
+            "aberto": {"acoes": {"aprovar": {"proximo_estado": "aprovado"}}}
+        }
+    }
+
     with pytest.raises(
         ConfiguracaoWorkflowInvalidaError,
-        match="deve possuir o campo 'terminal'",
+        match="A ação 'aprovar' do estado 'aberto' deve possuir o campo "
+        "'terminal'",
     ):
         validador.validar(configuracao)
 
 
-@pytest.mark.parametrize(
-    "configuracao",
-    [
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {
-                        "aprovar": {
-                            "proximo_estado": "aprovado",
-                            "terminal": "sim",
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {
-                        "aprovar": {
-                            "proximo_estado": "aprovado",
-                            "terminal": 1,
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {
-                        "aprovar": {
-                            "proximo_estado": "aprovado",
-                            "terminal": 0,
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {
-                        "aprovar": {
-                            "proximo_estado": "aprovado",
-                            "terminal": None,
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "estados": {
-                "aberto": {
-                    "acoes": {
-                        "aprovar": {
-                            "proximo_estado": "aprovado",
-                            "terminal": [],
-                        }
-                    }
-                }
-            }
-        },
-    ],
-)
+@pytest.mark.parametrize("terminal", ["sim", 1, 0, None, [], ()])
 def test_deve_rejeitar_terminal_que_nao_e_booleano(
     validador: ValidadorWorkflow,
-    configuracao: Any,
+    terminal: Any,
 ) -> None:
     """Rejeita ações cujo 'terminal' não é booleano."""
+
+    configuracao = {
+        "estados": {
+            "aberto": {
+                "acoes": {
+                    "aprovar": {
+                        "proximo_estado": "aprovado",
+                        "terminal": terminal,
+                    }
+                }
+            },
+            "aprovado": {"acoes": {}},
+        }
+    }
     with pytest.raises(
         ConfiguracaoWorkflowInvalidaError,
-        match="deve ser booleano",
+        match="O campo 'terminal' da ação 'aprovar' do estado 'aberto' deve "
+        "ser booleano.",
     ):
         validador.validar(configuracao)
 
