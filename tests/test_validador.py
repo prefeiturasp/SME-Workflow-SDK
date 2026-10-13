@@ -65,12 +65,12 @@ def test_deve_rejeitar_estado_sem_acoes(
 def test_deve_rejeitar_acoes_em_formato_invalido(
     validador: ValidadorWorkflow,
 ) -> None:
-    """Rejeita ações que não sejam um dicionário."""
-    configuracao: dict[str, Any] = {"estados": {"aberto": []}}
+    """Rejeita o campo 'acoes' quando não é um dicionário nem None"""
+    configuracao: dict[str, Any] = {"estados": {"aberto": {"acoes": []}}}
 
     with pytest.raises(
         ConfiguracaoYamlError,
-        match="Dados do estado 'aberto' inválidos.",
+        match="As ações do estado 'aberto' estão no formato inválido",
     ):
         validador.validar(configuracao)
 
@@ -100,9 +100,9 @@ def test_deve_rejeitar_nome_de_estado_invalido(
 
 @pytest.mark.parametrize(
     "acoes",
-    [[], (), None, "nao_e_dict", 42],
+    [[], (), "nao_e_dict", 42],
 )
-def test_deve_rejeitar_acoes_que_nao_e_dicionario(
+def test_deve_rejeitar_acoes_que_nao_e_dicionario_ou_none(
     validador: ValidadorWorkflow,
     acoes: Any,
 ) -> None:
@@ -119,8 +119,20 @@ def test_deve_rejeitar_acoes_que_nao_e_dicionario(
 def test_deve_aceitar_estado_sem_acoes(
     validador: ValidadorWorkflow,
 ) -> None:
-    """Aceita um estado cujo 'acoes' é um dicionário vazio."""
-    configuracao: dict[str, Any] = {"estados": {"rejeitado": {"acoes": {}}}}
+    """Aceita estados sem ações representados por None."""
+    configuracao: dict[str, Any] = {
+        "estados": {
+            "aberto": {
+                "acoes": {
+                    "rejeitar": {
+                        "proximo_estado": "rejeitado",
+                        "terminal": True,
+                    }
+                }
+            },
+            "rejeitado": {"acoes": None},
+        }
+    }
 
     validador.validar(configuracao)
 
@@ -258,7 +270,7 @@ def test_deve_aceitar_acao_valida(
                     }
                 }
             },
-            "aprovado": {"acoes": {}},
+            "aprovado": {"acoes": None},
         }
     }
 
@@ -319,5 +331,96 @@ def test_deve_rejeitar_destino_terminal_com_acoes(
         ConfiguracaoYamlError,
         match="A ação 'finalizar' do estado 'aberto' é terminal, mas "
         "o estado de destino 'concluido' possui ações configuradas.",
+    ):
+        validador.validar(configuracao)
+
+
+def test_deve_rejeitar_destino_sem_acoes_em_transicao_nao_terminal(
+    validador: ValidadorWorkflow,
+) -> None:
+    """Rejeita destino sem ações em transição não terminal."""
+    configuracao = {
+        "estados": {
+            "aberto": {
+                "acoes": {
+                    "avancar": {
+                        "proximo_estado": "finalizado",
+                        "terminal": False,
+                    }
+                }
+            },
+            "finalizado": {"acoes": None},
+        }
+    }
+
+    with pytest.raises(
+        ConfiguracaoYamlError,
+        match="A ação 'avancar' do estado 'aberto' não é terminal, mas o "
+        "estado de destino 'finalizado' não possui ações configuradas.",
+    ):
+        validador.validar(configuracao)
+
+
+@pytest.mark.parametrize("dados_estado", [None, [], "invalido", 123])
+def test_deve_rejeitar_dados_de_estado_que_nao_e_dicionario(
+    validador: ValidadorWorkflow,
+    dados_estado: Any,
+) -> None:
+    """Rejeita estados cujos dados não são um dicionário."""
+    configuracao = {
+        "estados": {
+            "aberto": dados_estado,
+        },
+    }
+
+    with pytest.raises(
+        ConfiguracaoYamlError,
+        match="Dados do estado 'aberto' inválidos.",
+    ):
+        validador.validar(configuracao)
+
+
+def test_deve_rejeitar_acao_com_chaves_nao_permitidas(
+    validador: ValidadorWorkflow,
+) -> None:
+    """Rejeita ações que possuem campos não permitidos."""
+    configuracao = {
+        "estados": {
+            "aberto": {
+                "acoes": {
+                    "aprovar": {
+                        "proximo_estado": "aprovado",
+                        "terminal": True,
+                        "handler": "aprovar_solicitacao",
+                    },
+                },
+            },
+            "aprovado": {"acoes": None},
+        },
+    }
+
+    with pytest.raises(
+        ConfiguracaoYamlError,
+        match="A ação 'aprovar' do estado 'aberto' possui chaves não "
+        "permitidas: handler. Permitidas: proximo_estado, terminal.",
+    ):
+        validador.validar(configuracao)
+
+
+@pytest.mark.parametrize("nome_estado", ["", "   ", None, 123])
+def test_deve_rejeitar_nome_invalido_de_estado_sem_acoes(
+    validador: ValidadorWorkflow,
+    nome_estado: Any,
+) -> None:
+    """Rejeita nomes inválidos mesmo em estados sem ações."""
+    configuracao = {
+        "estados": {
+            nome_estado: {"acoes": None},
+        },
+    }
+
+    with pytest.raises(
+        ConfiguracaoYamlError,
+        match="O nome de cada estado deve ser uma string não vazia.",
     ):
         validador.validar(configuracao)

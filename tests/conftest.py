@@ -36,7 +36,7 @@ def configuracao_valida() -> dict[str, Any]:
                     }
                 }
             },
-            "rejeitado": {"acoes": {}},
-            "concluido": {"acoes": {}},
+            "rejeitado": {"acoes": None},
+            "concluido": {"acoes": None},
         }
     }

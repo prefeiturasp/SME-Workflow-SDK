@@ -70,6 +70,8 @@ class ValidadorWorkflow:
             )
 
         acoes = dados_estado["acoes"]
+        if acoes is None:
+            return
 
         if not isinstance(acoes, dict):
             raise ConfiguracaoYamlError(
@@ -124,8 +126,8 @@ class ValidadorWorkflow:
         if chaves_extras:
             raise ConfiguracaoYamlError(
                 f"A ação '{nome_acao}' do estado '{nome_estado}' "
-                f"possui chaves não permitidas: {sorted(chaves_extras)}. "
-                f"Permitidas: {sorted(chaves_permitidas)}."
+                f"possui chaves não permitidas: {", ".join(chaves_extras)}. "
+                f"Permitidas: {", ".join(chaves_permitidas)}."
             )
 
         if "proximo_estado" not in dados_acao:
@@ -169,6 +171,10 @@ class ValidadorWorkflow:
             ConfiguracaoYamlError: _description_
         """
         for nome_estado, dados_estado in estados.items():
+            acoes = dados_estado["acoes"]
+            if acoes is None:
+                continue
+
             for nome_acao, dados_acao in dados_estado["acoes"].items():
                 proximo_estado = dados_acao["proximo_estado"]
 
@@ -179,13 +185,20 @@ class ValidadorWorkflow:
                         f"inexistente '{proximo_estado}'."
                     )
 
-                if dados_acao["terminal"]:
-                    acoes_destino = estados[proximo_estado]["acoes"]
+                acoes_destino = estados[proximo_estado]["acoes"]
 
-                    if acoes_destino:
-                        raise ConfiguracaoYamlError(
-                            f"A ação '{nome_acao}' do estado "
-                            f"'{nome_estado}' é terminal, mas o "
-                            f"estado de destino '{proximo_estado}' "
-                            "possui ações configuradas."
-                        )
+                if dados_acao["terminal"] and acoes_destino is not None:
+                    raise ConfiguracaoYamlError(
+                        f"A ação '{nome_acao}' do estado "
+                        f"'{nome_estado}' é terminal, mas o estado "
+                        f"de destino '{proximo_estado}' possui "
+                        "ações configuradas."
+                    )
+
+                if not dados_acao["terminal"] and acoes_destino is None:
+                    raise ConfiguracaoYamlError(
+                        f"A ação '{nome_acao}' do estado "
+                        f"'{nome_estado}' não é terminal, mas o "
+                        f"estado de destino '{proximo_estado}' "
+                        "não possui ações configuradas."
+                    )
