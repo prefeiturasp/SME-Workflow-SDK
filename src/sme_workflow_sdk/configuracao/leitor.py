@@ -26,8 +26,7 @@ class LeitorWorkflow:
             dict[str, Any]: Configuração do workflow.
         """
         caminho_arquivo = self._validar_caminho(caminho)
-        with caminho_arquivo.open(encoding="utf-8") as arquivo:
-            configuracao: dict[str, Any] = yaml.safe_load(arquivo)
+        configuracao = self._ler_yaml(caminho_arquivo)
 
         return configuracao
 
@@ -65,3 +64,39 @@ class LeitorWorkflow:
             )
 
         return caminho_arquivo
+
+    def _ler_yaml(self, caminho_arquivo: Path) -> dict[str, Any]:
+        """Lê o arquivo e trata erros de encoding e YAML.
+
+        Args:
+            caminho_arquivo (Path): _description_
+
+        Raises:
+            FormatoInvalidoError: _description_
+            FormatoInvalidoError: _description_
+            FormatoInvalidoError: _description_
+
+        Returns:
+            dict[str, Any]: _description_
+        """
+        try:
+            with caminho_arquivo.open(encoding="utf-8") as arquivo:
+                configuracao: list[dict[str, Any]] = list(
+                    yaml.safe_load_all(arquivo)
+                )
+        except UnicodeDecodeError as erro:
+            raise FormatoInvalidoError(
+                f"Arquivo '{caminho_arquivo}' não está em UTF-8: {erro}"
+            ) from erro
+        except yaml.YAMLError as erro:
+            raise FormatoInvalidoError(
+                f"YAML inválido em '{caminho_arquivo}': {erro}"
+            ) from erro
+
+        if len(configuracao) != 1:
+            raise FormatoInvalidoError(
+                f"Esperado exatamente 1 documento YAML em '{caminho_arquivo}',"
+                f" encontrados: {len(configuracao)}."
+            )
+
+        return configuracao[0]
