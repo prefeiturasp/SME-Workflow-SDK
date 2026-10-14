@@ -5,7 +5,7 @@ from typing import Any
 
 import yaml
 
-from sme_workflow_sdk.excecoes.configuracao import (
+from sme_workflow_sdk.excecoes import (
     ArquivoNaoEncontradoError,
     ConfiguracaoInvalidaError,
     FormatoInvalidoError,
