@@ -7,6 +7,7 @@ import yaml
 
 from sme_workflow_sdk.excecoes.configuracao import (
     ArquivoNaoEncontradoError,
+    ConfiguracaoInvalidaError,
     FormatoInvalidoError,
 )
 
@@ -27,7 +28,7 @@ class LeitorWorkflow:
         """
         caminho_arquivo = self._validar_caminho(caminho)
         configuracao = self._ler_yaml(caminho_arquivo)
-
+        self._validar_conteudo(configuracao, caminho_arquivo)
         return configuracao
 
     def _validar_caminho(self, caminho: str | Path) -> Path:
@@ -100,3 +101,19 @@ class LeitorWorkflow:
             )
 
         return configuracao[0]
+
+    def _validar_conteudo(
+        self, configuracao: Any, caminho_arquivo: Path
+    ) -> None:
+        """Valida vazio e tipo da raiz."""
+        if configuracao is None:
+            raise ConfiguracaoInvalidaError(
+                f"O arquivo '{caminho_arquivo}' está vazio ou só contém "
+                "comentários."
+            )
+
+        if not isinstance(configuracao, dict):
+            raise ConfiguracaoInvalidaError(
+                f"Esperado um formato YAML na raiz de '{caminho_arquivo}', "
+                f"recebido: {type(configuracao).__name__}."
+            )
