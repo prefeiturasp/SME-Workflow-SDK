@@ -113,10 +113,12 @@ addopts = [
     "--cov-report=xml",
 ]
 testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.coverage.run]
 branch = true
 source = ["sme_workflow_sdk"]
+relative_files = true
 
 [tool.coverage.report]
 exclude_lines = [
