@@ -1,7 +1,7 @@
 """Leitura da configuração de workflow."""
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -29,7 +29,7 @@ class LeitorWorkflow:
         caminho_arquivo = self._validar_caminho(caminho)
         configuracao = self._ler_yaml(caminho_arquivo)
         self._validar_conteudo(configuracao, caminho_arquivo)
-        return configuracao
+        return cast(dict[str, Any], configuracao)
 
     def _validar_caminho(self, caminho: str | Path) -> Path:
         """Valida extensão e existência do arquivo.
@@ -53,20 +53,19 @@ class LeitorWorkflow:
                 f"Somente arquivos '{", ".join(self.EXTENSOES_VALIDAS)}' são "
                 f"aceitos. Recebido: '{mensagem}'."
             )
+        if not caminho_arquivo.exists():
+            raise ArquivoNaoEncontradoError(
+                f"Arquivo não encontrado: '{caminho}'."
+            )
 
         if not caminho_arquivo.is_file():
             raise ArquivoNaoEncontradoError(
                 f"'{caminho}' não é um arquivo válido."
             )
 
-        if not caminho_arquivo.exists():
-            raise ArquivoNaoEncontradoError(
-                f"Arquivo não encontrado: '{caminho}'."
-            )
-
         return caminho_arquivo
 
-    def _ler_yaml(self, caminho_arquivo: Path) -> dict[str, Any]:
+    def _ler_yaml(self, caminho_arquivo: Path) -> dict[str, Any] | None:
         """Lê o arquivo e trata erros de encoding e YAML.
 
         Args:
@@ -94,6 +93,9 @@ class LeitorWorkflow:
                 f"YAML inválido em '{caminho_arquivo}': {erro}"
             ) from erro
 
+        if not configuracao:
+            return None
+
         if len(configuracao) != 1:
             raise FormatoInvalidoError(
                 f"Esperado exatamente 1 documento YAML em '{caminho_arquivo}',"
@@ -105,7 +107,16 @@ class LeitorWorkflow:
     def _validar_conteudo(
         self, configuracao: Any, caminho_arquivo: Path
     ) -> None:
-        """Valida vazio e tipo da raiz."""
+        """Valida vazio e tipo da raiz.
+
+        Args:
+            configuracao (Any): _description_
+            caminho_arquivo (Path): _description_
+
+        Raises:
+            ConfiguracaoInvalidaError: _description_
+            ConfiguracaoInvalidaError: _description_
+        """
         if configuracao is None:
             raise ConfiguracaoInvalidaError(
                 f"O arquivo '{caminho_arquivo}' está vazio ou só contém "
@@ -115,5 +126,5 @@ class LeitorWorkflow:
         if not isinstance(configuracao, dict):
             raise ConfiguracaoInvalidaError(
                 f"Esperado um formato YAML na raiz de '{caminho_arquivo}', "
-                f"recebido: {type(configuracao).__name__}."
+                f"recebido: '{type(configuracao).__name__}'."
             )
