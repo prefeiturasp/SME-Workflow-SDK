@@ -1,4 +1,4 @@
-"""Exceções base realicionadas a biblioteca."""
+"""Exceções base relacionadas a biblioteca."""
 
 
 class LeitorWorkflowError(Exception):
