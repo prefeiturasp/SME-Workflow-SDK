@@ -170,29 +170,49 @@ class ValidadorWorkflow:
             if acoes is None:
                 continue
             for nome_acao, dados_acao in dados_estado["acoes"].items():
-                proximo_estado = dados_acao["proximo_estado"]
-                terminal = dados_acao["terminal"]
+                self._validar_transicao_acao(
+                    estados, nome_estado, nome_acao, dados_acao
+                )
 
-                if proximo_estado not in estados:
-                    raise EstadoInvalidoError(
-                        f"A ação '{nome_acao}' do estado "
-                        f"'{nome_estado}' referencia o estado "
-                        f"inexistente '{proximo_estado}'."
-                    )
+    def _validar_transicao_acao(
+        self,
+        estados: dict[str, Any],
+        nome_estado: str,
+        nome_acao: str,
+        dados_acao: dict[str, Any],
+    ) -> None:
+        """Valida uma única transição de ação.
 
-                acoes_destino = estados[proximo_estado]["acoes"]
+        Raises:
+            EstadoInvalidoError: Se o próximo estado não existir.
+            AcaoInvalidaError: Se houver inconsistência entre 'terminal'
+                e as ações do estado de destino.
+        """
+        proximo_estado = dados_acao["proximo_estado"]
+        terminal = dados_acao["terminal"]
 
-                if terminal and acoes_destino is not None:
-                    raise AcaoInvalidaError(
-                        f"A ação '{nome_acao}' do estado "
-                        f"'{nome_estado}' é terminal, mas o "
-                        f"estado de destino '{proximo_estado}' "
-                        "possui ações configuradas."
-                    )
-                if not dados_acao["terminal"] and acoes_destino is None:
-                    raise AcaoInvalidaError(
-                        f"A ação '{nome_acao}' do estado "
-                        f"'{nome_estado}' não é terminal, mas o "
-                        f"estado de destino '{proximo_estado}' "
-                        "não possui ações configuradas."
-                    )
+        if proximo_estado not in estados:
+            raise EstadoInvalidoError(
+                f"A ação '{nome_acao}' do estado "
+                f"'{nome_estado}' referencia o estado "
+                f"inexistente '{proximo_estado}'."
+            )
+
+        acoes_destino = estados[proximo_estado]["acoes"]
+        destino_tem_acoes = acoes_destino is not None
+
+        if terminal and destino_tem_acoes:
+            raise AcaoInvalidaError(
+                f"A ação '{nome_acao}' do estado "
+                f"'{nome_estado}' é terminal, mas o "
+                f"estado de destino '{proximo_estado}' "
+                "possui ações configuradas."
+            )
+
+        if not terminal and not destino_tem_acoes:
+            raise AcaoInvalidaError(
+                f"A ação '{nome_acao}' do estado "
+                f"'{nome_estado}' não é terminal, mas o "
+                f"estado de destino '{proximo_estado}' "
+                "não possui ações configuradas."
+            )
