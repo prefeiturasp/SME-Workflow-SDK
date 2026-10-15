@@ -1,4 +1,22 @@
-"""Validação da configuração de workflow."""
+"""Validação da configuração de workflow.
+
+Este módulo expõe :class:`ValidadorWorkflow`, responsável por:
+
+1. Verificar a estrutura da configuração carregada do YAML, garantindo que
+   existe um dicionário de ``estados`` não vazio.
+2. Validar cada estado individualmente: nome, dados e presença do campo
+   ``acoes``.
+3. Validar cada ação de cada estado: nome, formato, campos obrigatórios (
+   ``proximo_estado``, ``terminal``) e chaves permitidas.
+4. Validar as transições entre estados: se o ``proximo_estado`` existe e se é
+   coerente com o campo ``terminal``.
+
+O validador **não** lê arquivos — ele trabalha sobre a estrutura
+já carregada por :class:`~sme_workflow_sdk.configuracao.leitor.
+LeitorWorkflow`. Essa separação permite trocar a origem da
+configuração (arquivo, banco, API) sem alterar as regras de
+validação.
+"""
 
 from typing import Any
 
@@ -9,17 +27,44 @@ from sme_workflow_sdk.excecoes import (
 
 
 class ValidadorWorkflow:
-    """Responsável por validar a configuração do workflow."""
+    """Responsável por validar a configuração do workflow.
+
+    A classe percorre a configuração em três níveis — estados, ações e
+    transições — e lança exceções específicas quando encontra problemas.
+    Use-a depois de obter o dicionário do workflow, seja via
+    :class:`LeitorWorkflow` ou de outra fonte.
+
+    Examples:
+        validador = ValidadorWorkflow()
+        validador.validar(configuracao)
+    """
 
     def validar(self, configuracao: dict[str, Any]) -> None:
-        """Valida a configuração do workflow.
+        """Valida a configuração completa do workflow.
+
+        Verifica, em ordem, se a raiz é um dicionário, se o campo
+        ``estados`` é um dicionário não vazio, se cada estado está
+        bem formado e, por fim, se as transições entre eles são
+        coerentes.
 
         Args:
             configuracao (dict[str, Any]): Configuração carregada do arquivo
                 YAML.
 
         Raises:
-            EstadoInvalidoError: Se a configuração for inválida.
+            EstadoInvalidoError:
+                - Se a configuração não for um dicionário.
+                - Se o campo ``estados`` estiver ausente, não for um
+                  dicionário ou estiver vazio.
+                - Se algum estado tiver nome ou dados inválidos.
+                - Se alguma ação referenciar um estado inexistente.
+            AcaoInvalidaError:
+                - Se algum estado não possuir o campo ``acoes``.
+                - Se ``acoes`` não for dicionário nem ``None``.
+                - Se alguma ação estiver mal formada (nome, dados,
+                  campos obrigatórios ou chaves extras).
+                - Se houver incoerência entre o campo ``terminal``
+                  de uma ação e as ações do estado de destino.
         """
         if not isinstance(configuracao, dict):
             raise EstadoInvalidoError("A configuração fornecida é inválida.")
@@ -40,15 +85,22 @@ class ValidadorWorkflow:
     ) -> None:
         """Valida a estrutura de um estado.
 
+        Confere se o nome é uma string não vazia, se os dados são um
+        dicionário, se o campo ``acoes`` está presente e, quando
+        aplicável, delega a validação de cada ação a
+        :meth:`_validar_acao`.
+
         Args:
-            nome_estado (str): _description_
-            dados_estado (Any): _description_
+            nome_estado (str): Nome do estado na configuração.
+            dados_estado (Any): Dados associados ao estado.
 
         Raises:
-            AcaoInvalidaError: _description_
-            EstadoInvalidoError: _description_
-            EstadoInvalidoError: _description_
-            EstadoInvalidoError: _description_
+            EstadoInvalidoError:
+                - Se o nome do estado não for uma string não vazia.
+                - Se os dados do estado não forem um dicionário.
+            AcaoInvalidaError:
+                - Se o estado não possuir o campo ``acoes``.
+                - Se o campo ``acoes`` não for dicionário nem ``None``.
         """
         if not isinstance(nome_estado, str) or not nome_estado.strip():
             raise EstadoInvalidoError(
@@ -86,9 +138,9 @@ class ValidadorWorkflow:
     ) -> None:
         """Valida a estrutura de uma ação de um estado.
 
-        Verifica se o nome da ação é uma string não vazia, se os dados
-        são um dicionário, se os campos 'proximo_estado' e 'terminal'
-        estão presentes e se possuem os tipos esperados.
+        Confere o nome e o formato dos dados, rejeita chaves que não
+        sejam ``proximo_estado`` e ``terminal``, e garante que ambos
+        os campos estão presentes e com os tipos esperados.
 
         Args:
             nome_estado (str): Nome do estado ao qual a ação pertence.
@@ -99,10 +151,12 @@ class ValidadorWorkflow:
             AcaoInvalidaError:
                 - Se o nome da ação não for uma string não vazia.
                 - Se os dados da ação não forem um dicionário.
-                - Se a ação não possuir o campo 'proximo_estado'.
-                - Se 'proximo_estado' não for uma string não vazia.
-                - Se a ação não possuir o campo 'terminal'.
-                - Se o campo 'terminal' não for booleano.
+                - Se houver chaves além de ``proximo_estado`` e
+                  ``terminal``.
+                - Se a ação não possuir o campo ``proximo_estado``.
+                - Se ``proximo_estado`` não for string não vazia.
+                - Se a ação não possuir o campo ``terminal``.
+                - Se ``terminal`` não for booleano.
         """
         if not isinstance(nome_acao, str) or not nome_acao.strip():
             raise AcaoInvalidaError(
@@ -156,14 +210,20 @@ class ValidadorWorkflow:
         self,
         estados: dict[str, Any],
     ) -> None:
-        """Valida referências entre estados e estados terminais.
+        """Percorre todos os estados e valida cada transição.
+
+        Estados cujo campo ``acoes`` é ``None`` são ignorados, pois
+        não possuem transições a validar.
 
         Args:
-            estados (dict[str, Any]): _description_
+            estados (dict[str, Any]): Dicionário de estados da configuração.
 
         Raises:
-            AcaoInvalidaError: _description_
-            ConfiguracaoWorkflowInvalidaError: _description_
+            EstadoInvalidoError: Se alguma ação referenciar um estado
+                inexistente.
+            AcaoInvalidaError: Se houver incoerência entre o campo
+                ``terminal`` de alguma ação e as ações do estado de
+                destino.
         """
         for nome_estado, dados_estado in estados.items():
             acoes = dados_estado["acoes"]
@@ -183,10 +243,27 @@ class ValidadorWorkflow:
     ) -> None:
         """Valida uma única transição de ação.
 
+        Confere se o estado de destino existe e se o campo
+        ``terminal`` é coerente com a presença de ações no destino:
+        estados terminais devem ir para destinos sem ações; estados
+        não terminais devem ir para destinos com ações.
+
+        Args:
+            estados (dict[str, Any]): Dicionário completo de estados,
+                usado para resolver a referência.
+            nome_estado (str): Estado de origem da ação.
+            nome_acao (str): Nome da ação que define a transição.
+            dados_acao (dict[str, Any]): Dados da ação, já validados
+                estruturalmente, contendo ``proximo_estado`` e
+                ``terminal``
+
         Raises:
-            EstadoInvalidoError: Se o próximo estado não existir.
-            AcaoInvalidaError: Se houver inconsistência entre 'terminal'
-                e as ações do estado de destino.
+            EstadoInvalidoError: Se o ``proximo_estado`` não existir na
+                configuração.
+            AcaoInvalidaError:
+                - Se a ação for terminal e o destino possuir ações.
+                - Se a ação não for terminal e o destino não possuir
+                  ações.
         """
         proximo_estado = dados_acao["proximo_estado"]
         terminal = dados_acao["terminal"]
