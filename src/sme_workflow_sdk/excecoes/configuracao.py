@@ -1,6 +1,9 @@
 """Exceções relacionadas à configuração do workflow."""
 
-from sme_workflow_sdk.excecoes.base import LeitorWorkflowError
+from sme_workflow_sdk.excecoes.base import (
+    LeitorWorkflowError,
+    ValidadorWorkflowError,
+)
 
 
 class ArquivoNaoEncontradoError(LeitorWorkflowError):
@@ -15,5 +18,9 @@ class ConfiguracaoInvalidaError(LeitorWorkflowError):
     """Conteúdo da configuração inválido."""
 
 
-class EstadoInvalidoError(LeitorWorkflowError):
+class EstadoInvalidoError(ValidadorWorkflowError):
+    """Conteúdo da configuração inválido."""
+
+
+class AcaoInvalidaError(ValidadorWorkflowError):
     """Conteúdo da configuração inválido."""

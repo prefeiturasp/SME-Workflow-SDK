@@ -5,6 +5,7 @@ from sme_workflow_sdk.excecoes.base import (
     ValidadorWorkflowError,
 )
 from sme_workflow_sdk.excecoes.configuracao import (
+    AcaoInvalidaError,
     ArquivoNaoEncontradoError,
     ConfiguracaoInvalidaError,
     EstadoInvalidoError,
@@ -18,4 +19,5 @@ __all__ = [
     "FormatoInvalidoError",
     "EstadoInvalidoError",
     "ValidadorWorkflowError",
+    "AcaoInvalidaError",
 ]
