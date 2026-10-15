@@ -150,7 +150,197 @@ class TestConfiguracaoValida:
     def test_deve_validar_configuracao_valida(
         self,
         validador: ValidadorWorkflow,
-        configuracao_valida: dict[str, Any],
+        workflow_exemplo_dict: dict[str, Any],
     ) -> None:
         """Deve aceitar uma configuração completa e válida."""
-        validador.validar(configuracao_valida)
+        validador.validar(workflow_exemplo_dict)
+
+
+class TestAcaoValida:
+    """Casos de ações que devem ser aceitas."""
+
+    def test_deve_aceitar_acao_valida(
+        self, validador: ValidadorWorkflow
+    ) -> None:
+        """Deve aceitar ação com todos os campos válidos."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {
+                        "aprovar": {
+                            "proximo_estado": "aprovado",
+                            "terminal": True,
+                        }
+                    }
+                },
+                "aprovado": {"acoes": None},
+            }
+        }
+
+        validador.validar(configuracao)
+
+
+class TestNomeDaAcao:
+    """Erros relacionados ao nome da ação."""
+
+    @pytest.mark.parametrize("acao", ["", "   ", None, 123, 1.5, True])
+    def test_deve_rejeitar_nome_invalido(
+        self, validador: ValidadorWorkflow, acao: Any
+    ) -> None:
+        """Deve rejeitar ação cujo nome não é string não vazia."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {
+                        acao: {
+                            "proximo_estado": "x",
+                            "terminal": False,
+                        }
+                    }
+                }
+            }
+        }
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+        assert "O estado 'aberto' possui uma ação com nome inválido" in str(
+            exc.value
+        )
+
+
+class TestDadosDaAcao:
+    """Erros relacionados aos dados da ação."""
+
+    @pytest.mark.parametrize("dados", ["nao_e_dict", [], None, 42])
+    def test_deve_rejeitar_dados_que_nao_sao_dicionario(
+        self, validador: ValidadorWorkflow, dados: Any
+    ) -> None:
+        """Deve rejeitar ação cujos dados não são um dicionário."""
+        configuracao = {"estados": {"aberto": {"acoes": {"aprovar": dados}}}}
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+        assert (
+            "A ação 'aprovar' do estado 'aberto' está no formato inválido"
+            in str(exc.value)
+        )
+
+    def test_deve_rejeitar_chaves_nao_permitidas(
+        self, validador: ValidadorWorkflow
+    ) -> None:
+        """Deve rejeitar ação com campos fora do permitido."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {
+                        "aprovar": {
+                            "proximo_estado": "aprovado",
+                            "terminal": True,
+                            "handler": "aprovar_solicitacao",
+                        },
+                    },
+                },
+                "aprovado": {"acoes": None},
+            },
+        }
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+        assert (
+            "A ação 'aprovar' do estado 'aberto' possui chaves não "
+            "permitidas: handler. Permitidas: proximo_estado, terminal."
+            in str(exc.value)
+        )
+
+
+class TestCampoProximoEstado:
+    """Erros relacionados ao campo 'proximo_estado'."""
+
+    @pytest.mark.parametrize("dados", [{}, {"terminal": False}])
+    def test_deve_rejeitar_acao_sem_proximo_estado(
+        self, validador: ValidadorWorkflow, dados: Any
+    ) -> None:
+        """Deve rejeitar ação que não possui 'proximo_estado'."""
+        configuracao = {"estados": {"aberto": {"acoes": {"aprovar": dados}}}}
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+        assert (
+            "A ação 'aprovar' do estado 'aberto' deve possuir o campo "
+            "'proximo_estado'" in str(exc.value)
+        )
+
+    @pytest.mark.parametrize("proximo_estado", ["", "   ", None, 123, []])
+    def test_deve_rejeitar_proximo_estado_invalido(
+        self,
+        validador: ValidadorWorkflow,
+        proximo_estado: Any,
+    ) -> None:
+        """Deve rejeitar 'proximo_estado' que não é string não vazia."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {
+                        "aprovar": {
+                            "proximo_estado": proximo_estado,
+                        }
+                    }
+                }
+            }
+        }
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+        assert (
+            "O próximo estado da ação 'aprovar' do estado 'aberto' deve ser "
+            "uma string não vazia" in str(exc.value)
+        )
+
+
+class TestCampoTerminal:
+    """Erros relacionados ao campo 'terminal'."""
+
+    def test_deve_rejeitar_acao_sem_terminal(
+        self, validador: ValidadorWorkflow
+    ) -> None:
+        """Deve rejeitar ação que não possui 'terminal'."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {"aprovar": {"proximo_estado": "aprovado"}}
+                }
+            }
+        }
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+        assert (
+            "A ação 'aprovar' do estado 'aberto' deve possuir o campo "
+            "'terminal'" in str(exc.value)
+        )
+
+    @pytest.mark.parametrize("terminal", ["sim", 1, 0, None, [], ()])
+    def test_deve_rejeitar_terminal_nao_booleano(
+        self, validador: ValidadorWorkflow, terminal: Any
+    ) -> None:
+        """Deve rejeitar 'terminal' que não é booleano."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {
+                        "aprovar": {
+                            "proximo_estado": "aprovado",
+                            "terminal": terminal,
+                        }
+                    }
+                },
+                "aprovado": {"acoes": {}},
+            }
+        }
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+        assert (
+            "O campo 'terminal' da ação 'aprovar' do estado 'aberto' deve ser"
+            " booleano" in str(exc.value)
+        )
