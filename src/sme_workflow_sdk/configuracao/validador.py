@@ -31,6 +31,8 @@ class ValidadorWorkflow:
         for nome_estado, dados_estado in estados.items():
             self._validar_estado(nome_estado, dados_estado)
 
+        self._validar_transicoes(estados)
+
     def _validar_estado(
         self,
         nome_estado: str,
@@ -64,6 +66,8 @@ class ValidadorWorkflow:
             )
 
         acoes = dados_estado["acoes"]
+        if acoes is None:
+            return
 
         if not isinstance(acoes, dict):
             raise AcaoInvalidaError(
@@ -92,7 +96,7 @@ class ValidadorWorkflow:
             dados_acao (Any): Dados associados à ação.
 
         Raises:
-            ConfiguracaoWorkflowInvalidaError:
+            AcaoInvalidaError:
                 - Se o nome da ação não for uma string não vazia.
                 - Se os dados da ação não forem um dicionário.
                 - Se a ação não possuir o campo 'proximo_estado'.
@@ -110,6 +114,15 @@ class ValidadorWorkflow:
             raise AcaoInvalidaError(
                 f"A ação '{nome_acao}' do estado '{nome_estado}' "
                 "está no formato inválido."
+            )
+        chaves_permitidas = {"proximo_estado", "terminal"}
+        chaves_extras = dados_acao.keys() - chaves_permitidas
+
+        if chaves_extras:
+            raise AcaoInvalidaError(
+                f"A ação '{nome_acao}' do estado '{nome_estado}' "
+                f"possui chaves não permitidas: {", ".join(chaves_extras)}. "
+                f"Permitidas: {", ".join(chaves_permitidas)}."
             )
 
         if "proximo_estado" not in dados_acao:
@@ -138,3 +151,48 @@ class ValidadorWorkflow:
                 f"O campo 'terminal' da ação '{nome_acao}' "
                 f"do estado '{nome_estado}' deve ser booleano."
             )
+
+    def _validar_transicoes(
+        self,
+        estados: dict[str, Any],
+    ) -> None:
+        """Valida referências entre estados e estados terminais.
+
+        Args:
+            estados (dict[str, Any]): _description_
+
+        Raises:
+            AcaoInvalidaError: _description_
+            ConfiguracaoWorkflowInvalidaError: _description_
+        """
+        for nome_estado, dados_estado in estados.items():
+            acoes = dados_estado["acoes"]
+            if acoes is None:
+                continue
+            for nome_acao, dados_acao in dados_estado["acoes"].items():
+                proximo_estado = dados_acao["proximo_estado"]
+                terminal = dados_acao["terminal"]
+
+                if proximo_estado not in estados:
+                    raise EstadoInvalidoError(
+                        f"A ação '{nome_acao}' do estado "
+                        f"'{nome_estado}' referencia o estado "
+                        f"inexistente '{proximo_estado}'."
+                    )
+
+                acoes_destino = estados[proximo_estado]["acoes"]
+
+                if terminal and acoes_destino is not None:
+                    raise AcaoInvalidaError(
+                        f"A ação '{nome_acao}' do estado "
+                        f"'{nome_estado}' é terminal, mas o "
+                        f"estado de destino '{proximo_estado}' "
+                        "possui ações configuradas."
+                    )
+                if not dados_acao["terminal"] and acoes_destino is None:
+                    raise AcaoInvalidaError(
+                        f"A ação '{nome_acao}' do estado "
+                        f"'{nome_estado}' não é terminal, mas o "
+                        f"estado de destino '{proximo_estado}' "
+                        "não possui ações configuradas."
+                    )
