@@ -9,6 +9,7 @@ toda a I/O.
 from typing import Any
 
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
+from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 
 
 class ConfiguradorWorkflow:
@@ -36,6 +37,7 @@ class ConfiguradorWorkflow:
 
         """
         self._leitor = LeitorWorkflow()
+        self._validador = ValidadorWorkflow()
 
     def carregar(self, caminho: str) -> dict[str, Any]:
         """Carrega a configuração de um arquivo YAML.
@@ -70,3 +72,11 @@ class ConfiguradorWorkflow:
 
         """
         return self._leitor.carregar(caminho)
+
+    def validar(self, configuracao: dict[str, Any]) -> None:
+        """Valida a configuração do workflow.
+
+        Args:
+            configuracao (dict[str, Any]): Configuração a ser validada.
+        """
+        self._validador.validar(configuracao)
