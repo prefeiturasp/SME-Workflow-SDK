@@ -2,28 +2,31 @@
 
 Este módulo expõe :class:`ConfiguradorWorkflow`, o ponto de entrada de alto
 nível do pacote de configuração. Ele encapsula a construção de
-:class:`~sme_workflow_sdk.configuracao.leitor.LeitorWorkflow` e delega a ele
-toda a I/O.
+:class:`~sme_workflow_sdk.configuracao.leitor.LeitorWorkflow` e de
+:class:`~sme_workflow_sdk.configuracao.validador.ValidadorWorkflow`, delegando
+a eles a leitura do arquivo e a validação da estrutura.
 """
 
 from typing import Any
 
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
+from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 
 
 class ConfiguradorWorkflow:
     """Coordena o carregamento e a validação de workflows.
 
-    A classe mantém um :class:`LeitorWorkflow` interno, o que permite
-    substituir a implementação de leitura em testes (via*monkeypatch*) sem
-    alterar a API pública. Futuramente, o  configurador pode acumular etapas
-    adicionais de validação semântica e resolução de *includes*, mantendo o
-    mesmo contrato.
+    Reúne leitura e validação em uma única porta de entrada. Manter
+    os dois componentes internos permite substituí-los em testes
+    (via *monkeypatch*) sem alterar a API pública, e deixa espaço
+    para que o configurador acumule etapas adicionais (resolução de
+    *includes*, por exemplo) mantendo o mesmo contrato.
 
     Exemplo:
         >>> from sme_workflow_sdk import ConfiguradorWorkflow
         >>> configurador = ConfiguradorWorkflow()
         >>> config = configurador.carregar("workflow.yaml")
+        >>> configurador.validar(config)
 
     """
 
@@ -31,11 +34,13 @@ class ConfiguradorWorkflow:
         """Inicializa os componentes de leitura e validação.
 
         Cria uma instância de
-        :class:`~sme_workflow_sdk.configuracao.leitor.LeitorWorkflow` que será
-        reutilizada em todas as chamadas a :meth:`carregar`.
+        :class:`~sme_workflow_sdk.configuracao.leitor.LeitorWorkflow` e uma de
+        :class:`~sme_workflow_sdk.configuracao.validador.ValidadorWorkflow`,
+        ambas reutilizadas em todas as chamadas a :meth:`carregar`.
 
         """
         self._leitor = LeitorWorkflow()
+        self._validador = ValidadorWorkflow()
 
     def carregar(self, caminho: str) -> dict[str, Any]:
         """Carrega a configuração de um arquivo YAML.
@@ -70,3 +75,34 @@ class ConfiguradorWorkflow:
 
         """
         return self._leitor.carregar(caminho)
+
+    def validar(self, configuracao: dict[str, Any]) -> None:
+        """Valida a estrutura de uma configuração de workflow.
+
+        Delega ao :class:`ValidadorWorkflow` interno, propagando
+        qualquer exceção lançada por ele.
+
+        Args:
+            configuracao (dict[str, Any]): Configuração a ser validada.
+                Normalmente é o retorno de :meth:`carregar`.
+
+        Raises:
+            EstadoInvalidoError:
+                - Se a configuração não for um dicionário.
+                - Se o campo ``estados`` estiver ausente, não for um
+                  dicionário ou estiver vazio.
+                - Se algum estado tiver nome ou dados inválidos.
+                - Se alguma ação referenciar um estado inexistente.
+            AcaoInvalidaError:
+                - Se algum estado não possuir o campo ``acoes``.
+                - Se ``acoes`` não for dicionário nem ``None``.
+                - Se alguma ação estiver mal formada.
+                - Se houver incoerência entre o campo ``terminal``
+                  de uma ação e as ações do estado de destino.
+
+        Examples:
+            >>> configurador = ConfiguradorWorkflow()
+            >>> config = configurador.carregar("workflow.yaml")
+            >>> configurador.validar(config)  # levanta erro se inválido
+        """
+        self._validador.validar(configuracao)

@@ -5,10 +5,13 @@ from typing import Any
 
 import pytest
 
-from sme_workflow_sdk.configuracao.configurador import ConfiguradorWorkflow
+from sme_workflow_sdk.configuracao import ConfiguradorWorkflow
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
+from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.excecoes import (
+    AcaoInvalidaError,
     ArquivoNaoEncontradoError,
+    EstadoInvalidoError,
     FormatoInvalidoError,
 )
 
@@ -21,6 +24,12 @@ class TestInicializacao:
     ) -> None:
         """Deve instanciar um LeitorWorkflow internamente."""
         assert isinstance(configurador._leitor, LeitorWorkflow)
+
+    def test_cria_validador_interno(
+        self, configurador: ConfiguradorWorkflow
+    ) -> None:
+        """Deve instanciar um ValidadorWorkflow internamente."""
+        assert isinstance(configurador._validador, ValidadorWorkflow)
 
 
 class TestCarregar:
@@ -82,3 +91,55 @@ class TestCarregar:
             configurador.carregar(str(caminho))
 
         assert f"Arquivo não encontrado: '{str(caminho)}'." in str(exc.value)
+
+
+class TestValidar:
+    """Comportamento do método validar."""
+
+    def test_aceita_configuracao_valida(
+        self,
+        configurador: ConfiguradorWorkflow,
+        workflow_exemplo_dict: dict[str, Any],
+    ) -> None:
+        """Deve aceitar uma configuração válida sem levantar erro."""
+        configurador.validar(workflow_exemplo_dict)
+
+    def test_delega_para_validador(
+        self,
+        configurador: ConfiguradorWorkflow,
+        workflow_exemplo_dict: dict[str, Any],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Garante que o Configurador apenas delega ao Validador."""
+        chamado: dict[str, Any] = {}
+
+        def fake_validar(configuracao: dict[str, Any]) -> None:
+            chamado["configuracao"] = configuracao
+
+        monkeypatch.setattr(configurador._validador, "validar", fake_validar)
+
+        configurador.validar(workflow_exemplo_dict)
+
+        assert chamado["configuracao"] is workflow_exemplo_dict
+
+    def test_propaga_erro_de_estado_invalido(
+        self, configurador: ConfiguradorWorkflow
+    ) -> None:
+        """Deve propagar EstadoInvalidoError do validador."""
+        configuracao: dict[str, Any] = {"estados": []}
+
+        with pytest.raises(EstadoInvalidoError) as exc:
+            configurador.validar(configuracao)
+        assert "Campo 'estados' ausente ou inválido" in str(exc.value)
+
+    def test_propaga_erro_de_acao_invalida(
+        self, configurador: ConfiguradorWorkflow
+    ) -> None:
+        """Deve propagar AcaoInvalidaError do validador."""
+        configuracao = {
+            "estados": {"aberto": {"acoes": {"aprovar": {"terminal": True}}}}
+        }
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            configurador.validar(configuracao)
+        assert "deve possuir o campo 'proximo_estado'" in str(exc.value)

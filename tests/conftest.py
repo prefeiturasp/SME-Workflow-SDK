@@ -7,6 +7,7 @@ import pytest
 
 from sme_workflow_sdk.configuracao import ConfiguradorWorkflow
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
+from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 
 WORKFLOW_EXEMPLO = """\
 estados:
@@ -179,3 +180,9 @@ def configurador() -> ConfiguradorWorkflow:
 def leitor() -> LeitorWorkflow:
     """Instância reutilizável do leitor para os testes."""
     return LeitorWorkflow()
+
+
+@pytest.fixture
+def validador() -> ValidadorWorkflow:
+    """Instância reutilizável do validador para os testes."""
+    return ValidadorWorkflow()
