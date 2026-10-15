@@ -13,3 +13,7 @@ class FormatoInvalidoError(LeitorWorkflowError):
 
 class ConfiguracaoInvalidaError(LeitorWorkflowError):
     """Conteúdo da configuração inválido."""
+
+
+class EstadoInvalidoError(LeitorWorkflowError):
+    """Conteúdo da configuração inválido."""
