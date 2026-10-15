@@ -46,3 +46,7 @@ Thumbs.db
 # Env files
 .env
 .env.local
+
+# Arquivos locais para testes manuais
+main.py
+*workflow*.yaml
