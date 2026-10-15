@@ -120,9 +120,9 @@ class ValidadorWorkflow:
 
         if chaves_extras:
             raise AcaoInvalidaError(
-                f"A ação '{nome_acao}' do estado '{nome_estado}' "
-                f"possui chaves não permitidas: {", ".join(chaves_extras)}. "
-                f"Permitidas: {", ".join(chaves_permitidas)}."
+                f"A ação '{nome_acao}' do estado '{nome_estado}' possui "
+                f"chaves não permitidas: '{", ".join(sorted(chaves_extras))}'"
+                f". Permitidas: '{", ".join(sorted(chaves_permitidas))}'."
             )
 
         if "proximo_estado" not in dados_acao:

@@ -248,7 +248,7 @@ class TestDadosDaAcao:
             validador.validar(configuracao)
         assert (
             "A ação 'aprovar' do estado 'aberto' possui chaves não "
-            "permitidas: handler. Permitidas: proximo_estado, terminal."
+            "permitidas: 'handler'. Permitidas: 'proximo_estado, terminal'."
             in str(exc.value)
         )
 
@@ -343,4 +343,98 @@ class TestCampoTerminal:
         assert (
             "O campo 'terminal' da ação 'aprovar' do estado 'aberto' deve ser"
             " booleano" in str(exc.value)
+        )
+
+
+class TestReferenciaAoProximoEstado:
+    """Erros de referência a estados inexistentes."""
+
+    def test_deve_rejeitar_estado_inexistente(
+        self, validador: ValidadorWorkflow
+    ) -> None:
+        """Deve rejeitar transição para estado não declarado."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {
+                        "aprovar": {
+                            "proximo_estado": "aprovado",
+                            "terminal": True,
+                        }
+                    }
+                }
+            }
+        }
+
+        with pytest.raises(EstadoInvalidoError) as exc:
+            validador.validar(configuracao)
+
+        assert (
+            "A ação 'aprovar' do estado 'aberto' referencia o estado "
+            "inexistente 'aprovado'" in str(exc.value)
+        )
+
+
+class TestCoerenciaComEstadoDeDestino:
+    """Erros de incoerência entre 'terminal' e ações do destino."""
+
+    def test_deve_rejeitar_destino_sem_acoes_em_transicao_nao_terminal(
+        self, validador: ValidadorWorkflow
+    ) -> None:
+        """Não terminal cujo destino não tem ações deve falhar."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {
+                        "avancar": {
+                            "proximo_estado": "finalizado",
+                            "terminal": False,
+                        }
+                    }
+                },
+                "finalizado": {"acoes": None},
+            }
+        }
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+
+        assert (
+            "A ação 'avancar' do estado 'aberto' não é terminal, mas o estado"
+            " de destino 'finalizado' não possui ações configuradas"
+            in str(exc.value)
+        )
+
+    def test_deve_rejeitar_destino_terminal_com_acoes(
+        self, validador: ValidadorWorkflow
+    ) -> None:
+        """Terminal cujo destino possui ações deve falhar."""
+        configuracao = {
+            "estados": {
+                "aberto": {
+                    "acoes": {
+                        "finalizar": {
+                            "proximo_estado": "concluido",
+                            "terminal": True,
+                        }
+                    }
+                },
+                "concluido": {
+                    "acoes": {
+                        "reabrir": {
+                            "proximo_estado": "aberto",
+                            "terminal": False,
+                        }
+                    }
+                },
+            }
+        }
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            validador.validar(configuracao)
+
+        assert (
+            "A ação 'finalizar' do estado 'aberto' é terminal, mas o "
+            "estado de destino 'concluido' possui ações configuradas"
+            in str(exc.value)
         )
