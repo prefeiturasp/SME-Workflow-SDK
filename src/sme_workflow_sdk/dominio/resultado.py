@@ -3,6 +3,7 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
+from types import MappingProxyType
 from typing import Any
 
 
@@ -18,5 +19,11 @@ class WorkflowResult:
     sucesso: bool
     inicio: datetime
     fim: datetime
-    ator: str | None = None
-    contexto: Mapping[str, Any] | None = None
+    autor: str
+    contexto: Mapping[str, Any]
+
+    def __post_init__(self) -> None:
+        """_summary_."""
+        object.__setattr__(
+            self, "contexto", MappingProxyType(dict(self.contexto))
+        )
