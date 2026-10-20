@@ -50,12 +50,11 @@ class TestContextoExecucao:
         """O mapeamento de dados deve ser somente leitura."""
         contexto = ContextoExecucao(autor="usuario_1")
 
-        with pytest.raises(ValidacaoDominioError) as exc:
-            cast(dict[str, Any], contexto.dados)["chave"]
+        with pytest.raises(TypeError) as exc:
+            cast(dict[str, Any], contexto.dados)["chave"] = "valor"
 
         assert (
-            str(exc.value)
-            == "ContextoExecucao.dados não pôde ser convertido: 'mappingproxy'"
+            str(exc.value) == "'mappingproxy'"
             " object does not support item assignment"
         )
 
@@ -71,7 +70,7 @@ class TestContextoExecucao:
     def test_rejeita_autor_com_tipo_invalido(self, autor: object) -> None:
         """Deve rejeitar autor que não seja string."""
         with pytest.raises(ValidacaoDominioError) as exc:
-            ContextoExecucao(autor=cast(str, object()))
+            ContextoExecucao(autor=cast(str, autor))
 
         assert (
             str(exc.value) == "ContextoExecucao.autor deve ser str, recebido "
@@ -96,7 +95,7 @@ class TestContextoExecucao:
         """Deve rejeitar identificador que não seja string."""
         with pytest.raises(ValidacaoDominioError) as exc:
             ContextoExecucao(
-                autor="usuario_1", identificador=cast(str, object())
+                autor="usuario_1", identificador=cast(str, identificador)
             )
 
         assert (
@@ -122,7 +121,7 @@ class TestContextoExecucao:
         """Deve rejeitar dados que não implementem Mapping."""
         with pytest.raises(ValidacaoDominioError) as exc:
             ContextoExecucao(
-                autor="usuario_1", dados=cast(Mapping[str, Any], object())
+                autor="usuario_1", dados=cast(Mapping[str, Any], dados)
             )
 
         assert (
