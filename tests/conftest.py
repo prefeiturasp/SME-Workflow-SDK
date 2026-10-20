@@ -1,5 +1,6 @@
 """Fixtures compartilhadas para os testes."""
 
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -8,6 +9,7 @@ import pytest
 from sme_workflow_sdk.configuracao import ConfiguradorWorkflow
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
+from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 
 WORKFLOW_EXEMPLO = """\
 estados:
@@ -186,3 +188,22 @@ def leitor() -> LeitorWorkflow:
 def validador() -> ValidadorWorkflow:
     """Instância reutilizável do validador para os testes."""
     return ValidadorWorkflow()
+
+
+@pytest.fixture
+def dados_resultado() -> dict[str, object]:
+    """Retorna os dados válidos padrão para criar um resultado."""
+    inicio = datetime(2026, 1, 1, 10, 0, tzinfo=UTC)
+    return {
+        "identificador": "execucao-123",
+        "estado_anterior": "aberto",
+        "acao": "aprovar",
+        "proximo_estado": "aprovado",
+        "terminal": True,
+        "sucesso": True,
+        "mensagem": "Solicitação aprovada com sucesso.",
+        "inicio": inicio,
+        "fim": inicio + timedelta(minutes=1),
+        "autor": "usuario_1",
+        "contexto": ContextoExecucao(autor="usuario_1"),
+    }
