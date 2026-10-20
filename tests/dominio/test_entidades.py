@@ -6,7 +6,7 @@ from typing import Any, cast
 
 import pytest
 
-from sme_workflow_sdk.dominio.entidades import Acao, Estado
+from sme_workflow_sdk.dominio.entidades import Acao, Estado, Transicao
 from sme_workflow_sdk.excecoes import ValidacaoDominioError
 
 
@@ -134,4 +134,74 @@ class TestEstado:
         assert (
             str(exc.value)
             == "Estado.acoes[aprovar] deve ser Acao, recebido str"
+        )
+
+
+class TestTransicao:
+    """Validação da entidade Transicao."""
+
+    def test_cria_transicao_valida(self) -> None:
+        """Deve criar transição com todos os campos válidos."""
+        transicao = Transicao(
+            estado_anterior="aberto",
+            acao="aprovar",
+            proximo_estado="aprovado",
+            terminal=True,
+        )
+
+        assert transicao.estado_anterior == "aberto"
+        assert transicao.acao == "aprovar"
+        assert transicao.proximo_estado == "aprovado"
+        assert transicao.terminal is True
+
+    @pytest.mark.parametrize(
+        ("campo", "valor", "mensagem"),
+        [
+            (
+                "estado_anterior",
+                "",
+                "Transicao.estado_anterior não pode ser vazio",
+            ),
+            ("acao", " ", "Transicao.acao não pode ser vazio"),
+            (
+                "proximo_estado",
+                "",
+                "Transicao.proximo_estado não pode ser vazio",
+            ),
+        ],
+    )
+    def test_rejeita_strings_obrigatorias_vazias(
+        self, campo: str, valor: str, mensagem: str
+    ) -> None:
+        """Deve rejeitar campos textuais obrigatórios vazios."""
+        valores: dict[str, object] = {
+            "estado_anterior": "aberto",
+            "acao": "aprovar",
+            "proximo_estado": "aprovado",
+            "terminal": True,
+        }
+        valores[campo] = valor
+
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Transicao(
+                estado_anterior=cast(str, valores["estado_anterior"]),
+                acao=cast(str, valores["acao"]),
+                proximo_estado=cast(str, valores["proximo_estado"]),
+                terminal=cast(bool, valores["terminal"]),
+            )
+
+        assert str(exc.value) == mensagem
+
+    def test_rejeita_terminal_nao_booleano(self) -> None:
+        """Deve rejeitar terminal que não seja bool."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Transicao(
+                estado_anterior="aberto",
+                acao="aprovar",
+                proximo_estado="aprovado",
+                terminal=cast(bool, 1),
+            )
+
+        assert (
+            str(exc.value) == "Transicao.terminal deve ser bool, recebido int"
         )
