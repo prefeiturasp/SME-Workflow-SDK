@@ -6,6 +6,7 @@ import pytest
 
 from sme_workflow_sdk.dominio.validacao import (
     validar_booleano,
+    validar_mapping,
     validar_string_nao_vazia,
     validar_tipo,
 )
@@ -90,4 +91,38 @@ class TestValidarBooleano:
         assert (
             str(exc.value)
             == f"Tipo.campo deve ser bool, recebido {type(valor).__name__}"
+        )
+
+
+class TestValidarMapping:
+    """Testes para validar_mapping."""
+
+    @pytest.mark.parametrize("valor", [{}, {"chave": "valor"}])
+    def test_aceita_mapping(self, valor: Any) -> None:
+        """Deve aceitar objetos que implementem Mapping."""
+        validar_mapping(valor, "Tipo.campo")
+
+    def test_aceita_none_quando_permitido(self) -> None:
+        """Deve aceitar None quando permitir_none for True."""
+        validar_mapping(None, "Tipo.campo", permitir_none=True)
+
+    def test_rejeita_none_quando_nao_permitido(self) -> None:
+        """Deve rejeitar None quando não permitido."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            validar_mapping(None, "Tipo.campo")
+
+        assert (
+            str(exc.value)
+            == "Tipo.campo não pode ser None; use '{}' para vazio"
+        )
+
+    @pytest.mark.parametrize("valor", [[], (), "texto", 123])
+    def test_rejeita_valor_que_nao_seja_mapping(self, valor: Any) -> None:
+        """Deve rejeitar valores que não implementem Mapping."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            validar_mapping(valor, "Tipo.campo")
+
+        assert (
+            str(exc.value)
+            == f"Tipo.campo deve ser Mapping, recebido {type(valor).__name__}"
         )

@@ -87,7 +87,10 @@ def validar_mapping(
         ValidacaoDominioError: Se o valor não implementar Mapping e não
             for None em um campo que permita esse valor.
     """
-    if valor is None and not permitir_none:
+    if valor is None and permitir_none:
+        return
+
+    if valor is None:
         raise ValidacaoDominioError(
             f"{nome_campo} não pode ser None; use '{{}}' para vazio"
         )
