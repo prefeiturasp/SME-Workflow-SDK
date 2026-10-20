@@ -11,6 +11,7 @@ from datetime import datetime
 from sme_workflow_sdk.dominio import ContextoExecucao
 from sme_workflow_sdk.dominio.validacao import (
     validar_booleano,
+    validar_identificador,
     validar_string_nao_vazia,
     validar_tipo,
 )
@@ -81,8 +82,15 @@ class ResultadoWorkflow:
         validar_string_nao_vazia(
             self.estado_anterior, "ResultadoWorkflow.estado_anterior"
         )
+        validar_identificador(
+            self.estado_anterior, "ResultadoWorkflow.estado_anterior"
+        )
         validar_string_nao_vazia(self.acao, "ResultadoWorkflow.acao")
+        validar_identificador(self.acao, "ResultadoWorkflow.acao")
         validar_string_nao_vazia(
+            self.proximo_estado, "ResultadoWorkflow.proximo_estado"
+        )
+        validar_identificador(
             self.proximo_estado, "ResultadoWorkflow.proximo_estado"
         )
         validar_string_nao_vazia(self.autor, "ResultadoWorkflow.autor")

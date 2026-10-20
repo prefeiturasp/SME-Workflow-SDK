@@ -1,5 +1,6 @@
 """Funções genéricas para validação de dados do domínio."""
 
+import re
 from collections.abc import Mapping
 from typing import Any
 
@@ -99,4 +100,38 @@ def validar_mapping(
         raise ValidacaoDominioError(
             f"{nome_campo} deve ser {esperado}, recebido "
             f"{type(valor).__name__}"
+        )
+
+
+def validar_identificador(valor: str, nome_campo: str) -> None:
+    """Garante que o valor contém apenas letras e underscore.
+
+    Aceita strings compostas por letras, usando ``_`` **apenas entre
+    palavras**. O underscore não pode iniciar, terminar, aparecer
+    duplicado nem ser o único caractere.
+
+    Não são permitidos números, espaços, hífens, acentos ou quaisquer
+    símbolos.
+
+    Exemplos:
+        Aceitos: ``"em_execucao"``, ``"abc_def"``, ``"Acao"``, ``"a"``.
+        Rejeitados: ``"_"``, ``"_privado"``, ``"abc_"``, ``"A_"``,
+        ``"a__b"``, ``"123abc"``, ``"abc1"``, ``"1.5"``, ``"abc-def"``,
+        ``"abc def"``, ``"execução"``.
+
+
+    Args:
+        valor (str): Valor já validado como string não vazia.
+        nome_campo (str): Nome do campo usado na mensagem de erro.
+
+    Raises:
+        ValidacaoDominioError: Se o valor contiver caracteres fora de
+            ``[A-Za-z_]``, ou se o ``_`` não estiver entre palavras.
+    """
+    identificador = re.compile(r"[A-Za-z]+(?:_[A-Za-z]+)*")
+    if not identificador.fullmatch(valor):
+        raise ValidacaoDominioError(
+            f"{nome_campo} inválido ('{valor}'). O valor deve conter apenas "
+            "letras e sublinhados ('_') entre palavras (ex.: 'em_execucao'). "
+            "Não são permitidos sublinhados no início, no fim ou duplicados."
         )

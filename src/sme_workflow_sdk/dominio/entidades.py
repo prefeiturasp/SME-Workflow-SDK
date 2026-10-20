@@ -11,6 +11,7 @@ from types import MappingProxyType
 
 from sme_workflow_sdk.dominio.validacao import (
     validar_booleano,
+    validar_identificador,
     validar_mapping,
     validar_string_nao_vazia,
     validar_tipo,
@@ -46,7 +47,9 @@ class Acao:
                 de validação definidas para a ação.
         """
         validar_string_nao_vazia(self.nome, "Acao.nome")
+        validar_identificador(self.nome, "Acao.nome")
         validar_string_nao_vazia(self.proximo_estado, "Acao.proximo_estado")
+        validar_identificador(self.proximo_estado, "Acao.proximo_estado")
         validar_booleano(self.terminal, "Acao.terminal")
 
 
@@ -85,6 +88,7 @@ class Estado:
                 algum nome de ação ou alguma entidade de ação for inválido.
         """
         validar_string_nao_vazia(self.nome, "Estado.nome")
+        validar_identificador(self.nome, "Estado.nome")
         validar_mapping(self.acoes, "Estado.acoes", permitir_none=True)
 
         if self.acoes is not None:
@@ -93,6 +97,7 @@ class Estado:
                 validar_string_nao_vazia(
                     nome_acao, "Estado.acoes: nome da ação"
                 )
+                validar_identificador(nome_acao, f"Estado.acoes[{nome_acao}]")
                 validar_tipo(acao, Acao, f"Estado.acoes[{nome_acao}]")
             object.__setattr__(self, "acoes", MappingProxyType(acoes))
 
@@ -129,8 +134,15 @@ class Transicao:
         validar_string_nao_vazia(
             self.estado_anterior, "Transicao.estado_anterior"
         )
+        validar_identificador(
+            self.estado_anterior, "Transicao.estado_anterior"
+        )
+
         validar_string_nao_vazia(self.acao, "Transicao.acao")
+        validar_identificador(self.acao, "Transicao.acao")
+
         validar_string_nao_vazia(
             self.proximo_estado, "Transicao.proximo_estado"
         )
+        validar_identificador(self.proximo_estado, "Transicao.proximo_estado")
         validar_booleano(self.terminal, "Transicao.terminal")
