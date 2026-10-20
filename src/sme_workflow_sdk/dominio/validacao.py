@@ -88,7 +88,7 @@ def validar_mapping(
             for None em um campo que permita esse valor.
     """
     if valor is None and not permitir_none:
-        raise ValueError(
+        raise ValidacaoDominioError(
             f"{nome_campo} não pode ser None; use '{{}}' para vazio"
         )
     if not isinstance(valor, Mapping):
