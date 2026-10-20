@@ -1,4 +1,12 @@
-"""Contexto genérico de execução do workflow."""
+"""Contexto de execução do workflow.
+
+Este módulo define a entidade responsável por armazenar as informações
+associadas à execução de um workflow, incluindo o autor, o identificador
+da execução e os dados adicionais relacionados ao processo.
+
+O contexto é imutável após sua inicialização, e o mapeamento de dados
+é protegido contra alterações diretas por meio de ``MappingProxyType``.
+"""
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
