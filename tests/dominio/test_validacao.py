@@ -4,7 +4,10 @@ from typing import Any
 
 import pytest
 
-from sme_workflow_sdk.dominio.validacao import validar_tipo
+from sme_workflow_sdk.dominio.validacao import (
+    validar_string_nao_vazia,
+    validar_tipo,
+)
 from sme_workflow_sdk.excecoes.base import ValidacaoDominioError
 
 
@@ -38,4 +41,32 @@ class TestValidarTipo:
 
         assert (
             str(exc.value) == "Tipo.campo deve ser int | str, recebido float"
+        )
+
+
+class TestValidarStringNaoVazia:
+    """Testes para validar_string_nao_vazia."""
+
+    @pytest.mark.parametrize("valor", ["texto", " texto "])
+    def test_aceita_string_nao_vazia(self, valor: str) -> None:
+        """Deve aceitar strings que contenham caracteres."""
+        validar_string_nao_vazia(valor, "Tipo.campo")
+
+    @pytest.mark.parametrize("valor", ["", "   ", "\t\n"])
+    def test_rejeita_string_vazia_ou_com_espacos(self, valor: str) -> None:
+        """Deve rejeitar strings vazias ou compostas por espaços."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            validar_string_nao_vazia(valor, "Tipo.campo")
+
+        assert str(exc.value) == "Tipo.campo não pode ser vazio"
+
+    @pytest.mark.parametrize("valor", [None, 123, True])
+    def test_rejeita_valor_que_nao_seja_string(self, valor: Any) -> None:
+        """Deve rejeitar valores que não sejam strings."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            validar_string_nao_vazia(valor, "Tipo.campo")
+
+        assert (
+            str(exc.value)
+            == f"Tipo.campo deve ser str, recebido {type(valor).__name__}"
         )
