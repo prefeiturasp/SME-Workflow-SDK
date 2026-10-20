@@ -6,45 +6,62 @@ from types import MappingProxyType
 from typing import Any
 from uuid import uuid4
 
+from sme_workflow_sdk.dominio.validacao import (
+    validar_mapping,
+    validar_string_nao_vazia,
+)
+from sme_workflow_sdk.excecoes.base import ValidacaoDominioError
+
 
 @dataclass(frozen=True, slots=True)
 class ContextoExecucao:
-    """Armazena informações da execução do workflow."""
+    """Armazena informações da execução do workflow.
+
+    O contexto identifica o autor da execução, gera um identificador único
+    por padrão e permite armazenar dados adicionais relacionados ao processo.
+
+    A classe é imutável após sua inicialização. O atributo ``dados`` é
+    copiado e convertido em ``MappingProxyType``, impedindo alterações
+    diretas no mapeamento por meio da instância.
+
+    Attributes:
+        autor: Identificação do autor responsável pela execução.
+        identificador: Identificador único da execução. Caso não seja
+            informado, um UUID é gerado automaticamente.
+        dados: Mapeamento com informações adicionais da execução.
+            Por padrão, é inicializado com um dicionário vazio.
+    """
 
     autor: str
     identificador: str = field(default_factory=lambda: str(uuid4()))
     dados: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        """Congela o dicionário de dados em um MappingProxyType.
+        """Valida os atributos e protege o mapeamento de dados.
+
+        Valida se ``autor`` e ``identificador`` são strings não vazias
+        e se ``dados`` implementa a interface ``Mapping``.
+
+        Em seguida, cria uma cópia do mapeamento e a converte em
+        ``MappingProxyType``, impedindo alterações diretas em suas chaves
+        e valores por meio do mapeamento armazenado na instância.
 
         Raises:
-            ValueError: _description_
-            ValueError: _description_
-            TypeError: _description_
-            ValueError: _description_
+            ValidacaoDominioError: Se algum atributo não atender às regras
+                de validação ou se os dados não puderem ser convertidos
+                em um dicionário.
         """
-        if not isinstance(self.autor, str):
-            raise TypeError(
-                "Acao.nome deve ser string, recebido "
-                f"{type(self.autor).__name__}"
-            )
-        if not isinstance(self.autor, str) or not self.autor.strip():
-            raise ValueError("autor deve ser uma string não vazia")
-
-        if self.dados is None:
-            raise ValueError("dados não pode ser None; use {} para vazio")
-
-        if not isinstance(self.dados, Mapping):
-            raise TypeError(
-                f"dados deve ser Mapping, recebido {type(self.dados).__name__}"
-            )
+        validar_string_nao_vazia(self.autor, "ContextoExecucao.autor")
+        validar_string_nao_vazia(
+            self.identificador, "ContextoExecucao.identificador"
+        )
+        validar_mapping(self.dados, "ContextoExecucao.dados")
 
         try:
-            MappingProxyType(dict(self.dados))
+            dados_copiados = dict(self.dados)
         except (TypeError, ValueError) as exc:
-            raise ValueError(
-                f"dados não pôde ser convertido em mapping: {exc}"
+            raise ValidacaoDominioError(
+                f"ContextoExecucao.dados não pôde ser convertido: {exc}"
             ) from exc
 
-        object.__setattr__(self, "dados", MappingProxyType(dict(self.dados)))
+        object.__setattr__(self, "dados", MappingProxyType(dados_copiados))
