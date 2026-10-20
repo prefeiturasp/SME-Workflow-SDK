@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 
 from sme_workflow_sdk.dominio.validacao import (
+    validar_booleano,
     validar_string_nao_vazia,
     validar_tipo,
 )
@@ -69,4 +70,24 @@ class TestValidarStringNaoVazia:
         assert (
             str(exc.value)
             == f"Tipo.campo deve ser str, recebido {type(valor).__name__}"
+        )
+
+
+class TestValidarBooleano:
+    """Testes para validar_booleano."""
+
+    @pytest.mark.parametrize("valor", [True, False])
+    def test_aceita_booleano(self, valor: bool) -> None:
+        """Deve aceitar True e False."""
+        validar_booleano(valor, "Tipo.campo")
+
+    @pytest.mark.parametrize("valor", [0, 1, None, "true", [], ()])
+    def test_rejeita_valor_que_nao_seja_booleano(self, valor: Any) -> None:
+        """Deve rejeitar valores que não sejam estritamente bool."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            validar_booleano(valor, "Tipo.campo")
+
+        assert (
+            str(exc.value)
+            == f"Tipo.campo deve ser bool, recebido {type(valor).__name__}"
         )
