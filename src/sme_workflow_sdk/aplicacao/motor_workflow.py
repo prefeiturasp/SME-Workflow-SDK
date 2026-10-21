@@ -13,16 +13,27 @@ class MotorWorkflow:
     """Coordena a validação e a resolução das transições do workflow."""
 
     def __init__(self, configuracao: dict[str, Any]) -> None:
-        """Inicializa o motor com uma configuração previamente validada."""
+        """Inicializa o motor com uma configuração previamente validada.
+
+        Args:
+            configuracao (dict[str, Any]): _description_
+        """
         self._configuracao = configuracao
         self._estados = self._converter_estados(configuracao)
-        self._decisao_resolver = DecisaoResolver({"estados": self._estados})
+        self._decisao_resolver = DecisaoResolver(self._estados)
 
     @staticmethod
     def _converter_estados(
         configuracao: dict[str, Any],
     ) -> dict[str, Estado]:
-        """Converte a configuração YAML em entidades do domínio."""
+        """Converte a configuração YAML em entidades do domínio.
+
+        Args:
+            configuracao (dict[str, Any]): _description_
+
+        Returns:
+            dict[str, Estado]: _description_
+        """
         estados: dict[str, Estado] = {}
 
         for nome_estado, dados_estado in configuracao["estados"].items():
@@ -46,7 +57,12 @@ class MotorWorkflow:
         return estados
 
     def validar_estado(self, estado_atual: str, acao: str) -> None:
-        """Valida se a ação está disponível no estado atual."""
+        """Valida se a ação está disponível no estado atual.
+
+        Args:
+            estado_atual (str): _description_
+            acao (str): _description_
+        """
         self._decisao_resolver.validar(estado_atual, acao)
 
     def executar(

@@ -1,7 +1,5 @@
 """Validação de estado e ação do workflow."""
 
-from typing import Any
-
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.excecoes import (
     AcaoInvalidaError,
@@ -12,9 +10,13 @@ from sme_workflow_sdk.excecoes import (
 class DecisaoResolver:
     """Valida se uma ação está disponível no estado informado."""
 
-    def __init__(self, configuracao: dict[str, Any]) -> None:
-        """Inicializa o resolvedor com a configuração do workflow."""
-        self._estados = configuracao["estados"]
+    def __init__(self, estados: dict[str, Estado]) -> None:
+        """Inicializa o resolvedor com a configuração do workflow.
+
+        Args:
+            estados (dict[str, Estado]): _description_
+        """
+        self._estados = estados
 
     def validar(self, estado_atual: str, acao: str) -> None:
         """Valida a existência do estado e a disponibilidade da ação.
@@ -39,7 +41,7 @@ class DecisaoResolver:
         Returns:
             Estado: _description_
         """
-        estado: Estado = self._estados.get(estado_atual)
+        estado = self._estados.get(estado_atual)
 
         if estado is None:
             raise EstadoInvalidoError(
