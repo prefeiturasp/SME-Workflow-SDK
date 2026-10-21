@@ -17,37 +17,15 @@ class DecisaoResolver:
         self._estados = configuracao["estados"]
 
     def validar(self, estado_atual: str, acao: str) -> None:
-        """Valida a existência do estado e a disponibilidade da ação."""
+        """Valida a existência do estado e a disponibilidade da ação.
+
+        Args:
+            estado_atual (str): _description_
+            acao (str): _description_
+        """
         estado = self._validar_estado(estado_atual)
         acao_configurada = self._validar_acao(estado, acao)
-
-        proximo_estado = acao_configurada.proximo_estado
-
-        if not isinstance(proximo_estado, str) or not proximo_estado.strip():
-            raise AcaoInvalidaError(
-                f"O próximo estado da ação '{acao}' no estado "
-                f"'{estado_atual}' é inválido."
-            )
-
-        if proximo_estado not in self._estados:
-            raise AcaoInvalidaError(
-                f"O próximo estado '{proximo_estado}' da ação '{acao}' "
-                "não existe na configuração."
-            )
-
-        terminal = acao_configurada.terminal
-
-        if not isinstance(terminal, bool):
-            raise AcaoInvalidaError(
-                f"O campo 'terminal' da ação '{acao}' no estado "
-                f"'{estado_atual}' deve ser booleano."
-            )
-
-        if not terminal and proximo_estado == estado_atual:
-            raise AcaoInvalidaError(
-                f"A ação '{acao}' do estado '{estado_atual}' não pode "
-                "retornar ao mesmo estado."
-            )
+        self._validar_transicao(estado_atual, acao_configurada)
 
     def _validar_estado(self, estado_atual: str) -> Estado:
         """Verifica se o estado informado existe.
@@ -92,3 +70,46 @@ class DecisaoResolver:
             )
 
         return acoes[nome_acao]
+
+    def _validar_transicao(
+        self,
+        estado_atual: str,
+        acao: Acao,
+    ) -> None:
+        """Verifica a consistência dos dados da transição.
+
+        Args:
+            estado_atual (str): _description_
+            acao (Acao): _description_
+
+        Raises:
+            AcaoInvalidaError: _description_
+            AcaoInvalidaError: _description_
+            AcaoInvalidaError: _description_
+            AcaoInvalidaError: _description_
+        """
+        proximo_estado = acao.proximo_estado
+
+        if not isinstance(proximo_estado, str) or not proximo_estado.strip():
+            raise AcaoInvalidaError(
+                f"O próximo estado da ação '{acao.nome}' no estado "
+                f"'{estado_atual}' é inválido."
+            )
+
+        if proximo_estado not in self._estados:
+            raise AcaoInvalidaError(
+                f"O próximo estado '{proximo_estado}' da ação "
+                f"'{acao.nome}' não existe na configuração."
+            )
+
+        if not isinstance(acao.terminal, bool):
+            raise AcaoInvalidaError(
+                f"O campo 'terminal' da ação '{acao.nome}' no estado "
+                f"'{estado_atual}' deve ser booleano."
+            )
+
+        if not acao.terminal and proximo_estado == estado_atual:
+            raise AcaoInvalidaError(
+                f"A ação '{acao.nome}' do estado '{estado_atual}' "
+                "não pode retornar ao mesmo estado."
+            )
