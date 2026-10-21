@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 
+from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
 from sme_workflow_sdk.configuracao import ConfiguradorWorkflow
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
@@ -249,3 +250,9 @@ def valor_invalido(request: pytest.FixtureRequest) -> Any:
 def valor_valido(request: pytest.FixtureRequest) -> Any:
     """Fornece cada valor válido de identificador, um por teste."""
     return request.param
+
+
+@pytest.fixture
+def resolvedor(workflow_exemplo_dict: dict[str, Any]) -> DecisaoResolver:
+    """Instância reutilizável do resolvedor para os testes.."""
+    return DecisaoResolver(workflow_exemplo_dict)
