@@ -28,3 +28,39 @@ class DecisaoResolver:
             raise AcaoInvalidaError(
                 f"A ação '{acao}' não é permitida no estado '{estado_atual}'."
             )
+
+        dados_acao = acoes[acao]
+
+        if not isinstance(dados_acao, dict):
+            raise AcaoInvalidaError(
+                f"Os dados da ação '{acao}' no estado '{estado_atual}' "
+                "são inválidos."
+            )
+
+        proximo_estado = dados_acao.get("proximo_estado")
+
+        if not isinstance(proximo_estado, str) or not proximo_estado.strip():
+            raise AcaoInvalidaError(
+                f"O próximo estado da ação '{acao}' no estado "
+                f"'{estado_atual}' é inválido."
+            )
+
+        if proximo_estado not in self._estados:
+            raise AcaoInvalidaError(
+                f"O próximo estado '{proximo_estado}' da ação '{acao}' "
+                "não existe na configuração."
+            )
+
+        terminal = dados_acao.get("terminal")
+
+        if not isinstance(terminal, bool):
+            raise AcaoInvalidaError(
+                f"O campo 'terminal' da ação '{acao}' no estado "
+                f"'{estado_atual}' deve ser booleano."
+            )
+
+        if not terminal and proximo_estado == estado_atual:
+            raise AcaoInvalidaError(
+                f"A ação '{acao}' do estado '{estado_atual}' não pode "
+                "retornar ao mesmo estado."
+            )
