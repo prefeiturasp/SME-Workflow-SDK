@@ -22,7 +22,8 @@ class DecisaoResolver:
                 f"O estado '{estado_atual}' não existe na configuração."
             )
 
-        acoes = self._estados[estado_atual]["acoes"]
+        estado = self._estados[estado_atual]
+        acoes = estado.acoes
 
         if acoes is None or acao not in acoes:
             raise AcaoInvalidaError(
@@ -30,14 +31,7 @@ class DecisaoResolver:
             )
 
         dados_acao = acoes[acao]
-
-        if not isinstance(dados_acao, dict):
-            raise AcaoInvalidaError(
-                f"Os dados da ação '{acao}' no estado '{estado_atual}' "
-                "são inválidos."
-            )
-
-        proximo_estado = dados_acao.get("proximo_estado")
+        proximo_estado = dados_acao.proximo_estado
 
         if not isinstance(proximo_estado, str) or not proximo_estado.strip():
             raise AcaoInvalidaError(
@@ -51,7 +45,7 @@ class DecisaoResolver:
                 "não existe na configuração."
             )
 
-        terminal = dados_acao.get("terminal")
+        terminal = dados_acao.terminal
 
         if not isinstance(terminal, bool):
             raise AcaoInvalidaError(
