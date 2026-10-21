@@ -1,6 +1,7 @@
 """Validação de estado e ação do workflow."""
 
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
+from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
 from sme_workflow_sdk.excecoes import (
     AcaoInvalidaError,
     EstadoInvalidoError,
@@ -18,16 +19,23 @@ class DecisaoResolver:
         """
         self._estados = estados
 
-    def validar(self, estado_atual: str, acao: str) -> None:
+    def validar(self, estado_atual: str, acao: str) -> ExecucaoValidada:
         """Valida a existência do estado e a disponibilidade da ação.
 
         Args:
             estado_atual (str): _description_
             acao (str): _description_
+
+        Returns:
+            ExecucaoValidada: _description_
         """
         estado = self._validar_estado(estado_atual)
         acao_configurada = self._validar_acao(estado, acao)
         self._validar_transicao(estado_atual, acao_configurada)
+        return ExecucaoValidada(
+            estado_atual=estado_atual,
+            acao=acao_configurada,
+        )
 
     def _validar_estado(self, estado_atual: str) -> Estado:
         """Verifica se o estado informado existe.

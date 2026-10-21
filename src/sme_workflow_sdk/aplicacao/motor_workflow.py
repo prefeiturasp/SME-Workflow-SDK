@@ -7,6 +7,7 @@ from typing import Any
 from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
 from sme_workflow_sdk.dominio import ContextoExecucao, ResultadoWorkflow
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
+from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
 
 
 class MotorWorkflow:
@@ -56,19 +57,21 @@ class MotorWorkflow:
 
         return estados
 
-    def validar_estado(self, estado_atual: str, acao: str) -> None:
+    def validar_estado(self, estado_atual: str, acao: str) -> ExecucaoValidada:
         """Valida se a ação está disponível no estado atual.
 
         Args:
             estado_atual (str): _description_
             acao (str): _description_
+
+        Returns:
+            ExecucaoValidada: _description_
         """
-        self._decisao_resolver.validar(estado_atual, acao)
+        return self._decisao_resolver.validar(estado_atual, acao)
 
     def executar(
         self,
-        estado_atual: str,
-        acao: str,
+        execucao: ExecucaoValidada,
         contexto: ContextoExecucao,
         inicio: datetime | None = None,
     ) -> ResultadoWorkflow:
@@ -78,8 +81,7 @@ class MotorWorkflow:
         concluir com sucesso sua regra de negócio.
 
         Args:
-            estado_atual: Estado atual do processo.
-            acao: Ação executada.
+            execucao: Estado atual do processo e Ação executada.
             contexto: Contexto da execução.
             inicio: Instante inicial da execução. Se omitido, usa o instante
                 atual em UTC.
@@ -87,6 +89,8 @@ class MotorWorkflow:
         Returns:
             ResultadoWorkflow: Resultado da transição configurada.
         """
+        estado_atual = execucao.estado_atual
+        acao = execucao.acao.nome
         self.validar_estado(estado_atual, acao)
 
         instante_fim = datetime.now(UTC)
