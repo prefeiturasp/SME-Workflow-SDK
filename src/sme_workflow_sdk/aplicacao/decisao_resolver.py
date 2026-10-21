@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from sme_workflow_sdk.dominio.entidades import Estado
+from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.excecoes import (
     AcaoInvalidaError,
     EstadoInvalidoError,
@@ -19,15 +19,9 @@ class DecisaoResolver:
     def validar(self, estado_atual: str, acao: str) -> None:
         """Valida a existência do estado e a disponibilidade da ação."""
         estado = self._validar_estado(estado_atual)
-        acoes = estado.acoes
+        acao_configurada = self._validar_acao(estado, acao)
 
-        if acoes is None or acao not in acoes:
-            raise AcaoInvalidaError(
-                f"A ação '{acao}' não é permitida no estado '{estado_atual}'."
-            )
-
-        dados_acao = acoes[acao]
-        proximo_estado = dados_acao.proximo_estado
+        proximo_estado = acao_configurada.proximo_estado
 
         if not isinstance(proximo_estado, str) or not proximo_estado.strip():
             raise AcaoInvalidaError(
@@ -41,7 +35,7 @@ class DecisaoResolver:
                 "não existe na configuração."
             )
 
-        terminal = dados_acao.terminal
+        terminal = acao_configurada.terminal
 
         if not isinstance(terminal, bool):
             raise AcaoInvalidaError(
@@ -75,3 +69,26 @@ class DecisaoResolver:
                 "configuração."
             )
         return estado
+
+    def _validar_acao(self, estado: Estado, nome_acao: str) -> Acao:
+        """Verifica se a ação está disponível no estado informado.
+
+        Args:
+            estado (Estado): _description_
+            nome_acao (str): _description_
+
+        Raises:
+            AcaoInvalidaError: _description_
+
+        Returns:
+            Acao: _description_
+        """
+        acoes = estado.acoes
+
+        if acoes is None or nome_acao not in acoes:
+            raise AcaoInvalidaError(
+                f"A ação '{nome_acao}' não é permitida "
+                f"no estado '{estado.nome}'."
+            )
+
+        return acoes[nome_acao]
