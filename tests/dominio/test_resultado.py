@@ -299,3 +299,140 @@ class TestResultadoWorkflow:
             "bem-sucedida e não terminal deve indicar um estado de destino "
             "diferente do estado anterior."
         )
+
+    def test_rejeita_estado_anterior_invalido(
+        self, valor_invalido: str, dados_resultado: dict[str, object]
+    ) -> None:
+        """Deve rejeitar estado_anterior fora da regra."""
+        with pytest.raises(
+            ValidacaoDominioError,
+        ) as exc:
+            ResultadoWorkflow(
+                identificador=cast(str, dados_resultado["identificador"]),
+                estado_anterior=valor_invalido,
+                acao=cast(str, dados_resultado["acao"]),
+                proximo_estado=cast(str, dados_resultado["proximo_estado"]),
+                terminal=cast(bool, dados_resultado["terminal"]),
+                sucesso=cast(bool, dados_resultado["sucesso"]),
+                mensagem=cast(str, dados_resultado["mensagem"]),
+                inicio=cast(datetime, dados_resultado["inicio"]),
+                fim=cast(datetime, dados_resultado["fim"]),
+                autor=cast(str, dados_resultado["autor"]),
+                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
+            )
+        assert (
+            f"ResultadoWorkflow.estado_anterior inválido ('{valor_invalido}')."
+            " O valor deve conter apenas letras e sublinhados ('_') entre "
+            "palavras (ex.: 'em_execucao'). Não são permitidos sublinhados no "
+            "início, no fim ou duplicados." in str(exc.value)
+        )
+
+    def test_aceita_estado_anterior_valido(
+        self, valor_valido: str, dados_resultado: dict[str, object]
+    ) -> None:
+        """Deve aceitar estado_anterior como válido."""
+
+        resultado = ResultadoWorkflow(
+            identificador=cast(str, dados_resultado["identificador"]),
+            estado_anterior=valor_valido,
+            acao=cast(str, dados_resultado["acao"]),
+            proximo_estado=cast(str, dados_resultado["proximo_estado"]),
+            terminal=cast(bool, dados_resultado["terminal"]),
+            sucesso=cast(bool, dados_resultado["sucesso"]),
+            mensagem=cast(str, dados_resultado["mensagem"]),
+            inicio=cast(datetime, dados_resultado["inicio"]),
+            fim=cast(datetime, dados_resultado["fim"]),
+            autor=cast(str, dados_resultado["autor"]),
+            contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
+        )
+        assert resultado.estado_anterior == valor_valido
+
+    def test_rejeita_acao_invalida(
+        self, valor_invalido: str, dados_resultado: dict[str, object]
+    ) -> None:
+        """Deve rejeitar acao fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            ResultadoWorkflow(
+                identificador=cast(str, dados_resultado["identificador"]),
+                estado_anterior=cast(str, dados_resultado["estado_anterior"]),
+                acao=valor_invalido,
+                proximo_estado=cast(str, dados_resultado["proximo_estado"]),
+                terminal=cast(bool, dados_resultado["terminal"]),
+                sucesso=cast(bool, dados_resultado["sucesso"]),
+                mensagem=cast(str, dados_resultado["mensagem"]),
+                inicio=cast(datetime, dados_resultado["inicio"]),
+                fim=cast(datetime, dados_resultado["fim"]),
+                autor=cast(str, dados_resultado["autor"]),
+                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
+            )
+        assert (
+            f"ResultadoWorkflow.acao inválido ('{valor_invalido}'). O valor "
+            "deve conter apenas letras e sublinhados ('_') entre palavras "
+            "(ex.: 'em_execucao'). Não são permitidos sublinhados no início, "
+            "no fim ou duplicados." in str(exc.value)
+        )
+
+    def test_aceita_acao_valida(
+        self, valor_valido: str, dados_resultado: dict[str, object]
+    ) -> None:
+        """Deve aceitar acao como válida."""
+
+        resultado = ResultadoWorkflow(
+            identificador=cast(str, dados_resultado["identificador"]),
+            estado_anterior=cast(str, dados_resultado["estado_anterior"]),
+            acao=valor_valido,
+            proximo_estado=cast(str, dados_resultado["proximo_estado"]),
+            terminal=cast(bool, dados_resultado["terminal"]),
+            sucesso=cast(bool, dados_resultado["sucesso"]),
+            mensagem=cast(str, dados_resultado["mensagem"]),
+            inicio=cast(datetime, dados_resultado["inicio"]),
+            fim=cast(datetime, dados_resultado["fim"]),
+            autor=cast(str, dados_resultado["autor"]),
+            contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
+        )
+        assert resultado.acao == valor_valido
+
+    def test_rejeita_proximo_estado_invalido(
+        self, valor_invalido: str, dados_resultado: dict[str, object]
+    ) -> None:
+        """Deve rejeitar proximo_estado fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            ResultadoWorkflow(
+                identificador=cast(str, dados_resultado["identificador"]),
+                estado_anterior=cast(str, dados_resultado["estado_anterior"]),
+                acao=cast(str, dados_resultado["acao"]),
+                proximo_estado=valor_invalido,
+                terminal=cast(bool, dados_resultado["terminal"]),
+                sucesso=cast(bool, dados_resultado["sucesso"]),
+                mensagem=cast(str, dados_resultado["mensagem"]),
+                inicio=cast(datetime, dados_resultado["inicio"]),
+                fim=cast(datetime, dados_resultado["fim"]),
+                autor=cast(str, dados_resultado["autor"]),
+                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
+            )
+        assert (
+            f"ResultadoWorkflow.proximo_estado inválido ('{valor_invalido}'). "
+            "O valor deve conter apenas letras e sublinhados ('_') entre "
+            "palavras (ex.: 'em_execucao'). Não são permitidos sublinhados no "
+            "início, no fim ou duplicados." in str(exc.value)
+        )
+
+    def test_aceita_proximo_estado_valido(
+        self, valor_valido: str, dados_resultado: dict[str, object]
+    ) -> None:
+        """Deve aceitar proximo_estado como válido."""
+
+        resultado = ResultadoWorkflow(
+            identificador=cast(str, dados_resultado["identificador"]),
+            estado_anterior=cast(str, dados_resultado["estado_anterior"]),
+            acao=cast(str, dados_resultado["acao"]),
+            proximo_estado=valor_valido,
+            terminal=cast(bool, dados_resultado["terminal"]),
+            sucesso=cast(bool, dados_resultado["sucesso"]),
+            mensagem=cast(str, dados_resultado["mensagem"]),
+            inicio=cast(datetime, dados_resultado["inicio"]),
+            fim=cast(datetime, dados_resultado["fim"]),
+            autor=cast(str, dados_resultado["autor"]),
+            contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
+        )
+        assert resultado.proximo_estado == valor_valido

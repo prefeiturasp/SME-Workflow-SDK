@@ -41,6 +41,36 @@ estados:
     acoes: null
 """
 
+VALORES_INVALIDOS_IDENTIFICADOR = [
+    "_",
+    "_privado",
+    "abc_",
+    "A_",
+    "a__b",
+    "__x",
+    "a_1",
+    "123abc",
+    "abc1",
+    "123",
+    "abc-def",
+    "abc def",
+    "abc.def",
+    "1.5",
+    "-42",
+    "execução",
+    "ação",
+]
+
+VALORES_VALIDOS_IDENTIFICADOR = [
+    "a",
+    "A",
+    "Acao",
+    "em_execucao",
+    "abc_def",
+    "abc_def_ghi",
+    "AbcDef",
+]
+
 
 @pytest.fixture
 def yaml_valido(tmp_path: Path) -> Path:
@@ -207,3 +237,15 @@ def dados_resultado() -> dict[str, object]:
         "autor": "usuario_1",
         "contexto": ContextoExecucao(autor="usuario_1"),
     }
+
+
+@pytest.fixture(params=VALORES_INVALIDOS_IDENTIFICADOR)
+def valor_invalido(request: pytest.FixtureRequest) -> Any:
+    """Fornece cada valor inválido de identificador, um por teste."""
+    return request.param
+
+
+@pytest.fixture(params=VALORES_VALIDOS_IDENTIFICADOR)
+def valor_valido(request: pytest.FixtureRequest) -> Any:
+    """Fornece cada valor válido de identificador, um por teste."""
+    return request.param

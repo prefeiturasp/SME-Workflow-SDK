@@ -65,6 +65,47 @@ class TestAcao:
             f"{type(terminal).__name__}"
         )
 
+    def test_rejeita_nome_invalido(self, valor_invalido: str) -> None:
+        """Deve rejeitar Acao.nome fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Acao(
+                nome=valor_invalido, proximo_estado="aprovado", terminal=False
+            )
+
+        assert (
+            f"Acao.nome inválido ('{valor_invalido}'). O valor deve conter "
+            "apenas letras e sublinhados ('_') entre palavras (ex.: "
+            "'em_execucao'). Não são permitidos sublinhados no início, no fim "
+            "ou duplicados." in str(exc.value)
+        )
+
+    def test_rejeita_proximo_estado_invalido(
+        self, valor_invalido: str
+    ) -> None:
+        """Deve rejeitar Acao.proximo_estado fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Acao(nome="aprovar", proximo_estado=valor_invalido, terminal=False)
+        assert (
+            f"Acao.proximo_estado inválido ('{valor_invalido}'). O valor deve "
+            "conter apenas letras e sublinhados ('_') entre palavras (ex.: "
+            "'em_execucao'). Não são permitidos sublinhados no início, no fim "
+            "ou duplicados." in str(exc.value)
+        )
+
+    def test_aceita_nome_valido(self, valor_valido: str) -> None:
+        """Deve aceitar Acao.nome válido."""
+        acao = Acao(
+            nome=valor_valido, proximo_estado="aprovado", terminal=False
+        )
+        assert acao.nome == valor_valido
+
+    def test_aceita_proximo_estado_valido(self, valor_valido: str) -> None:
+        """Deve aceitar Acao.proximo_estado válido."""
+        acao = Acao(
+            nome="aprovar", proximo_estado=valor_valido, terminal=False
+        )
+        assert acao.proximo_estado == valor_valido
+
 
 class TestEstado:
     """Validação da entidade Estado."""
@@ -136,6 +177,55 @@ class TestEstado:
             == "Estado.acoes[aprovar] deve ser Acao, recebido str"
         )
 
+    def test_rejeita_nome_invalido(self, valor_invalido: str) -> None:
+        """Deve rejeitar Estado.nome fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Estado(nome=valor_invalido, acoes=None)
+
+        assert (
+            f"Estado.nome inválido ('{valor_invalido}'). O valor deve conter "
+            "apenas letras e sublinhados ('_') entre palavras (ex.: "
+            "'em_execucao'). Não são permitidos sublinhados no início, no fim "
+            "ou duplicados." in str(exc.value)
+        )
+
+    def test_rejeita_chave_de_acao_invalida(self, valor_invalido: str) -> None:
+        """Deve rejeitar chaves de Estado.acoes fora da regra."""
+        acao = Acao(nome="aprovar", proximo_estado="aprovado", terminal=False)
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Estado(nome="aberto", acoes={valor_invalido: acao})
+        assert (
+            f"Estado.acoes[{valor_invalido}] inválido ('{valor_invalido}'). O "
+            "valor deve conter apenas letras e sublinhados ('_') entre "
+            "palavras (ex.: 'em_execucao'). Não são permitidos sublinhados no "
+            "início, no fim ou duplicados." in str(exc.value)
+        )
+
+    def test_aceita_nome_valido(self, valor_valido: str) -> None:
+        """Deve aceitar Estado.nome válido."""
+        estado = Estado(nome=valor_valido, acoes=None)
+        assert estado.nome == valor_valido
+
+    def test_aceita_chaves_de_acao_validas(self) -> None:
+        """Deve aceitar chaves de Estado.acoes válidas."""
+        estado = Estado(
+            nome="aberto",
+            acoes={
+                "aprovar": Acao(
+                    nome="aprovar",
+                    proximo_estado="aprovado",
+                    terminal=False,
+                ),
+                "rejeitar": Acao(
+                    nome="rejeitar",
+                    proximo_estado="concluido",
+                    terminal=True,
+                ),
+            },
+        )
+        assert estado.acoes
+        assert set(estado.acoes.keys()) == {"aprovar", "rejeitar"}
+
 
 class TestTransicao:
     """Validação da entidade Transicao."""
@@ -205,3 +295,67 @@ class TestTransicao:
         assert (
             str(exc.value) == "Transicao.terminal deve ser bool, recebido int"
         )
+
+    def test_rejeita_estado_anterior_invalido(
+        self, valor_invalido: str
+    ) -> None:
+        """Deve rejeitar Transicao.estado_anterior fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Transicao(
+                estado_anterior=valor_invalido,
+                acao="aprovar",
+                proximo_estado="aprovado",
+                terminal=False,
+            )
+        assert (
+            f"Transicao.estado_anterior inválido ('{valor_invalido}'). O valor"
+            " deve conter apenas letras e sublinhados ('_') entre palavras "
+            "(ex.: 'em_execucao'). Não são permitidos sublinhados no início, "
+            "no fim ou duplicados." in str(exc.value)
+        )
+
+    def test_rejeita_acao_invalida(self, valor_invalido: str) -> None:
+        """Deve rejeitar Transicao.acao fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Transicao(
+                estado_anterior="aberto",
+                acao=valor_invalido,
+                proximo_estado="aprovado",
+                terminal=False,
+            )
+        assert (
+            f"Transicao.acao inválido ('{valor_invalido}'). O valor deve "
+            "conter apenas letras e sublinhados ('_') entre palavras (ex.: "
+            "'em_execucao'). Não são permitidos sublinhados no início, no fim "
+            "ou duplicados." in str(exc.value)
+        )
+
+    def test_rejeita_proximo_estado_invalido(
+        self, valor_invalido: str
+    ) -> None:
+        """Deve rejeitar Transicao.proximo_estado fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            Transicao(
+                estado_anterior="aberto",
+                acao="aprovar",
+                proximo_estado=valor_invalido,
+                terminal=False,
+            )
+        assert (
+            f"Transicao.proximo_estado inválido ('{valor_invalido}'). O valor "
+            "deve conter apenas letras e sublinhados ('_') entre palavras "
+            "(ex.: 'em_execucao'). Não são permitidos sublinhados no início, "
+            "no fim ou duplicados." in str(exc.value)
+        )
+
+    def test_aceita_transicao_valida(self) -> None:
+        """Deve aceitar Transicao com todos os campos válidos."""
+        t = Transicao(
+            estado_anterior="aberto",
+            acao="aprovar",
+            proximo_estado="aprovado",
+            terminal=False,
+        )
+        assert t.estado_anterior == "aberto"
+        assert t.acao == "aprovar"
+        assert t.proximo_estado == "aprovado"

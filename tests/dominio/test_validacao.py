@@ -6,6 +6,7 @@ import pytest
 
 from sme_workflow_sdk.dominio.validacao import (
     validar_booleano,
+    validar_identificador,
     validar_mapping,
     validar_string_nao_vazia,
     validar_tipo,
@@ -125,4 +126,72 @@ class TestValidarMapping:
         assert (
             str(exc.value)
             == f"Tipo.campo deve ser Mapping, recebido {type(valor).__name__}"
+        )
+
+
+class TestValidarIdentificador:
+    """Testes unitários para validar_identificador."""
+
+    @pytest.mark.parametrize(
+        "valor",
+        [
+            "a",
+            "A",
+            "Acao",
+            "em_execucao",
+            "abc_def",
+            "abc_def_ghi",
+            "AbcDef",
+            "a_b_c_d_e",
+        ],
+    )
+    def test_aceita_identificadores_validos(self, valor: str) -> None:
+        """Deve aceitar letras com '_' apenas entre palavras."""
+        validar_identificador(valor, "campo_teste")
+
+    @pytest.mark.parametrize(
+        "valor",
+        [
+            "_",
+            "_privado",
+            "abc_",
+            "A_",
+            "a__b",
+            "__x",
+            "_a_",
+            "123abc",
+            "abc123",
+            "123",
+            "a1",
+            "a_1",
+            "1_a",
+            "abc-def",
+            "abc def",
+            "abc.def",
+            "1.5",
+            "-42",
+            "abc@def",
+            "abc+def",
+            "abc/def",
+            "execução",
+            "ação",
+            "Ação",
+            "abc\tdef",
+            "abc\ndef",
+            "abc\rdef",
+            " abc",
+            "abc ",
+            " abc ",
+        ],
+    )
+    def test_rejeita_identificadores_invalidos(self, valor: str) -> None:
+        """Deve rejeitar identificadores fora da regra."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            validar_identificador(valor, "campo_teste")
+
+        assert (
+            f"campo_teste inválido ('{valor}'). O valor deve conter apenas "
+            "letras e sublinhados ('_') entre palavras (ex.: 'em_execucao'). "
+            "Não são permitidos sublinhados no início, no fim ou duplicados."
+            in str(exc.value)
         )
