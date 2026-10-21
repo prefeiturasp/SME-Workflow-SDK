@@ -2,6 +2,7 @@
 
 from sme_workflow_sdk.excecoes.base import (
     LeitorWorkflowError,
+    ValidacaoDominioError,
     ValidadorWorkflowError,
 )
 from sme_workflow_sdk.excecoes.configuracao import (
@@ -20,4 +21,5 @@ __all__ = [
     "EstadoInvalidoError",
     "ValidadorWorkflowError",
     "AcaoInvalidaError",
+    "ValidacaoDominioError",
 ]
