@@ -5,9 +5,10 @@ from datetime import UTC, datetime
 from typing import Any
 
 from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
-from sme_workflow_sdk.dominio import ContextoExecucao, ResultadoWorkflow
+from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
+from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
 
 
 class MotorWorkflow:

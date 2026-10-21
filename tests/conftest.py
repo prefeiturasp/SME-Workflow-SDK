@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
+from sme_workflow_sdk import ConfiguradorWorkflow
 from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
-from sme_workflow_sdk.configuracao import ConfiguradorWorkflow
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao

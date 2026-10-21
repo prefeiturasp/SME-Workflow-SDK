@@ -3,7 +3,7 @@ from typing import cast
 
 import pytest
 
-from sme_workflow_sdk.dominio import ContextoExecucao, ResultadoWorkflow
+from sme_workflow_sdk import ContextoExecucao, ResultadoWorkflow
 from sme_workflow_sdk.excecoes.base import ValidacaoDominioError
 
 
