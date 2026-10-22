@@ -25,10 +25,13 @@ class ExecucaoValidada:
     def __post_init__(self) -> None:
         """Valida os atributos da execução.
 
+        Verifica se o estado atual é uma string não vazia, se a ação é
+        uma instância de Acao e se o horário de início é um datetime
+        com fuso horário definido.
+
         Raises:
-            ValidacaoDominioError: _description_
-            ValidacaoDominioError: _description_
-            ValidacaoDominioError: _description_
+            ValidacaoDominioError: Se algum atributo não respeitar
+                o contrato da execução validada.
         """
         validar_string_nao_vazia(
             self.estado_atual, "ExecucaoValidada.estado_atual"
