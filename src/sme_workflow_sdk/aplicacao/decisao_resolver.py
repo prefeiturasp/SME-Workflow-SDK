@@ -48,16 +48,16 @@ class DecisaoResolver:
         )
 
     def _validar_estado(self, estado_atual: str) -> Estado:
-        """Verifica se o estado informado existe.
+        """Obtém o estado informado ou lança uma exceção.
 
         Args:
-            estado_atual (str): _description_
+            estado_atual (str): Nome do estado que será localizado.
 
         Raises:
-            EstadoInvalidoError: _description_
+            EstadoInvalidoError: Se o estado não estiver configurado.
 
         Returns:
-            Estado: _description_
+            Estado: Entidade correspondente ao estado informado.
         """
         estado = self._estados.get(estado_atual)
 
@@ -69,17 +69,18 @@ class DecisaoResolver:
         return estado
 
     def _validar_acao(self, estado: Estado, nome_acao: str) -> Acao:
-        """Verifica se a ação está disponível no estado informado.
+        """Obtém a ação configurada para o estado informado.
 
         Args:
-            estado (Estado): _description_
-            nome_acao (str): _description_
+            estado (Estado): Estado em que a ação será procurada.
+            nome_acao (str): Nome da ação solicitada.
 
         Raises:
-            AcaoInvalidaError: _description_
+            AcaoInvalidaError: Se o estado não possuir ações ou se a ação
+                solicitada não estiver disponível nele.
 
         Returns:
-            Acao: _description_
+            Acao:  Entidade correspondente à ação configurada.
         """
         acoes = estado.acoes
 
@@ -96,17 +97,22 @@ class DecisaoResolver:
         estado_atual: str,
         acao: Acao,
     ) -> None:
-        """Verifica a consistência dos dados da transição.
+        """Valida a consistência dos dados da transição.
+
+        Verifica se o próximo estado existe, se o atributo terminal é
+        booleano e se uma transição não terminal evita retornar ao
+        mesmo estado.
 
         Args:
-            estado_atual (str): _description_
-            acao (Acao): _description_
+            estado_atual (str):  Nome do estado de origem da transição.
+            acao (Acao): Entidade que contém os dados da ação e da transição.
 
         Raises:
-            AcaoInvalidaError: _description_
-            AcaoInvalidaError: _description_
-            AcaoInvalidaError: _description_
-            AcaoInvalidaError: _description_
+            AcaoInvalidaError:
+                - Se o próximo estado for inválido ou não estiver configurado
+                - se terminal não for booleano
+                - se a transição não terminal retornar ao estado de origem.
+
         """
         proximo_estado = acao.proximo_estado
 
