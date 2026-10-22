@@ -4,7 +4,10 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from sme_workflow_sdk.dominio.entidades import Acao
-from sme_workflow_sdk.dominio.validacao import validar_string_nao_vazia
+from sme_workflow_sdk.dominio.validacao import (
+    validar_identificador,
+    validar_string_nao_vazia,
+)
 from sme_workflow_sdk.excecoes import ValidacaoDominioError
 
 
@@ -36,6 +39,10 @@ class ExecucaoValidada:
         validar_string_nao_vazia(
             self.estado_atual, "ExecucaoValidada.estado_atual"
         )
+        validar_identificador(
+            self.estado_atual, "ExecucaoValidada.estado_atual"
+        )
+
         if not isinstance(self.acao, Acao):
             raise ValidacaoDominioError(
                 "ExecucaoValidada.acao deve ser uma instância de Acao."

@@ -53,6 +53,20 @@ class TestExecucaoValidada:
             == "ExecucaoValidada.estado_atual não pode ser vazio"
         )
 
+    def test_rejeita_estado_invalido(
+        self, acao: Acao, valor_invalido: str
+    ) -> None:
+        """Não deve aceitar um estado vazio."""
+        with pytest.raises(ValidacaoDominioError) as exc:
+            ExecucaoValidada(estado_atual=valor_invalido, acao=acao)
+
+        assert (
+            f"ExecucaoValidada.estado_atual inválido ('{valor_invalido}'). O "
+            "valor deve conter apenas letras e sublinhados ('_') entre "
+            "palavras (ex.: 'em_execucao'). Não são permitidos sublinhados no "
+            "início, no fim ou duplicados." in str(exc.value)
+        )
+
     def test_rejeita_acao_com_tipo_invalido(self) -> None:
         """Deve rejeitar um objeto que não seja uma instância de Acao."""
         with pytest.raises(ValidacaoDominioError) as exc:
