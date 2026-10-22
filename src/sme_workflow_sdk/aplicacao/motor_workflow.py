@@ -17,7 +17,8 @@ class MotorWorkflow:
         """Inicializa o motor com uma configuração previamente validada.
 
         Args:
-            configuracao (dict[str, Any]): _description_
+            configuracao (dict[str, Any]): Configuração do workflow carregada
+                do YAML e validada pelo ConfiguradorWorkflow.
         """
         self._configuracao = configuracao
         self._estados = self._converter_estados(configuracao)
@@ -27,13 +28,17 @@ class MotorWorkflow:
     def _converter_estados(
         configuracao: dict[str, Any],
     ) -> dict[str, Estado]:
-        """Converte a configuração YAML em entidades do domínio.
+        """Converte os estados da configuração em entidades do domínio.
+
+        Transforma os dados de estados e ações da configuração em
+        instâncias de Estado e Acao.
 
         Args:
-            configuracao (dict[str, Any]): _description_
+            configuracao (dict[str, Any]): Configuração validada contendo os
+                estados e suas respectivas ações.
 
         Returns:
-            dict[str, Estado]: _description_
+            dict[str, Estado]: Estados indexados por seus nomes.
         """
         estados: dict[str, Estado] = {}
 
@@ -58,14 +63,22 @@ class MotorWorkflow:
         return estados
 
     def validar(self, estado_atual: str, acao: str) -> ExecucaoValidada:
-        """Valida se a ação está disponível no estado atual.
+        """Valida uma ação do workflow.
+
+        Delega ao DecisaoResolver a validação do estado, da ação e da
+        consistência da transição configurada.
 
         Args:
-            estado_atual (str): _description_
-            acao (str): _description_
+            estado_atual (str): Nome do estado atual do workflow.
+            acao (str): Nome da ação que se deseja executar.
+
+        Raises:
+            EstadoInvalidoError: Se o estado não estiver configurado.
+            AcaoInvalidaError: Se a ação não for permitida ou se os dados
+                da transição forem inválidos.
 
         Returns:
-            ExecucaoValidada: _description_
+            ExecucaoValidada: Dados validados para a execução.
         """
         return self._decisao_resolver.validar(estado_atual, acao)
 
@@ -74,17 +87,21 @@ class MotorWorkflow:
         dados_transicao: ExecucaoValidada,
         contexto: ContextoExecucao,
     ) -> ResultadoWorkflow:
-        """Resolve a transição após a aplicação confirmar a regra de negócio.
+        """Produz o resultado de uma execução validada do workflow.
 
-        Este método deve ser chamado somente após a aplicação consumidora
-        concluir com sucesso sua regra de negócio.
+        Deve ser chamado após a aplicação consumidora concluir com sucesso
+        a regra de negócio associada à ação. Não executa regras de negócio
+        nem persiste alterações.
 
         Args:
-            dados_transicao (ExecucaoValidada): _description_
-            contexto (ContextoExecucao): _description_
+            dados_transicao (ExecucaoValidada): Dados da ação previamente
+                validados.
+            contexto (ContextoExecucao): Contexto da execução, incluindo
+                identificador, autor e dados adicionais.
 
         Returns:
-            ResultadoWorkflow: Resultado da transição configurada.
+            ResultadoWorkflow: Resultado da transição, contendo os estados,
+                a ação executada, os horários e o contexto da execução.
         """
         estado_atual = dados_transicao.estado_atual
         acao = dados_transicao.acao
