@@ -11,6 +11,7 @@ from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
+from sme_workflow_sdk.dominio.entidades import Acao
 
 WORKFLOW_EXEMPLO = """\
 estados:
@@ -256,3 +257,13 @@ def valor_valido(request: pytest.FixtureRequest) -> Any:
 def resolvedor(workflow_exemplo_dict: dict[str, Any]) -> DecisaoResolver:
     """Instância reutilizável do resolvedor para os testes.."""
     return DecisaoResolver(workflow_exemplo_dict)
+
+
+@pytest.fixture
+def acao() -> Acao:
+    """Retorna uma ação válida para os testes."""
+    return Acao(
+        nome="aprovar",
+        proximo_estado="aprovado",
+        terminal=True,
+    )
