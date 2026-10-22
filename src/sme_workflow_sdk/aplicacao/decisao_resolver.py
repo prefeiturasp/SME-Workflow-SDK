@@ -9,32 +9,42 @@ from sme_workflow_sdk.excecoes import (
 
 
 class DecisaoResolver:
-    """Valida se uma ação está disponível no estado informado."""
+    """Valida estados, ações e consistência das transições do workflow."""
 
     def __init__(self, estados: dict[str, Estado]) -> None:
         """Inicializa o resolvedor com a configuração do workflow.
 
         Args:
-            estados (dict[str, Estado]): _description_
+            estados (dict[str, Estado]): Dicionário de estados indexados por
+                seus nomes.
         """
         self._estados = estados
 
     def validar(self, estado_atual: str, acao: str) -> ExecucaoValidada:
-        """Valida a existência do estado e a disponibilidade da ação.
+        """Valida uma ação e retorna os dados da execução validada.
+
+        Verifica a existência do estado, a disponibilidade da ação e a
+        consistência dos dados da transição configurada.
 
         Args:
-            estado_atual (str): _description_
-            acao (str): _description_
+            estado_atual (str): Nome do estado atual do workflow.
+            acao (str): Nome da ação solicitada.
+
+        Raises:
+            EstadoInvalidoError: Se o estado informado não existir.
+            AcaoInvalidaError: Se a ação não for permitida ou se os dados
+                da transição forem inválidos.
 
         Returns:
-            ExecucaoValidada: _description_
+            ExecucaoValidada: Dados da execução após a validação.
+
+
         """
         estado = self._validar_estado(estado_atual)
         acao_configurada = self._validar_acao(estado, acao)
         self._validar_transicao(estado_atual, acao_configurada)
         return ExecucaoValidada(
-            estado_atual=estado_atual,
-            acao=acao_configurada,
+            estado_atual=estado_atual, acao=acao_configurada
         )
 
     def _validar_estado(self, estado_atual: str) -> Estado:

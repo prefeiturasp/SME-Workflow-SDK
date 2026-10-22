@@ -1,6 +1,5 @@
 """Motor responsável por coordenar a execução do workflow."""
 
-from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any
 
@@ -58,7 +57,7 @@ class MotorWorkflow:
 
         return estados
 
-    def validar_estado(self, estado_atual: str, acao: str) -> ExecucaoValidada:
+    def validar(self, estado_atual: str, acao: str) -> ExecucaoValidada:
         """Valida se a ação está disponível no estado atual.
 
         Args:
@@ -72,9 +71,8 @@ class MotorWorkflow:
 
     def executar(
         self,
-        execucao: ExecucaoValidada,
+        dados_transicao: ExecucaoValidada,
         contexto: ContextoExecucao,
-        inicio: datetime | None = None,
     ) -> ResultadoWorkflow:
         """Resolve a transição após a aplicação confirmar a regra de negócio.
 
@@ -82,35 +80,24 @@ class MotorWorkflow:
         concluir com sucesso sua regra de negócio.
 
         Args:
-            execucao: Estado atual do processo e Ação executada.
-            contexto: Contexto da execução.
-            inicio: Instante inicial da execução. Se omitido, usa o instante
-                atual em UTC.
+            dados_transicao (ExecucaoValidada): _description_
+            contexto (ContextoExecucao): _description_
 
         Returns:
             ResultadoWorkflow: Resultado da transição configurada.
         """
-        estado_atual = execucao.estado_atual
-        acao = execucao.acao.nome
-        self.validar_estado(estado_atual, acao)
-
-        instante_fim = datetime.now(UTC)
-        instante_inicio = inicio or instante_fim
-
-        dados_acao: Mapping[str, Any] = self._configuracao["estados"][
-            estado_atual
-        ]["acoes"][acao]
-
+        estado_atual = dados_transicao.estado_atual
+        acao = dados_transicao.acao
         return ResultadoWorkflow(
             identificador=contexto.identificador,
             estado_anterior=estado_atual,
-            acao=acao,
-            proximo_estado=dados_acao["proximo_estado"],
-            terminal=dados_acao["terminal"],
+            acao=acao.nome,
+            proximo_estado=acao.proximo_estado,
+            terminal=acao.terminal,
             sucesso=True,
-            inicio=instante_inicio,
-            fim=instante_fim,
+            inicio=dados_transicao.inicio_transicao,
+            fim=datetime.now(UTC),
             autor=contexto.autor,
             contexto=contexto,
-            mensagem="OK",
+            mensagem="Transicao executada com sucesso!",
         )
