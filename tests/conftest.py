@@ -8,6 +8,7 @@ import pytest
 
 from sme_workflow_sdk import ConfiguradorWorkflow
 from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
+from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
@@ -305,4 +306,20 @@ def acao() -> Acao:
         nome="aprovar",
         proximo_estado="aprovado",
         terminal=True,
+    )
+
+
+@pytest.fixture
+def motor(workflow_exemplo_dict: dict[str, Any]) -> MotorWorkflow:
+    """Fornece um motor inicializado com a configuração de teste."""
+    return MotorWorkflow(workflow_exemplo_dict)
+
+
+@pytest.fixture
+def contexto() -> ContextoExecucao:
+    """Fornece um contexto de execução."""
+    return ContextoExecucao(
+        identificador="execucao-123",
+        autor="usuario-teste",
+        dados={"origem": "teste"},
     )
