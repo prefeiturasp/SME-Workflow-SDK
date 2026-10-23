@@ -252,3 +252,80 @@ class TestDecisaoResolverValidacaoEstado:
             str(exc.value)
             == "O estado 'inexistente' não existe no arquivo de configuração."
         )
+
+
+class TestDecisaoResolverValidacaoAcao:
+    """Testes da disponibilidade de ações."""
+
+    def test_aceita_acao_configurada(
+        self,
+        resolvedor: DecisaoResolver,
+    ) -> None:
+        """Deve aceitar uma ação disponível no estado atual."""
+        resultado = resolvedor.validar("aberto", "aprovar")
+
+        assert resultado.acao.nome == "aprovar"
+        assert resultado.acao.proximo_estado == "aprovado"
+        assert resultado.acao.terminal is True
+
+    def test_retorna_a_entidade_acao_configurada(
+        self,
+        estados: dict[str, Estado],
+    ) -> None:
+        """Deve preservar a entidade de ação presente na configuração."""
+        acao = estados["aberto"].acoes["aprovar"]
+        resolver = DecisaoResolver(estados)
+
+        resultado = resolver.validar("aberto", "aprovar")
+
+        assert resultado.acao is acao
+
+    @pytest.mark.parametrize(
+        "nome_acao",
+        ["cancelar", "excluir", "aprovar "],
+    )
+    def test_rejeita_acao_nao_configurada(
+        self,
+        resolvedor: DecisaoResolver,
+        nome_acao: str,
+    ) -> None:
+        """Deve rejeitar ações que não estejam disponíveis."""
+        with pytest.raises(AcaoInvalidaError) as exc:
+            resolvedor.validar("aberto", nome_acao)
+
+        assert (
+            str(exc.value)
+            == f"A ação '{nome_acao}' não é permitida no estado 'aberto'."
+        )
+
+    @pytest.mark.parametrize(
+        "estado_atual",
+        ["aprovado", "rejeitado"],
+    )
+    def test_rejeita_acao_em_estado_sem_acoes(
+        self,
+        resolvedor: DecisaoResolver,
+        estado_atual: str,
+    ) -> None:
+        """Deve rejeitar ações quando o estado possui acoes=None."""
+        with pytest.raises(AcaoInvalidaError) as exc:
+            resolvedor.validar(estado_atual, "aprovar")
+
+        assert (
+            str(exc.value)
+            == f"A ação 'aprovar' não é permitida no estado '{estado_atual}'."
+        )
+
+    def test_rejeita_acao_com_mapeamento_vazio(
+        self,
+    ) -> None:
+        """Deve rejeitar ações quando o estado possui um mapeamento vazio."""
+        resolver = DecisaoResolver({"aberto": Estado(nome="aberto", acoes={})})
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            resolver.validar("aberto", "aprovar")
+
+        assert (
+            str(exc.value)
+            == "A ação 'aprovar' não é permitida no estado 'aberto'."
+        )
