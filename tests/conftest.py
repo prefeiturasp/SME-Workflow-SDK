@@ -263,11 +263,26 @@ def estados() -> dict[str, Estado]:
                 "aprovar": Acao(
                     nome="aprovar",
                     proximo_estado="aprovado",
-                    terminal=False,
+                    terminal=True,
                 ),
                 "rejeitar": Acao(
                     nome="rejeitar",
                     proximo_estado="rejeitado",
+                    terminal=True,
+                ),
+                "enviar_para_analise": Acao(
+                    nome="enviar_para_analise",
+                    proximo_estado="em_analise",
+                    terminal=False,
+                ),
+            },
+        ),
+        "em_analise": Estado(
+            nome="em_analise",
+            acoes={
+                "aprovar": Acao(
+                    nome="aprovar",
+                    proximo_estado="aprovado",
                     terminal=True,
                 ),
             },

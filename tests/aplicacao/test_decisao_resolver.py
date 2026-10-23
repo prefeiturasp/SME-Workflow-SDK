@@ -178,3 +178,31 @@ class TestDecisaoResolver:
             resolver.validar("aberto", "aprovar")
 
         assert str(exc.value) == mensagem
+
+
+class TestDecisaoResolverInicializacao:
+    """Testes da inicialização do resolvedor."""
+
+    def test_inicializa_com_configuracao_vazia(self) -> None:
+        """Deve aceitar um mapeamento vazio na inicialização."""
+        resolver = DecisaoResolver(estados={})
+
+        with pytest.raises(EstadoInvalidoError) as exc:
+            resolver.validar("aberto", "aprovar")
+
+        assert (
+            str(exc.value)
+            == "O estado 'aberto' não existe no arquivo de configuração."
+        )
+
+    def test_inicializa_com_varios_estados(
+        self,
+        estados: dict[str, Estado],
+    ) -> None:
+        """Deve aceitar uma configuração com vários estados."""
+        resolver = DecisaoResolver(estados)
+
+        resultado = resolver.validar("em_analise", "aprovar")
+
+        assert resultado.estado_atual == "em_analise"
+        assert resultado.acao.nome == "aprovar"
