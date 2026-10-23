@@ -519,3 +519,36 @@ class TestDecisaoResolverValidacaoTransicao:
 
         assert resultado.acao.proximo_estado == "aprovado"
         assert resultado.acao.terminal is terminal
+
+
+class TestDecisaoResolverIndependencia:
+    """Testes para garantir que cada validação usa os dados recebidos."""
+
+    def test_valida_acoes_de_estados_diferentes(
+        self,
+        resolvedor: DecisaoResolver,
+    ) -> None:
+        """Deve resolver corretamente ações em estados diferentes."""
+        primeira = resolvedor.validar("aberto", "enviar_para_analise")
+        segunda = resolvedor.validar("em_analise", "aprovar")
+
+        assert primeira.estado_atual == "aberto"
+        assert primeira.acao.nome == "enviar_para_analise"
+        assert primeira.acao.proximo_estado == "em_analise"
+
+        assert segunda.estado_atual == "em_analise"
+        assert segunda.acao.nome == "aprovar"
+        assert segunda.acao.proximo_estado == "aprovado"
+
+    def test_erro_em_uma_validacao_nao_afeta_a_seguinte(
+        self,
+        resolvedor: DecisaoResolver,
+    ) -> None:
+        """Uma validação inválida não deve impedir uma válida posterior."""
+        with pytest.raises(EstadoInvalidoError):
+            resolvedor.validar("inexistente", "aprovar")
+
+        resultado = resolvedor.validar("aberto", "aprovar")
+
+        assert resultado.estado_atual == "aberto"
+        assert resultado.acao.nome == "aprovar"
