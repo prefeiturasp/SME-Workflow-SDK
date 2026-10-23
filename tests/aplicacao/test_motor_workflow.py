@@ -1,10 +1,14 @@
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
 
 from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
+from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
+from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
+from sme_workflow_sdk.excecoes.base import ValidacaoDominioError
 from sme_workflow_sdk.excecoes.configuracao import (
     AcaoInvalidaError,
     EstadoInvalidoError,
@@ -202,3 +206,180 @@ class TestMotorWorkflowValidacao:
         assert segunda.acao.proximo_estado == "rejeitado"
 
         assert primeira is not segunda
+
+
+class TestMotorWorkflowExecucao:
+    """Testes da montagem do resultado da execução."""
+
+    def test_executa_transicao_com_sucesso(
+        self,
+        motor: MotorWorkflow,
+        contexto: ContextoExecucao,
+    ) -> None:
+        """Deve montar um resultado de sucesso para a transição."""
+        inicio = datetime(2026, 10, 23, 12, 0, tzinfo=UTC)
+        dados_transicao = ExecucaoValidada(
+            estado_atual="aberto",
+            acao=Acao(
+                nome="aprovar",
+                proximo_estado="aprovado",
+                terminal=True,
+            ),
+            inicio_transicao=inicio,
+        )
+
+        resultado = motor.executar(dados_transicao, contexto)
+
+        assert isinstance(resultado, ResultadoWorkflow)
+        assert resultado.identificador == contexto.identificador
+        assert resultado.estado_anterior == "aberto"
+        assert resultado.acao == "aprovar"
+        assert resultado.proximo_estado == "aprovado"
+        assert resultado.terminal is True
+        assert resultado.sucesso is True
+        assert resultado.inicio == inicio
+        assert resultado.fim >= resultado.inicio
+        assert resultado.fim.tzinfo == UTC
+        assert resultado.autor == contexto.autor
+        assert resultado.contexto is contexto
+        assert resultado.mensagem == "Transicao executada com sucesso!"
+
+    def test_executa_transicao_nao_terminal(
+        self,
+        motor: MotorWorkflow,
+        contexto: ContextoExecucao,
+    ) -> None:
+        """Deve preservar o destino e o indicador de transição não terminal."""
+        dados_transicao = motor.validar("aberto", "rejeitar")
+
+        resultado = motor.executar(dados_transicao, contexto)
+
+        assert resultado.estado_anterior == "aberto"
+        assert resultado.acao == "rejeitar"
+        assert resultado.proximo_estado == "rejeitado"
+        assert resultado.terminal is True
+        assert resultado.sucesso is True
+
+    def test_preserva_identificador_e_autor_do_contexto(
+        self,
+        motor: MotorWorkflow,
+    ) -> None:
+        """Deve utilizar os dados de identificação do contexto recebido."""
+        contexto = ContextoExecucao(
+            identificador="25284f10-7358-4355-bce3-12c399172a30",
+            autor="Autor 0003",
+        )
+        dados_transicao = motor.validar("aberto", "aprovar")
+
+        resultado = motor.executar(dados_transicao, contexto)
+
+        assert (
+            resultado.identificador == "25284f10-7358-4355-bce3-12c399172a30"
+        )
+        assert resultado.autor == "Autor 0003"
+
+    def test_preserva_contexto_com_dados(
+        self,
+        motor: MotorWorkflow,
+    ) -> None:
+        """Deve preservar o contexto e os dados fornecidos."""
+        contexto = ContextoExecucao(
+            identificador="25284f10-7358-4355-bce3-12c399172a30",
+            autor="Diretor 9635",
+            dados={"origem": "portal", "prioridade": "alta"},
+        )
+        dados_transicao = motor.validar("aberto", "aprovar")
+
+        resultado = motor.executar(dados_transicao, contexto)
+
+        assert resultado.contexto is contexto
+        assert resultado.contexto.dados["origem"] == "portal"
+        assert resultado.contexto.dados["prioridade"] == "alta"
+
+    def test_gera_datas_com_fuso_utc(
+        self,
+        motor: MotorWorkflow,
+        contexto: ContextoExecucao,
+    ) -> None:
+        """Deve gerar a data final com fuso UTC."""
+        dados_transicao = motor.validar("aberto", "aprovar")
+
+        resultado = motor.executar(dados_transicao, contexto)
+
+        assert resultado.inicio.tzinfo == UTC
+        assert resultado.fim.tzinfo == UTC
+        assert resultado.fim >= resultado.inicio
+
+    def test_execucoes_utilizam_contextos_independentes(
+        self,
+        motor: MotorWorkflow,
+    ) -> None:
+        """Execuções distintas devem manter seus próprios contextos."""
+        primeiro_contexto = ContextoExecucao(
+            identificador="execucao-1",
+            autor="usuario-1",
+        )
+        segundo_contexto = ContextoExecucao(
+            identificador="execucao-2",
+            autor="usuario-2",
+        )
+        dados_transicao = motor.validar("aberto", "aprovar")
+
+        primeiro_resultado = motor.executar(
+            dados_transicao,
+            primeiro_contexto,
+        )
+        segundo_resultado = motor.executar(
+            dados_transicao,
+            segundo_contexto,
+        )
+
+        assert primeiro_resultado.contexto is primeiro_contexto
+        assert primeiro_resultado.identificador == "execucao-1"
+        assert primeiro_resultado.autor == "usuario-1"
+
+        assert segundo_resultado.contexto is segundo_contexto
+        assert segundo_resultado.identificador == "execucao-2"
+        assert segundo_resultado.autor == "usuario-2"
+
+    def test_nao_altera_a_execucao_validada(
+        self,
+        motor: MotorWorkflow,
+        contexto: ContextoExecucao,
+    ) -> None:
+        """Executar não deve modificar os dados previamente validados."""
+        dados_transicao = motor.validar("aberto", "aprovar")
+        estado_original = dados_transicao.estado_atual
+        acao_original = dados_transicao.acao
+        inicio_original = dados_transicao.inicio_transicao
+
+        motor.executar(dados_transicao, contexto)
+
+        assert dados_transicao.estado_atual == estado_original
+        assert dados_transicao.acao is acao_original
+        assert dados_transicao.inicio_transicao == inicio_original
+
+    def test_rejeita_transicao_nao_terminal_para_mesmo_estado(
+        self,
+        motor: MotorWorkflow,
+        contexto: ContextoExecucao,
+    ) -> None:
+        """Deve propagar a validação de ResultadoWorkflow."""
+        dados_transicao = ExecucaoValidada(
+            estado_atual="aberto",
+            acao=Acao(
+                nome="aprovar",
+                proximo_estado="aberto",
+                terminal=False,
+            ),
+        )
+
+        with pytest.raises(ValidacaoDominioError) as exc:
+            motor.executar(dados_transicao, contexto)
+
+        assert (
+            str(exc.value)
+            in "Ação aprovar em aberto aponta para aberto. Uma execução "
+            "bem-sucedida e não terminal deve indicar um estado de destino "
+            "diferente do estado anterior."
+        )
