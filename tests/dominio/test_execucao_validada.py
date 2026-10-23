@@ -56,7 +56,7 @@ class TestExecucaoValidada:
     def test_rejeita_estado_invalido(
         self, acao: Acao, valor_invalido: str
     ) -> None:
-        """Não deve aceitar um estado vazio."""
+        """Não deve aceitar um estado invalido."""
         with pytest.raises(ValidacaoDominioError) as exc:
             ExecucaoValidada(estado_atual=valor_invalido, acao=acao)
 
