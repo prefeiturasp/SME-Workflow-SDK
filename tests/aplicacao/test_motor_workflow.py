@@ -1,7 +1,14 @@
 from typing import Any
 
+import pytest
+
 from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
+from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
+from sme_workflow_sdk.excecoes.configuracao import (
+    AcaoInvalidaError,
+    EstadoInvalidoError,
+)
 
 
 class TestMotorWorkflowInicializacao:
@@ -117,3 +124,81 @@ class TestMotorWorkflowInicializacao:
             primeiro_motor._estados["aberto"]
             is not segundo_motor._estados["aberto"]
         )
+
+
+class TestMotorWorkflowValidacao:
+    """Testes da validação de estados e ações."""
+
+    def test_valida_acao_e_retorna_execucao_validada(
+        self,
+        motor: MotorWorkflow,
+    ) -> None:
+        """Deve retornar os dados validados da transição."""
+        resultado = motor.validar("aberto", "aprovar")
+
+        assert isinstance(resultado, ExecucaoValidada)
+        assert resultado.estado_atual == "aberto"
+        assert resultado.acao.nome == "aprovar"
+        assert resultado.acao.proximo_estado == "aprovado"
+        assert resultado.acao.terminal is False
+
+    def test_rejeita_estado_inexistente(
+        self,
+        motor: MotorWorkflow,
+    ) -> None:
+        """Deve propagar o erro quando o estado não existir."""
+        with pytest.raises(EstadoInvalidoError) as exc:
+            motor.validar("inexistente", "aprovar")
+
+        assert (
+            str(exc.value)
+            == "O estado 'inexistente' não existe no arquivo de configuração."
+        )
+
+    def test_rejeita_acao_nao_configurada(
+        self,
+        motor: MotorWorkflow,
+    ) -> None:
+        """Deve propagar o erro quando a ação não estiver disponível."""
+        with pytest.raises(AcaoInvalidaError) as exc:
+            motor.validar("aberto", "cancelar")
+
+        assert (
+            str(exc.value)
+            == "A ação 'cancelar' não é permitida no estado 'aberto'."
+        )
+
+    # def test_delega_validacao_ao_resolvedor(
+    #     self,
+    #     motor: MotorWorkflow,
+    # ) -> None:
+    #     """Deve delegar a validação ao DecisaoResolver."""
+    #     resultado_esperado = Mock(spec=ExecucaoValidada)
+    #     motor._decisao_resolver = Mock()
+    #     motor._decisao_resolver.validar.return_value = resultado_esperado
+
+    #     resultado = motor.validar("aberto", "aprovar")
+
+    #     motor._decisao_resolver.validar.assert_called_once_with(
+    #         "aberto",
+    #         "aprovar",
+    #     )
+    #     assert resultado is resultado_esperado
+
+    def test_validacoes_sucessivas_nao_interferem_entre_si(
+        self,
+        motor: MotorWorkflow,
+    ) -> None:
+        """Cada validação deve devolver os dados da própria solicitação."""
+        primeira = motor.validar("aberto", "aprovar")
+        segunda = motor.validar("aberto", "rejeitar")
+
+        assert primeira.estado_atual == "aberto"
+        assert primeira.acao.nome == "aprovar"
+        assert primeira.acao.proximo_estado == "aprovado"
+
+        assert segunda.estado_atual == "aberto"
+        assert segunda.acao.nome == "rejeitar"
+        assert segunda.acao.proximo_estado == "rejeitado"
+
+        assert primeira is not segunda
