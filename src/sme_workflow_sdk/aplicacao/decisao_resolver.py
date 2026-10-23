@@ -9,10 +9,31 @@ from sme_workflow_sdk.excecoes import (
 
 
 class DecisaoResolver:
-    """Valida estados, ações e consistência das transições do workflow."""
+    """Valida estados, ações e consistência das transições do workflow.
+
+    Recebe os estados convertidos em entidades de domínio pelo
+    :class:`~sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow`
+    e verifica se a ação solicitada pode ser realizada no estado atual.
+
+    A validação contempla a existência do estado, a disponibilidade da
+    ação, a existência do estado de destino, o tipo do campo ``terminal``
+    e a restrição de transições não terminais para o mesmo estado.
+
+    O resolvedor não executa regras de negócio nem realiza persistência.
+    Quando a validação é concluída, retorna uma instância de
+    :class:`~sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada`.
+
+    Exemplo:
+        >>> execucao = resolver.validar("pendente", "aprovar")
+        >>> execucao.estado_atual
+        'pendente'
+    """
 
     def __init__(self, estados: dict[str, Estado]) -> None:
-        """Inicializa o resolvedor com a configuração do workflow.
+        """Inicializa o resolvedor com os estados do workflow.
+
+        Recebe o mapeamento de estados previamente convertido em entidades
+        de domínio e o reutiliza nas validações das ações e transições.
 
         Args:
             estados (dict[str, Estado]): Dicionário de estados indexados por
@@ -23,22 +44,28 @@ class DecisaoResolver:
     def validar(self, estado_atual: str, acao: str) -> ExecucaoValidada:
         """Valida uma ação e retorna os dados da execução validada.
 
-        Verifica a existência do estado, a disponibilidade da ação e a
-        consistência dos dados da transição configurada.
+        Executa, nesta ordem, a validação do estado atual, a verificação
+        da ação disponível nesse estado e a validação da consistência
+        dos dados da transição.
 
         Args:
             estado_atual (str): Nome do estado atual do workflow.
             acao (str): Nome da ação solicitada.
 
         Raises:
-            EstadoInvalidoError: Se o estado informado não existir.
-            AcaoInvalidaError: Se a ação não for permitida ou se os dados
-                da transição forem inválidos.
+            EstadoInvalidoError: Se o estado informado não existir
+                na configuração.
+            AcaoInvalidaError: Se a ação não estiver disponível no estado
+                ou se os dados da transição forem inválidos.
 
         Returns:
-            ExecucaoValidada: Dados da execução após a validação.
+            ExecucaoValidada: ados validados para a execução, incluindo
+                o estado atual, a ação configurada e o horário de início.
 
-
+        Examples:
+            >>> execucao = resolver.validar("pendente", "aprovar")
+            >>> execucao.acao.nome
+            'aprovar'
         """
         estado = self._validar_estado(estado_atual)
         acao_configurada = self._validar_acao(estado, acao)
@@ -71,13 +98,16 @@ class DecisaoResolver:
     def _validar_acao(self, estado: Estado, nome_acao: str) -> Acao:
         """Obtém a ação configurada para o estado informado.
 
+        Verifica se o estado possui ações configuradas e se a ação
+        solicitada está disponível nesse estado.
+
         Args:
             estado (Estado): Estado em que a ação será procurada.
             nome_acao (str): Nome da ação solicitada.
 
         Raises:
-            AcaoInvalidaError: Se o estado não possuir ações ou se a ação
-                solicitada não estiver disponível nele.
+            AcaoInvalidaError: Se o estado não possuir ações configuradas
+                ou se a ação solicitada não estiver disponível nele.
 
         Returns:
             Acao:  Entidade correspondente à ação configurada.
@@ -99,9 +129,9 @@ class DecisaoResolver:
     ) -> None:
         """Valida a consistência dos dados da transição.
 
-        Verifica se o próximo estado existe, se o atributo terminal é
-        booleano e se uma transição não terminal evita retornar ao
-        mesmo estado.
+        Verifica se o próximo estado está preenchido e existe na
+        configuração, se o campo ``terminal`` é booleano e se uma
+        transição não terminal evita retornar ao mesmo estado.
 
         Args:
             estado_atual (str):  Nome do estado de origem da transição.

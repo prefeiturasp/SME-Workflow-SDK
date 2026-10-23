@@ -172,22 +172,18 @@ class TestMotorWorkflowValidacao:
             == "A ação 'cancelar' não é permitida no estado 'aberto'."
         )
 
-    # def test_delega_validacao_ao_resolvedor(
-    #     self,
-    #     motor: MotorWorkflow,
-    # ) -> None:
-    #     """Deve delegar a validação ao DecisaoResolver."""
-    #     resultado_esperado = Mock(spec=ExecucaoValidada)
-    #     motor._decisao_resolver = Mock()
-    #     motor._decisao_resolver.validar.return_value = resultado_esperado
+    def test_valida_transicao_utilizando_configuracao(
+        self,
+        motor: MotorWorkflow,
+    ) -> None:
+        """Deve validar a transição conforme a configuração do workflow."""
+        resultado = motor.validar("aberto", "aprovar")
 
-    #     resultado = motor.validar("aberto", "aprovar")
-
-    #     motor._decisao_resolver.validar.assert_called_once_with(
-    #         "aberto",
-    #         "aprovar",
-    #     )
-    #     assert resultado is resultado_esperado
+        assert isinstance(resultado, ExecucaoValidada)
+        assert resultado.estado_atual == "aberto"
+        assert resultado.acao.nome == "aprovar"
+        assert resultado.acao.proximo_estado == "aprovado"
+        assert resultado.acao.terminal is False
 
     def test_validacoes_sucessivas_nao_interferem_entre_si(
         self,
