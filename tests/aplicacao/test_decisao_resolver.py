@@ -206,3 +206,49 @@ class TestDecisaoResolverInicializacao:
 
         assert resultado.estado_atual == "em_analise"
         assert resultado.acao.nome == "aprovar"
+
+
+class TestDecisaoResolverValidacaoEstado:
+    """Testes da validação do estado atual."""
+
+    def test_aceita_estado_existente(
+        self,
+        resolvedor: DecisaoResolver,
+    ) -> None:
+        """Deve aceitar um estado existente na configuração."""
+        resultado = resolvedor.validar("aberto", "aprovar")
+
+        assert isinstance(resultado, ExecucaoValidada)
+        assert resultado.estado_atual == "aberto"
+
+    @pytest.mark.parametrize(
+        "estado_atual",
+        ["inexistente", "pendente", "ABERTO"],
+    )
+    def test_rejeita_estado_inexistente(
+        self,
+        resolvedor: DecisaoResolver,
+        estado_atual: str,
+    ) -> None:
+        """Deve rejeitar estados que não estejam configurados."""
+        with pytest.raises(EstadoInvalidoError) as exc:
+            resolvedor.validar(estado_atual, "aprovar")
+
+        assert (
+            str(exc.value)
+            == f"O estado '{estado_atual}' não existe no arquivo de "
+            "configuração."
+        )
+
+    def test_valida_estado_antes_da_acao(
+        self,
+        resolvedor: DecisaoResolver,
+    ) -> None:
+        """Deve informar o erro de estado antes de validar a ação."""
+        with pytest.raises(EstadoInvalidoError) as exc:
+            resolvedor.validar("inexistente", "acao_inexistente")
+
+        assert (
+            str(exc.value)
+            == "O estado 'inexistente' não existe no arquivo de configuração."
+        )
