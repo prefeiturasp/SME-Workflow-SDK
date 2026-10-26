@@ -6,10 +6,13 @@ from typing import Any
 
 import pytest
 
-from sme_workflow_sdk.configuracao import ConfiguradorWorkflow
+from sme_workflow_sdk import ConfiguradorWorkflow
+from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
+from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
+from sme_workflow_sdk.dominio.entidades import Acao, Estado
 
 WORKFLOW_EXEMPLO = """\
 estados:
@@ -249,3 +252,74 @@ def valor_invalido(request: pytest.FixtureRequest) -> Any:
 def valor_valido(request: pytest.FixtureRequest) -> Any:
     """Fornece cada valor válido de identificador, um por teste."""
     return request.param
+
+
+@pytest.fixture
+def estados() -> dict[str, Estado]:
+    """Retorna estados válidos para os testes."""
+    return {
+        "aberto": Estado(
+            nome="aberto",
+            acoes={
+                "aprovar": Acao(
+                    nome="aprovar",
+                    proximo_estado="aprovado",
+                    terminal=True,
+                ),
+                "rejeitar": Acao(
+                    nome="rejeitar",
+                    proximo_estado="rejeitado",
+                    terminal=True,
+                ),
+                "enviar_para_analise": Acao(
+                    nome="enviar_para_analise",
+                    proximo_estado="em_analise",
+                    terminal=False,
+                ),
+            },
+        ),
+        "em_analise": Estado(
+            nome="em_analise",
+            acoes={
+                "aprovar": Acao(
+                    nome="aprovar",
+                    proximo_estado="aprovado",
+                    terminal=True,
+                ),
+            },
+        ),
+        "aprovado": Estado(nome="aprovado", acoes=None),
+        "rejeitado": Estado(nome="rejeitado", acoes=None),
+    }
+
+
+@pytest.fixture
+def resolvedor(estados: dict[str, Estado]) -> DecisaoResolver:
+    """Instância reutilizável do resolvedor para os testes.."""
+    return DecisaoResolver(estados)
+
+
+@pytest.fixture
+def acao() -> Acao:
+    """Retorna uma ação válida para os testes."""
+    return Acao(
+        nome="aprovar",
+        proximo_estado="aprovado",
+        terminal=True,
+    )
+
+
+@pytest.fixture
+def motor(workflow_exemplo_dict: dict[str, Any]) -> MotorWorkflow:
+    """Fornece um motor inicializado com a configuração de teste."""
+    return MotorWorkflow(workflow_exemplo_dict)
+
+
+@pytest.fixture
+def contexto() -> ContextoExecucao:
+    """Fornece um contexto de execução."""
+    return ContextoExecucao(
+        identificador="execucao-123",
+        autor="usuario-teste",
+        dados={"origem": "teste"},
+    )

@@ -8,7 +8,7 @@ os horários de início e término, o autor responsável e o contexto associado.
 from dataclasses import dataclass
 from datetime import datetime
 
-from sme_workflow_sdk.dominio import ContextoExecucao
+from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.validacao import (
     validar_booleano,
     validar_identificador,
