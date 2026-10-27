@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
+from sme_workflow_sdk.aplicacao.transicao_resolver import TransicaoResolver
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
@@ -48,6 +49,7 @@ class MotorWorkflow:
         self._configuracao = configuracao
         self._estados = self._converter_estados(configuracao)
         self._decisao_resolver = DecisaoResolver(self._estados)
+        self._transicao_resolver = TransicaoResolver(self._estados)
 
     @staticmethod
     def _converter_estados(
@@ -151,17 +153,18 @@ class MotorWorkflow:
             >>> resultado.sucesso
             True
         """
-        estado_atual = dados_transicao.estado_atual
-        acao = dados_transicao.acao
+        execucao = self._transicao_resolver.resolver(dados_transicao)
+        instante_fim = datetime.now(UTC)
+        acao = execucao.acao
         return ResultadoWorkflow(
             identificador=contexto.identificador,
-            estado_anterior=estado_atual,
+            estado_anterior=execucao.estado_atual,
             acao=acao.nome,
             proximo_estado=acao.proximo_estado,
             terminal=acao.terminal,
             sucesso=True,
-            inicio=dados_transicao.inicio_transicao,
-            fim=datetime.now(UTC),
+            inicio=execucao.inicio_transicao,
+            fim=instante_fim,
             autor=contexto.autor,
             contexto=contexto,
             mensagem="Transicao executada com sucesso!",
