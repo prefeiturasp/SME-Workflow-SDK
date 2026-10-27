@@ -2,10 +2,7 @@
 
 from sme_workflow_sdk.dominio.entidades import Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
-from sme_workflow_sdk.excecoes import (
-    AcaoInvalidaError,
-    EstadoInvalidoError,
-)
+from sme_workflow_sdk.excecoes.workflow import TransicaoInvalidaError
 
 
 class TransicaoResolver:
@@ -37,25 +34,25 @@ class TransicaoResolver:
         proximo_estado = acao.proximo_estado
 
         if not isinstance(proximo_estado, str) or not proximo_estado.strip():
-            raise AcaoInvalidaError(
+            raise TransicaoInvalidaError(
                 f"O próximo estado da ação '{acao.nome}' no estado "
                 f"'{estado_atual}' é inválido."
             )
 
         if not isinstance(acao.terminal, bool):
-            raise AcaoInvalidaError(
+            raise TransicaoInvalidaError(
                 f"O campo 'terminal' da ação '{acao.nome}' no estado "
                 f"'{estado_atual}' deve ser booleano."
             )
 
         if proximo_estado not in self._estados:
-            raise EstadoInvalidoError(
+            raise TransicaoInvalidaError(
                 f"O próximo estado '{proximo_estado}' da ação "
                 f"'{acao.nome}' não existe na configuração."
             )
 
         if not acao.terminal and proximo_estado == estado_atual:
-            raise AcaoInvalidaError(
+            raise TransicaoInvalidaError(
                 f"A ação '{acao.nome}' do estado '{estado_atual}' "
                 "não pode retornar ao mesmo estado."
             )
