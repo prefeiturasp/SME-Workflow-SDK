@@ -69,7 +69,6 @@ class DecisaoResolver:
         """
         estado = self._validar_estado(estado_atual)
         acao_configurada = self._validar_acao(estado, acao)
-        self._validar_transicao(estado_atual, acao_configurada)
         return ExecucaoValidada(
             estado_atual=estado_atual, acao=acao_configurada
         )
@@ -121,51 +120,3 @@ class DecisaoResolver:
             )
 
         return acoes[nome_acao]
-
-    def _validar_transicao(
-        self,
-        estado_atual: str,
-        acao: Acao,
-    ) -> None:
-        """Valida a consistência dos dados da transição.
-
-        Verifica se o próximo estado está preenchido e existe na
-        configuração, se o campo ``terminal`` é booleano e se uma
-        transição não terminal evita retornar ao mesmo estado.
-
-        Args:
-            estado_atual (str):  Nome do estado de origem da transição.
-            acao (Acao): Entidade que contém os dados da ação e da transição.
-
-        Raises:
-            AcaoInvalidaError:
-                - Se o próximo estado for inválido ou não estiver configurado
-                - se terminal não for booleano
-                - se a transição não terminal retornar ao estado de origem.
-
-        """
-        proximo_estado = acao.proximo_estado
-
-        if not isinstance(proximo_estado, str) or not proximo_estado.strip():
-            raise AcaoInvalidaError(
-                f"O próximo estado da ação '{acao.nome}' no estado "
-                f"'{estado_atual}' é inválido."
-            )
-
-        if proximo_estado not in self._estados:
-            raise AcaoInvalidaError(
-                f"O próximo estado '{proximo_estado}' da ação "
-                f"'{acao.nome}' não existe na configuração."
-            )
-
-        if not isinstance(acao.terminal, bool):
-            raise AcaoInvalidaError(
-                f"O campo 'terminal' da ação '{acao.nome}' no estado "
-                f"'{estado_atual}' deve ser booleano."
-            )
-
-        if not acao.terminal and proximo_estado == estado_atual:
-            raise AcaoInvalidaError(
-                f"A ação '{acao.nome}' do estado '{estado_atual}' "
-                "não pode retornar ao mesmo estado."
-            )
