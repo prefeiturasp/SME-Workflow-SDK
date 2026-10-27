@@ -327,10 +327,23 @@ def contexto() -> ContextoExecucao:
 
 
 @pytest.fixture
-def resultado_workflow(contexto: ContextoExecucao) -> ResultadoWorkflow:
+def resultado_workflow() -> ResultadoWorkflow:
     """Cria um resultado de workflow válido."""
     inicio = datetime(2026, 10, 27, 12, 0, tzinfo=UTC)
     fim = datetime(2026, 10, 27, 12, 1, tzinfo=UTC)
+    contexto = ContextoExecucao(
+        identificador="execucao-123",
+        autor="usuario-teste",
+        dados={
+            "origem": "teste",
+            "lista": ["item1", "item2"],
+            "tupla": (
+                2,
+                3,
+                4,
+            ),
+        },
+    )
 
     return ResultadoWorkflow(
         identificador=contexto.identificador,

@@ -7,7 +7,6 @@ os horários de início e término, o autor responsável e o contexto associado.
 
 from dataclasses import dataclass, fields, is_dataclass
 from datetime import datetime
-from enum import Enum
 from types import MappingProxyType
 from typing import Any
 
@@ -162,9 +161,6 @@ class ResultadoWorkflow:
 
         if isinstance(valor, (list | tuple)):
             return [self._converter_para_dict(item) for item in valor]
-
-        if isinstance(valor, Enum):
-            return valor.value
 
         return valor
 

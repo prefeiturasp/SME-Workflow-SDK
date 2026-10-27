@@ -3,7 +3,10 @@ from typing import cast
 
 import pytest
 
-from sme_workflow_sdk import ContextoExecucao, ResultadoWorkflow
+from sme_workflow_sdk import (
+    ContextoExecucao,
+    ResultadoWorkflow,
+)
 from sme_workflow_sdk.excecoes.base import ValidacaoDominioError
 
 
@@ -462,7 +465,11 @@ class TestResultadoWorkflowParaDict:
             "contexto": {
                 "identificador": "execucao-123",
                 "autor": "usuario-teste",
-                "dados": {"origem": "teste"},
+                "dados": {
+                    "origem": "teste",
+                    "lista": ["item1", "item2"],
+                    "tupla": [2, 3, 4],
+                },
             },
         }
 
