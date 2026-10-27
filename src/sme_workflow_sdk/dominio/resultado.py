@@ -133,13 +133,18 @@ class ResultadoWorkflow:
             )
 
     def _converter_para_dict(self, valor: Any) -> Any:
-        """Converte valores para estruturas compatíveis com JSON.
+        """Converte recursivamente um valor para uma estrutura em JSON.
+
+        Converte dataclasses em dicionários, mapeamentos em dicionários comuns,
+        listas e tuplas em listas e enums em seus respectivos valores. Valores
+        que não exigem conversão são retornados sem alterações.
 
         Args:
-            valor (Any): _description_
+            valor (Any): Valor a ser convertido, que pode ser uma dataclass,
+                um mapeamento, uma coleção ou um tipo primitivo.
 
         Returns:
-            Any: _description_
+            Any:  Valor convertido para uma estrutura compatível com JSON.
         """
         if is_dataclass(valor) and not isinstance(valor, type):
             return {
@@ -166,8 +171,12 @@ class ResultadoWorkflow:
     def para_dict(self) -> dict[str, Any]:
         """Converte o resultado do workflow em um dicionário.
 
+        Utiliza a conversão recursiva para transformar os campos do resultado,
+        incluindo objetos aninhados e valores imutáveis, em uma estrutura
+        compatível com a serialização JSON.
+
         Returns:
-            dict[str, Any]: _description_
+            dict[str, Any]: Dicionário com os dados do resultado do workflow.
         """
         diconario: dict[str, Any] = self._converter_para_dict(self)
         return diconario
