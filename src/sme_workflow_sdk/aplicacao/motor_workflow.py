@@ -125,7 +125,7 @@ class MotorWorkflow:
         self,
         dados_transicao: ExecucaoValidada,
         contexto: ContextoExecucao,
-    ) -> ResultadoWorkflow:
+    ) -> dict[str, Any]:
         """Produz o resultado de uma execução validada do workflow.
 
          Deve ser chamado após a aplicação consumidora concluir com sucesso
@@ -188,4 +188,4 @@ class MotorWorkflow:
                 mensagem=f"Transição não executada! {str(exc)}",
             )
 
-        return resultado
+        return resultado.para_dict()

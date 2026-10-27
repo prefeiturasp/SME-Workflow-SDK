@@ -5,8 +5,11 @@ execução de workflow, registrando a transição realizada, o status da execuç
 os horários de início e término, o autor responsável e o contexto associado.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from datetime import datetime
+from enum import Enum
+from types import MappingProxyType
+from typing import Any
 
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.validacao import (
@@ -128,3 +131,43 @@ class ResultadoWorkflow:
                 "terminal deve indicar um estado de destino diferente do "
                 "estado anterior."
             )
+
+    def _converter_para_dict(self, valor: Any) -> Any:
+        """Converte valores para estruturas compatíveis com JSON.
+
+        Args:
+            valor (Any): _description_
+
+        Returns:
+            Any: _description_
+        """
+        if is_dataclass(valor) and not isinstance(valor, type):
+            return {
+                campo.name: self._converter_para_dict(
+                    getattr(valor, campo.name)
+                )
+                for campo in fields(valor)
+            }
+
+        if isinstance(valor, (dict | MappingProxyType)):
+            return {
+                chave: self._converter_para_dict(item)
+                for chave, item in valor.items()
+            }
+
+        if isinstance(valor, (list | tuple)):
+            return [self._converter_para_dict(item) for item in valor]
+
+        if isinstance(valor, Enum):
+            return valor.value
+
+        return valor
+
+    def para_dict(self) -> dict[str, Any]:
+        """Converte o resultado do workflow em um dicionário.
+
+        Returns:
+            dict[str, Any]: _description_
+        """
+        diconario: dict[str, Any] = self._converter_para_dict(self)
+        return diconario
