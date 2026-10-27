@@ -13,6 +13,7 @@ from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
+from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
 
 WORKFLOW_EXEMPLO = """\
 estados:
@@ -322,4 +323,25 @@ def contexto() -> ContextoExecucao:
         identificador="execucao-123",
         autor="usuario-teste",
         dados={"origem": "teste"},
+    )
+
+
+@pytest.fixture
+def resultado_workflow(contexto: ContextoExecucao) -> ResultadoWorkflow:
+    """Cria um resultado de workflow válido."""
+    inicio = datetime(2026, 10, 27, 12, 0, tzinfo=UTC)
+    fim = datetime(2026, 10, 27, 12, 1, tzinfo=UTC)
+
+    return ResultadoWorkflow(
+        identificador=contexto.identificador,
+        estado_anterior="aberto",
+        acao="aprovar",
+        proximo_estado="aprovado",
+        terminal=False,
+        sucesso=True,
+        mensagem="Transição executada com sucesso!",
+        inicio=inicio,
+        fim=fim,
+        autor=contexto.autor,
+        contexto=contexto,
     )

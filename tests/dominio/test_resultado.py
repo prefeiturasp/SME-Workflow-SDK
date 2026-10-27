@@ -436,3 +436,66 @@ class TestResultadoWorkflow:
             contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
         )
         assert resultado.proximo_estado == valor_valido
+
+
+class TestResultadoWorkflowParaDict:
+    """Testes do método ResultadoWorkflow.para_dict."""
+
+    def test_retorna_todos_os_campos_do_resultado(
+        self,
+        resultado_workflow: ResultadoWorkflow,
+    ) -> None:
+        """Deve incluir todos os campos de ResultadoWorkflow."""
+        resultado = resultado_workflow.para_dict()
+
+        assert resultado == {
+            "identificador": "execucao-123",
+            "estado_anterior": "aberto",
+            "acao": "aprovar",
+            "proximo_estado": "aprovado",
+            "terminal": False,
+            "sucesso": True,
+            "mensagem": "Transição executada com sucesso!",
+            "inicio": datetime(2026, 10, 27, 12, 0, tzinfo=UTC),
+            "fim": datetime(2026, 10, 27, 12, 1, tzinfo=UTC),
+            "autor": "usuario-teste",
+            "contexto": {
+                "identificador": "execucao-123",
+                "autor": "usuario-teste",
+                "dados": {"origem": "teste"},
+            },
+        }
+
+    def test_converte_contexto_com_mappingproxy(
+        self,
+        resultado_workflow: ResultadoWorkflow,
+    ) -> None:
+        """Deve serializar dados imutáveis do contexto sem TypeError."""
+        resultado = resultado_workflow.para_dict()
+
+        assert resultado["contexto"]["dados"]["origem"] == "teste"
+
+    def test_conversao_nao_modifica_resultado_original(
+        self,
+        resultado_workflow: ResultadoWorkflow,
+    ) -> None:
+        """A conversão não deve alterar os dados originais."""
+        contexto_original = resultado_workflow.contexto
+        dados_originais = dict(contexto_original.dados)
+
+        resultado_workflow.para_dict()
+
+        assert resultado_workflow.contexto is contexto_original
+        assert dict(contexto_original.dados) == dados_originais
+
+    def test_retorna_novo_dicionario_a_cada_chamada(
+        self,
+        resultado_workflow: ResultadoWorkflow,
+    ) -> None:
+        """Cada chamada deve retornar uma estrutura independente."""
+        primeiro = resultado_workflow.para_dict()
+        segundo = resultado_workflow.para_dict()
+
+        assert primeiro == segundo
+        assert primeiro is not segundo
+        assert primeiro["contexto"] is not segundo["contexto"]
