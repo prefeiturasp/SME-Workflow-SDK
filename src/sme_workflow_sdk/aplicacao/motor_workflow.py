@@ -9,6 +9,7 @@ from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
 from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
+from sme_workflow_sdk.excecoes.workflow import TransicaoInvalidaError
 
 
 class MotorWorkflow:
@@ -153,19 +154,38 @@ class MotorWorkflow:
             >>> resultado.sucesso
             True
         """
-        execucao = self._transicao_resolver.resolver(dados_transicao)
-        instante_fim = datetime.now(UTC)
-        acao = execucao.acao
-        return ResultadoWorkflow(
-            identificador=contexto.identificador,
-            estado_anterior=execucao.estado_atual,
-            acao=acao.nome,
-            proximo_estado=acao.proximo_estado,
-            terminal=acao.terminal,
-            sucesso=True,
-            inicio=execucao.inicio_transicao,
-            fim=instante_fim,
-            autor=contexto.autor,
-            contexto=contexto,
-            mensagem="Transicao executada com sucesso!",
-        )
+        try:
+            execucao = self._transicao_resolver.resolver(dados_transicao)
+            sucesso = True
+            mensagem = "Transição executada com sucesso!"
+            acao = execucao.acao
+            resultado = ResultadoWorkflow(
+                identificador=contexto.identificador,
+                estado_anterior=execucao.estado_atual,
+                acao=acao.nome,
+                proximo_estado=acao.proximo_estado,
+                terminal=acao.terminal,
+                sucesso=sucesso,
+                inicio=execucao.inicio_transicao,
+                fim=datetime.now(UTC),
+                autor=contexto.autor,
+                contexto=contexto,
+                mensagem=mensagem,
+            )
+        except TransicaoInvalidaError as exc:
+            estado_atual = dados_transicao.estado_atual
+            resultado = ResultadoWorkflow(
+                identificador=contexto.identificador,
+                estado_anterior=estado_atual,
+                acao=dados_transicao.acao.nome,
+                proximo_estado=estado_atual,
+                terminal=False,
+                sucesso=False,
+                inicio=dados_transicao.inicio_transicao,
+                fim=datetime.now(UTC),
+                autor=contexto.autor,
+                contexto=contexto,
+                mensagem=f"Transição não executada! {str(exc)}",
+            )
+
+        return resultado
