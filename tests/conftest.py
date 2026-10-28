@@ -9,6 +9,7 @@ import pytest
 from sme_workflow_sdk import ConfiguradorWorkflow
 from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
 from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
+from sme_workflow_sdk.aplicacao.transicao_resolver import TransicaoResolver
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
@@ -358,3 +359,9 @@ def resultado_workflow() -> ResultadoWorkflow:
         autor=contexto.autor,
         contexto=contexto,
     )
+
+
+@pytest.fixture
+def transisao_resolver(estados: dict[str, Estado]) -> TransicaoResolver:
+    """Cria o resolvedor com os estados de teste."""
+    return TransicaoResolver(estados)
