@@ -9,24 +9,14 @@ from sme_workflow_sdk.excecoes import (
 
 
 class DecisaoResolver:
-    """Valida estados, ações e consistência das transições do workflow.
+    """Resolve e valida as decisões permitidas em um workflow.
 
-    Recebe os estados convertidos em entidades de domínio pelo
-    :class:`~sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow`
-    e verifica se a ação solicitada pode ser realizada no estado atual.
+    Verifica se o estado atual está configurado e se a ação solicitada
+    está disponível para esse estado. Retorna os dados validados para
+    que o fluxo de execução possa prosseguir com a validação da transição.
 
-    A validação contempla a existência do estado, a disponibilidade da
-    ação, a existência do estado de destino, o tipo do campo ``terminal``
-    e a restrição de transições não terminais para o mesmo estado.
-
-    O resolvedor não executa regras de negócio nem realiza persistência.
-    Quando a validação é concluída, retorna uma instância de
-    :class:`~sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada`.
-
-    Exemplo:
-        >>> execucao = resolver.validar("pendente", "aprovar")
-        >>> execucao.estado_atual
-        'pendente'
+    A validação do próximo estado, do campo ``terminal`` e das regras
+    específicas da transição é responsabilidade do TransicaoResolver.
     """
 
     def __init__(self, estados: dict[str, Estado]) -> None:
@@ -42,11 +32,11 @@ class DecisaoResolver:
         self._estados = estados
 
     def validar(self, estado_atual: str, acao: str) -> ExecucaoValidada:
-        """Valida uma ação e retorna os dados da execução validada.
+        """Valida se uma ação está disponível no estado atual do workflow.
 
-        Executa, nesta ordem, a validação do estado atual, a verificação
-        da ação disponível nesse estado e a validação da consistência
-        dos dados da transição.
+        Verifica a existência do estado informado e se ele permite a ação
+        solicitada. Caso as validações sejam bem-sucedidas, retorna os dados
+        necessários para a etapa seguinte do processamento do workflow.
 
         Args:
             estado_atual (str): Nome do estado atual do workflow.
@@ -59,13 +49,7 @@ class DecisaoResolver:
                 ou se os dados da transição forem inválidos.
 
         Returns:
-            ExecucaoValidada: ados validados para a execução, incluindo
-                o estado atual, a ação configurada e o horário de início.
-
-        Examples:
-            >>> execucao = resolver.validar("pendente", "aprovar")
-            >>> execucao.acao.nome
-            'aprovar'
+            ExecucaoValidada: Dados validados para a execução da ação.
         """
         estado = self._validar_estado(estado_atual)
         acao_configurada = self._validar_acao(estado, acao)

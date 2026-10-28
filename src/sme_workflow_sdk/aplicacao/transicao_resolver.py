@@ -6,7 +6,14 @@ from sme_workflow_sdk.excecoes.workflow import TransicaoInvalidaError
 
 
 class TransicaoResolver:
-    """Resolve e valida o destino de uma execução do workflow."""
+    """Valida as transições de estado configuradas no workflow.
+
+    Verifica se o próximo estado da ação existe na configuração, se o
+    campo ``terminal`` possui um valor booleano e se a transição respeita
+    as regras de consistência do workflow.
+
+    Não executa regras de negócio nem realiza a persistência do estado.
+    """
 
     def __init__(self, estados: dict[str, Estado]) -> None:
         """Inicializa o resolvedor com os estados configurados.
@@ -17,17 +24,27 @@ class TransicaoResolver:
         self._estados = estados
 
     def resolver(self, execucao: ExecucaoValidada) -> ExecucaoValidada:
-        """Valida a transição configurada para uma execução.
+        """Valida a transição associada a uma execução previamente validada.
+
+        Verifica se o próximo estado está configurado, se o campo ``terminal``
+        é booleano e se uma transição não terminal não aponta para o próprio
+        estado atual.
+
+        Após a validação, retorna a mesma instância de ``ExecucaoValidada``
+        recebida, sem modificar seus dados.
+
 
         Args:
-            execucao: Estado atual e ação previamente validados.
+            execucao (ExecucaoValidada): Dados da execução previamente
+                validados pelo DecisaoResolver.
 
         Returns:
-            ExecucaoValidada: Execução com a transição validada.
+            ExecucaoValidada: A própria instância recebida, após a validação.
 
         Raises:
-            EstadoInvalidoError: Se o estado de destino não existir.
-            AcaoInvalidaError: Se os dados da transição forem inválidos.
+            TransicaoInvalidaError: Se o próximo estado for inválido, não
+            estiver configurado, se o campo ``terminal`` não for booleano ou
+            se a transição não terminal retornar ao estado atual.
         """
         estado_atual = execucao.estado_atual
         acao = execucao.acao
