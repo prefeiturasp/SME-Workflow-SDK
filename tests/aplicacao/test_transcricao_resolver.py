@@ -1,6 +1,7 @@
 """Testes do resolvedor de transições do workflow."""
 
 from datetime import UTC, datetime
+from typing import Any
 
 import pytest
 
@@ -112,3 +113,71 @@ class TestTransicaoResolver:
         assert execucao.estado_atual == estado_atual
         assert execucao.acao is acao
         assert execucao.inicio_transicao == inicio
+
+    @pytest.mark.parametrize(
+        "proximo_estado",
+        [
+            "",
+            "   ",
+            "\t",
+            "\n",
+            123,
+            None,
+        ],
+    )
+    def test_rejeita_proximo_estado_invalido(
+        self,
+        resolver: TransicaoResolver,
+        proximo_estado: Any,
+    ) -> None:
+        """Rejeita próximo estado vazio, com espaços ou tipo inválido."""
+        acao = object.__new__(Acao)
+        object.__setattr__(acao, "nome", "aprovar")
+        object.__setattr__(acao, "proximo_estado", proximo_estado)
+        object.__setattr__(acao, "terminal", False)
+
+        execucao = ExecucaoValidada(
+            estado_atual="aberto",
+            acao=acao,
+            inicio_transicao=datetime(2026, 10, 28, 12, 0, tzinfo=UTC),
+        )
+
+        with pytest.raises(
+            TransicaoInvalidaError,
+            match="O próximo estado da ação 'aprovar' no estado 'aberto' é "
+            "inválido.",
+        ):
+            resolver.resolver(execucao)
+
+    @pytest.mark.parametrize(
+        "terminal",
+        [
+            "sim",
+            1,
+            None,
+            [],
+        ],
+    )
+    def test_rejeita_terminal_com_tipo_invalido(
+        self,
+        resolver: TransicaoResolver,
+        terminal: Any,
+    ) -> None:
+        """Rejeita o campo terminal quando não for booleano."""
+        acao = object.__new__(Acao)
+        object.__setattr__(acao, "nome", "aprovar")
+        object.__setattr__(acao, "proximo_estado", "aprovado")
+        object.__setattr__(acao, "terminal", terminal)
+
+        execucao = ExecucaoValidada(
+            estado_atual="aberto",
+            acao=acao,
+            inicio_transicao=datetime(2026, 10, 28, 12, 0, tzinfo=UTC),
+        )
+
+        with pytest.raises(
+            TransicaoInvalidaError,
+            match="O campo 'terminal' da ação 'aprovar' no estado 'aberto' "
+            "deve ser booleano.",
+        ):
+            resolver.resolver(execucao)
