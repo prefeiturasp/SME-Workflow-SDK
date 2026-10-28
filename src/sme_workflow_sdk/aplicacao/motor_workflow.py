@@ -96,11 +96,13 @@ class MotorWorkflow:
         return estados
 
     def validar(self, estado_atual: str, acao: str) -> ExecucaoValidada:
-        """Valida a ação solicitada para o estado atual do workflow.
+        """Valida a ação solicitada e a transição correspondente.
 
-        Delega ao :class:`DecisaoResolver` a verificação da existência do
-        estado, da disponibilidade da ação e da consistência dos dados
-        da transição configurada.
+        Verifica se o estado existe, se a ação está disponível e se a
+        transição configurada possui um destino válido.
+
+        Essa validação deve ocorrer antes de a aplicação consumidora
+        executar a regra de negócio associada à ação.
 
         Args:
             estado_atual (str): Nome do estado atual do workflow.
@@ -110,6 +112,7 @@ class MotorWorkflow:
             EstadoInvalidoError: Se o estado não estiver configurado.
             AcaoInvalidaError: Se a ação não estiver disponível para o
                 estado ou se os dados da transição forem inválidos.
+            TransicaoInvalidaError: Se a transição configurada for inválida.
 
         Returns:
             ExecucaoValidada: Dados validados para a execução.
@@ -119,7 +122,8 @@ class MotorWorkflow:
             >>> execucao.estado_atual
             'pendente'
         """
-        return self._decisao_resolver.validar(estado_atual, acao)
+        execucao = self._decisao_resolver.validar(estado_atual, acao)
+        return self._transicao_resolver.resolver(execucao)
 
     def executar(
         self,
