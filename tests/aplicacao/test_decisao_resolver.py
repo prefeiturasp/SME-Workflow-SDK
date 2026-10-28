@@ -1,4 +1,4 @@
-"""Testes unitários do resolvedor de decisões do workflow."""
+"""Testes unitários do decisao_resolver de decisões do workflow."""
 
 import pytest
 
@@ -11,17 +11,17 @@ from sme_workflow_sdk.excecoes import AcaoInvalidaError, EstadoInvalidoError
 class TestDecisaoResolver:
     def test_deve_validar_estado_e_acao_permitidos(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Não deve lançar exceção para uma ação permitida."""
-        resolvedor.validar("aberto", "aprovar")
+        decisao_resolver.validar("aberto", "aprovar")
 
     def test_valida_acao_e_retorna_execucao_validada(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Deve retornar a execução validada para uma ação permitida."""
-        resultado = resolvedor.validar("aberto", "rejeitar")
+        resultado = decisao_resolver.validar("aberto", "rejeitar")
 
         assert isinstance(resultado, ExecucaoValidada)
         assert resultado.estado_atual == "aberto"
@@ -31,11 +31,11 @@ class TestDecisaoResolver:
 
     def test_deve_lancar_excecao_para_estado_inexistente(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Deve rejeitar um estado que não existe."""
         with pytest.raises(EstadoInvalidoError) as exc:
-            resolvedor.validar("inexistente", "aprovar")
+            decisao_resolver.validar("inexistente", "aprovar")
 
         assert str(exc.value) == (
             "O estado 'inexistente' não existe no arquivo de configuração."
@@ -43,11 +43,11 @@ class TestDecisaoResolver:
 
     def test_deve_lancar_excecao_para_acao_nao_permitida(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Deve rejeitar uma ação não configurada para o estado."""
         with pytest.raises(AcaoInvalidaError) as exc:
-            resolvedor.validar("aberto", "iniciar_execucao")
+            decisao_resolver.validar("aberto", "iniciar_execucao")
 
         assert str(exc.value) == (
             "A ação 'iniciar_execucao' não é permitida no estado 'aberto'."
@@ -55,11 +55,11 @@ class TestDecisaoResolver:
 
     def test_deve_lancar_excecao_para_estado_sem_acoes(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Deve rejeitar ações em um estado sem ações disponíveis."""
         with pytest.raises(AcaoInvalidaError) as exc:
-            resolvedor.validar("aprovado", "aprovar")
+            decisao_resolver.validar("aprovado", "aprovar")
 
         assert str(exc.value) == (
             "A ação 'aprovar' não é permitida no estado 'aprovado'."
@@ -67,7 +67,7 @@ class TestDecisaoResolver:
 
 
 class TestDecisaoResolverInicializacao:
-    """Testes da inicialização do resolvedor."""
+    """Testes da inicialização do decisao_resolver."""
 
     def test_inicializa_com_configuracao_vazia(self) -> None:
         """Deve aceitar um mapeamento vazio na inicialização."""
@@ -99,10 +99,10 @@ class TestDecisaoResolverValidacaoEstado:
 
     def test_aceita_estado_existente(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Deve aceitar um estado existente na configuração."""
-        resultado = resolvedor.validar("aberto", "aprovar")
+        resultado = decisao_resolver.validar("aberto", "aprovar")
 
         assert isinstance(resultado, ExecucaoValidada)
         assert resultado.estado_atual == "aberto"
@@ -113,12 +113,12 @@ class TestDecisaoResolverValidacaoEstado:
     )
     def test_rejeita_estado_inexistente(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
         estado_atual: str,
     ) -> None:
         """Deve rejeitar estados que não estejam configurados."""
         with pytest.raises(EstadoInvalidoError) as exc:
-            resolvedor.validar(estado_atual, "aprovar")
+            decisao_resolver.validar(estado_atual, "aprovar")
 
         assert (
             str(exc.value)
@@ -128,11 +128,11 @@ class TestDecisaoResolverValidacaoEstado:
 
     def test_valida_estado_antes_da_acao(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Deve informar o erro de estado antes de validar a ação."""
         with pytest.raises(EstadoInvalidoError) as exc:
-            resolvedor.validar("inexistente", "acao_inexistente")
+            decisao_resolver.validar("inexistente", "acao_inexistente")
 
         assert (
             str(exc.value)
@@ -145,10 +145,10 @@ class TestDecisaoResolverValidacaoAcao:
 
     def test_aceita_acao_configurada(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Deve aceitar uma ação disponível no estado atual."""
-        resultado = resolvedor.validar("aberto", "aprovar")
+        resultado = decisao_resolver.validar("aberto", "aprovar")
 
         assert resultado.acao.nome == "aprovar"
         assert resultado.acao.proximo_estado == "aprovado"
@@ -174,12 +174,12 @@ class TestDecisaoResolverValidacaoAcao:
     )
     def test_rejeita_acao_nao_configurada(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
         nome_acao: str,
     ) -> None:
         """Deve rejeitar ações que não estejam disponíveis."""
         with pytest.raises(AcaoInvalidaError) as exc:
-            resolvedor.validar("aberto", nome_acao)
+            decisao_resolver.validar("aberto", nome_acao)
 
         assert (
             str(exc.value)
@@ -192,12 +192,12 @@ class TestDecisaoResolverValidacaoAcao:
     )
     def test_rejeita_acao_em_estado_sem_acoes(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
         estado_atual: str,
     ) -> None:
         """Deve rejeitar ações quando o estado possui acoes=None."""
         with pytest.raises(AcaoInvalidaError) as exc:
-            resolvedor.validar(estado_atual, "aprovar")
+            decisao_resolver.validar(estado_atual, "aprovar")
 
         assert (
             str(exc.value)
@@ -224,11 +224,11 @@ class TestDecisaoResolverIndependencia:
 
     def test_valida_acoes_de_estados_diferentes(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Deve resolver corretamente ações em estados diferentes."""
-        primeira = resolvedor.validar("aberto", "enviar_para_analise")
-        segunda = resolvedor.validar("em_analise", "aprovar")
+        primeira = decisao_resolver.validar("aberto", "enviar_para_analise")
+        segunda = decisao_resolver.validar("em_analise", "aprovar")
 
         assert primeira.estado_atual == "aberto"
         assert primeira.acao.nome == "enviar_para_analise"
@@ -240,13 +240,13 @@ class TestDecisaoResolverIndependencia:
 
     def test_erro_em_uma_validacao_nao_afeta_a_seguinte(
         self,
-        resolvedor: DecisaoResolver,
+        decisao_resolver: DecisaoResolver,
     ) -> None:
         """Uma validação inválida não deve impedir uma válida posterior."""
         with pytest.raises(EstadoInvalidoError):
-            resolvedor.validar("inexistente", "aprovar")
+            decisao_resolver.validar("inexistente", "aprovar")
 
-        resultado = resolvedor.validar("aberto", "aprovar")
+        resultado = decisao_resolver.validar("aberto", "aprovar")
 
         assert resultado.estado_atual == "aberto"
         assert resultado.acao.nome == "aprovar"

@@ -295,7 +295,7 @@ def estados() -> dict[str, Estado]:
 
 
 @pytest.fixture
-def resolvedor(estados: dict[str, Estado]) -> DecisaoResolver:
+def decisao_resolver(estados: dict[str, Estado]) -> DecisaoResolver:
     """Instância reutilizável do resolvedor para os testes.."""
     return DecisaoResolver(estados)
 
