@@ -21,8 +21,8 @@ class MotorWorkflow:
     validação das decisões ao :class:`DecisaoResolver`.
 
     Após a aplicação consumidora executar com sucesso as regras de negócio
-    associadas à ação, o motor produz um :class:`ResultadoWorkflow` com os
-    dados da transição, os horários e o contexto da execução.
+    associadas à ação, o motor retorna um dicionário com os dados da
+    transição, os horários e o contexto da execução.
 
     O motor não executa regras de negócio específicas da aplicação
     consumidora nem persiste alterações.
@@ -99,10 +99,9 @@ class MotorWorkflow:
         """Valida a ação solicitada e a transição correspondente.
 
         Verifica se o estado existe, se a ação está disponível e se a
-        transição configurada possui um destino válido.
-
-        Essa validação deve ocorrer antes de a aplicação consumidora
-        executar a regra de negócio associada à ação.
+        transição configurada é válida. Essa validação deve ocorrer antes
+        de a aplicação consumidora executar a regra de negócio associada
+        à ação.
 
         Args:
             estado_atual (str): Nome do estado atual do workflow.
@@ -132,9 +131,9 @@ class MotorWorkflow:
     ) -> dict[str, Any]:
         """Produz o resultado de uma execução validada do workflow.
 
-         Deve ser chamado após a aplicação consumidora concluir com sucesso
-        a regra de negócio associada à ação. Utiliza os dados previamente
-        validados e o contexto recebido para montar o resultado da execução.
+        Deve ser chamado após a aplicação consumidora concluir com sucesso
+        a regra de negócio associada à ação. Utiliza os dados validados e o
+        contexto recebido para montar o resultado da execução.
 
         Este método não executa regras de negócio, não altera o estado
         persistido da entidade de negócio e não realiza operações de
@@ -147,15 +146,14 @@ class MotorWorkflow:
                 identificador, autor e dados adicionais.
 
         Returns:
-            ResultadoWorkflow: Resultado da execução, contendo o
-                identificador, o estado anterior, a ação, o estado de
-                destino, a terminalidade, o status de sucesso, os horários
-                de início e fim e o contexto associado.
+            dict[str, Any]: Dicionário com o resultado da execução, incluindo
+                estado anterior, ação, próximo estado, terminalidade, sucesso,
+                horários e contexto.
 
         Examples:
             >>> execucao = motor.validar("pendente", "aprovar")
             >>> resultado = motor.executar(execucao, contexto)
-            >>> resultado.sucesso
+            >>> resultado["sucesso"]
             True
         """
         try:
