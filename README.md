@@ -5,7 +5,39 @@
 
 ## Objetivo e escopo
 
-Descrição em breve
+O **SME-Workflow-SDK** é uma biblioteca Python para gerenciamento de workflows configuráveis, responsável por validar ações e controlar transições entre estados de um processo.
+
+A biblioteca utiliza arquivos YAML para declarar os estados, as ações disponíveis e as transições permitidas, reduzindo o acoplamento entre as regras do fluxo e o código das aplicações consumidoras.
+
+O SDK é independente do domínio de negócio e pode ser utilizado em aplicações Python, incluindo sistemas desenvolvidos com Django.
+
+### Responsabilidades do SDK
+
+- Carregar e validar configurações de workflow em YAML.
+- Verificar se uma ação está disponível no estado atual.
+- Validar a transição configurada e seu estado de destino.
+- Identificar transições terminais.
+- Produzir um resultado estruturado da execução, incluindo estados, ação, horários, contexto e status.
+
+### Responsabilidades da aplicação consumidora
+
+- Executar as regras de negócio relacionadas à ação solicitada.
+- Controlar a persistência do estado atual e do histórico do processo.
+- Gerenciar permissões de usuários e regras específicas do domínio.
+- Realizar auditoria, notificações e demais efeitos externos, quando aplicáveis.
+
+O SDK não executa regras de negócio específicas da aplicação nem persiste alterações no processo.
+
+## Funcionalidades
+
+- Configuração declarativa de workflows por YAML.
+- Validação estrutural e semântica da configuração.
+- Validação de estados e ações disponíveis.
+- Resolução e validação de transições.
+- Tratamento de exceções específicas para configuração e execução.
+- Contexto de execução com identificador, autor e dados adicionais.
+- Resultado estruturado com informações da transição e horários.
+- Separação entre gerenciamento do workflow e regras de negócio.
 
 ## Instalação
 
