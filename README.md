@@ -39,17 +39,72 @@ O SDK não executa regras de negócio específicas da aplicação nem persiste a
 - Resultado estruturado com informações da transição e horários.
 - Separação entre gerenciamento do workflow e regras de negócio.
 
-## Instalação
+## Instalação e configuração
+
+### Pré-requisitos
+
+- Python 3.12 ou superior.
+- Git, para instalação diretamente do repositório.
+- Acesso ao repositório do projeto.
+
+### Instalação
+
+Instale o SDK diretamente do GitHub:
 
 ```bash
-pip install git+https://github.com/prefeiturasp/SME-Sidecar-SDK.git@feature/nome-branch
+pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git
 ```
 
-A aplicação consome o SDK assim:
+Para instalar uma branch específica, utilize:
 
-```python
-import sme_workflow_sdk
+```bash
+pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git@NOME_DA_BRANCH
 ```
+
+Substitua `NOME_DA_BRANCH` pelo nome da branch desejada.
+
+## Configuração do workflow
+
+O fluxo é declarado em um arquivo YAML. Cada estado possui um campo `acoes`, que define as ações disponíveis e seus respectivos destinos.
+
+```yaml
+estados:
+  pendente:
+    acoes:
+      aprovar:
+        proximo_estado: aprovado
+        terminal: true
+      encaminhar:
+        proximo_estado: em_analise
+        terminal: false
+
+  em_analise:
+    acoes:
+      concluir:
+        proximo_estado: concluido
+        terminal: true
+
+  aprovado:
+    acoes: null
+
+  concluido:
+    acoes: null
+```
+
+### Estrutura da configuração
+
+| Campo | Descrição |
+|---|---|
+| `estados` | Define os estados disponíveis no workflow. |
+| `acoes` | Define as ações permitidas para um estado. |
+| `proximo_estado` | Informa o estado de destino da ação. |
+| `terminal` | Indica se a transição encerra o fluxo. |
+
+O campo `terminal` deve receber um valor booleano (`true` ou `false`).
+
+Um estado com `acoes: null` representa um estado sem ações disponíveis e pode ser utilizado como destino de uma transição terminal.
+
+As transições devem respeitar as regras de consistência: o destino precisa existir, transições terminais devem apontar para estados sem ações e transições não terminais devem apontar para estados com ações configuradas.
 
 ## Features
 
