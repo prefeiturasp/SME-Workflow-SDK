@@ -106,6 +106,63 @@ Um estado com `acoes: null` representa um estado sem ações disponíveis e pode
 
 As transições devem respeitar as regras de consistência: o destino precisa existir, transições terminais devem apontar para estados sem ações e transições não terminais devem apontar para estados com ações configuradas.
 
+## Integração com a aplicação
+
+### Carregamento e validação
+
+O `ConfiguradorWorkflow` é o ponto de entrada para carregar e validar o arquivo YAML.
+
+```python
+from sme_workflow_sdk import (
+    ConfiguradorWorkflow,
+    ContextoExecucao,
+    MotorWorkflow,
+)
+
+configurador = ConfiguradorWorkflow()
+
+configuracao = configurador.carregar("workflow.yaml")
+configurador.validar(configuracao)
+
+motor = MotorWorkflow(configuracao)
+```
+
+A configuração deve ser validada antes de ser utilizada pelo motor.
+
+### Validação e execução de uma ação
+
+O exemplo abaixo demonstra o fluxo de integração. A aplicação consumidora deve executar sua regra de negócio entre a validação da ação e a produção do resultado.
+
+```python
+from sme_workflow_sdk import ContextoExecucao
+
+# Estado atual e ação solicitada.
+execucao = motor.validar("pendente", "aprovar")
+
+# A aplicação consumidora executa aqui a regra de negócio
+# correspondente à aprovação.
+
+contexto = ContextoExecucao(
+    autor="usuario_sistema",
+    dados={
+        "origem": "aplicacao_consumidora",
+    },
+)
+
+resultado = motor.executar(execucao, contexto)
+
+if resultado["sucesso"]:
+    novo_estado = resultado["proximo_estado"]
+
+    # A aplicação consumidora é responsável por persistir
+    # o novo estado e o histórico do processo.
+```
+
+**Importante:** a aplicação consumidora deve persistir o novo estado somente após a conclusão bem-sucedida da regra de negócio e conforme as regras transacionais do sistema.
+
+O resultado do motor é um dicionário Python. Os campos de horário continuam sendo objetos `datetime`; portanto, caso seja necessário serializar o resultado em JSON, a aplicação deve definir a conversão desses valores.
+
+
 ## Features
 
 Descrição em breve
