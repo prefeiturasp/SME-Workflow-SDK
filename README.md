@@ -163,6 +163,40 @@ if resultado["sucesso"]:
 O resultado do motor é um dicionário Python. Os campos de horário continuam sendo objetos `datetime`; portanto, caso seja necessário serializar o resultado em JSON, a aplicação deve definir a conversão desses valores.
 
 
+## Resultado da execução
+
+O método `MotorWorkflow.executar()` retorna um dicionário com informações sobre a execução.
+
+| Campo | Descrição |
+|---|---|
+| `identificador` | Identificador da execução. |
+| `estado_anterior` | Estado em que a ação foi solicitada. |
+| `acao` | Nome da ação executada. |
+| `proximo_estado` | Estado de destino da transição. |
+| `terminal` | Indica se a transição é terminal. |
+| `sucesso` | Indica se o resultado representa uma execução bem-sucedida. |
+| `mensagem` | Mensagem descritiva do resultado. |
+| `inicio` | Data e hora de início da execução. |
+| `fim` | Data e hora de término da execução. |
+| `autor` | Identificação do responsável pela execução. |
+| `contexto` | Contexto associado à execução. |
+
+## Tratamento de exceções
+
+O SDK define exceções específicas para os problemas encontrados durante a leitura, a validação e o processamento do workflow.
+
+Entre as principais estão:
+
+- `ArquivoNaoEncontradoError`: arquivo de configuração inexistente ou caminho inválido.
+- `FormatoInvalidoError`: extensão não suportada, erro de sintaxe YAML ou quantidade inválida de documentos.
+- `ConfiguracaoInvalidaError`: conteúdo YAML vazio ou com estrutura de raiz inválida.
+- `EstadoInvalidoError`: estado inexistente ou inválido na configuração ou na solicitação.
+- `AcaoInvalidaError`: ação indisponível ou malformada.
+- `TransicaoInvalidaError`: transição que não atende às regras de validação.
+- `ValidacaoDominioError`: dados inválidos nas entidades do domínio.
+
+A aplicação consumidora deve tratar as exceções conforme sua política de erros e garantir que uma operação de negócio não seja considerada concluída quando sua execução falhar.
+
 ## Features
 
 Descrição em breve
