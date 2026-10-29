@@ -197,28 +197,70 @@ Entre as principais estão:
 
 A aplicação consumidora deve tratar as exceções conforme sua política de erros e garantir que uma operação de negócio não seja considerada concluída quando sua execução falhar.
 
-## Features
-
-Descrição em breve
-
-## Integração com Django
-
-Descrição em breve
 
 ## Desenvolvimento
 
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev,docs]"
-pre-commit install
+### Preparação do ambiente
 
+Clone o repositório:
+
+```bash
+git clone https://github.com/prefeiturasp/SME-Workflow-SDK.git
+cd SME-Workflow-SDK
+```
+
+Crie e ative um ambiente virtual:
+
+```bash
+python -m venv .venv
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Windows (PowerShell):
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Instale o projeto com as dependências de desenvolvimento e documentação:
+
+```bash
+python -m pip install -e ".[dev,docs]"
+```
+
+Instale os hooks de pre-commit:
+
+```bash
+pre-commit install
+```
+
+### Executar os testes
+
+```bash
 pytest
+```
+
+### Verificar a qualidade do código
+
+```bash
+ruff check .
+mypy src/
 pre-commit run --all-files
 ```
 
 ## Documentação viva (Sphinx)
 
-Em breve
+A documentação técnica do projeto utiliza Sphinx.
+
+Para consultar a documentação publicada, acesse:
+
+[Documentação do SME-Workflow-SDK](https://prefeiturasp.github.io/SME-Workflow-SDK/)
+
 
 ## Licença
 
