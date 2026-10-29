@@ -1,1 +1,1 @@
-"""Modelos e regras próprias do workflow."""
+"""Entidades do domínio do SME Workflow SDK."""

@@ -7,3 +7,7 @@ class LeitorWorkflowError(Exception):
 
 class ValidadorWorkflowError(Exception):
     """Erro base do validador de workflow."""
+
+
+class ValidacaoDominioError(Exception):
+    """Erro base do domínio de workflow."""
