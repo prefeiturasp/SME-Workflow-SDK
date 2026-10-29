@@ -118,7 +118,7 @@ class LeitorWorkflow:
 
         return caminho_arquivo
 
-    def _ler_yaml(self, caminho_arquivo: Path) -> dict[str, Any] | None:
+    def _ler_yaml(self, caminho_arquivo: Path) -> Any:
         """Lê o arquivo YAML e valida o número de documentos.
 
         Arquivos vazios ou que só contêm comentários são sinalizados
@@ -135,8 +135,8 @@ class LeitorWorkflow:
                 - Se houver mais de um documento YAML no mesmo arquivo.
 
         Returns:
-            dict[str, Any]: ocumento único do YAML, ou
-            ``None`` se o arquivo não contiver nenhum documento.
+            Any: Conteúdo carregado do YAML, ainda sujeito à validação
+            estrutural e semântica.
 
         """
         try:

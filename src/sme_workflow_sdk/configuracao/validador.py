@@ -121,7 +121,7 @@ class ValidadorWorkflow:
         if acoes is None:
             return
 
-        if not isinstance(acoes, dict):
+        if not isinstance(acoes, dict) or not acoes:
             raise AcaoInvalidaError(
                 f"As ações do estado '{nome_estado}' estão no formato "
                 "inválido."

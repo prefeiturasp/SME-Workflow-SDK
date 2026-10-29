@@ -9,10 +9,12 @@ import pytest
 from sme_workflow_sdk import ConfiguradorWorkflow
 from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
 from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
+from sme_workflow_sdk.aplicacao.transicao_resolver import TransicaoResolver
 from sme_workflow_sdk.configuracao.leitor import LeitorWorkflow
 from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
+from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
 
 WORKFLOW_EXEMPLO = """\
 estados:
@@ -294,7 +296,7 @@ def estados() -> dict[str, Estado]:
 
 
 @pytest.fixture
-def resolvedor(estados: dict[str, Estado]) -> DecisaoResolver:
+def decisao_resolver(estados: dict[str, Estado]) -> DecisaoResolver:
     """Instância reutilizável do resolvedor para os testes.."""
     return DecisaoResolver(estados)
 
@@ -323,3 +325,43 @@ def contexto() -> ContextoExecucao:
         autor="usuario-teste",
         dados={"origem": "teste"},
     )
+
+
+@pytest.fixture
+def resultado_workflow() -> ResultadoWorkflow:
+    """Cria um resultado de workflow válido."""
+    inicio = datetime(2026, 10, 27, 12, 0, tzinfo=UTC)
+    fim = datetime(2026, 10, 27, 12, 1, tzinfo=UTC)
+    contexto = ContextoExecucao(
+        identificador="execucao-123",
+        autor="usuario-teste",
+        dados={
+            "origem": "teste",
+            "lista": ["item1", "item2"],
+            "tupla": (
+                2,
+                3,
+                4,
+            ),
+        },
+    )
+
+    return ResultadoWorkflow(
+        identificador=contexto.identificador,
+        estado_anterior="aberto",
+        acao="aprovar",
+        proximo_estado="aprovado",
+        terminal=False,
+        sucesso=True,
+        mensagem="Transição executada com sucesso!",
+        inicio=inicio,
+        fim=fim,
+        autor=contexto.autor,
+        contexto=contexto,
+    )
+
+
+@pytest.fixture
+def transisao_resolver(estados: dict[str, Estado]) -> TransicaoResolver:
+    """Cria o resolvedor com os estados de teste."""
+    return TransicaoResolver(estados)

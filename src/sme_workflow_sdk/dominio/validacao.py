@@ -104,24 +104,25 @@ def validar_mapping(
 
 
 def validar_identificador(valor: str, nome_campo: str) -> None:
-    """Garante que o valor contém apenas letras e underscore.
+    """Valida o formato de um identificador de estado ou ação.
 
-    Aceita strings compostas por letras, usando ``_`` **apenas entre
-    palavras**. O underscore não pode iniciar, terminar, aparecer
-    duplicado nem ser o único caractere.
+    Os identificadores devem conter apenas letras ASCII e palavras
+    separadas por sublinhados. Não são permitidos espaços, hífens,
+    acentos ou números.
 
-    Não são permitidos números, espaços, hífens, acentos ou quaisquer
-    símbolos.
+    Exemplos de identificadores válidos:
+        - ``pendente``
+        - ``em_execucao``
+        - ``aguardando_aprovacao``
 
-    Exemplos:
-        Aceitos: ``"em_execucao"``, ``"abc_def"``, ``"Acao"``, ``"a"``.
-        Rejeitados: ``"_"``, ``"_privado"``, ``"abc_"``, ``"A_"``,
-        ``"a__b"``, ``"123abc"``, ``"abc1"``, ``"1.5"``, ``"abc-def"``,
-        ``"abc def"``, ``"execução"``.
-
+    Exemplos de identificadores inválidos:
+        - ``em-execucao``: contém hífen.
+        - ``estado2``: contém número.
+        - ``em execução``: contém espaço.
+        - ``em_execução``: contém caractere acentuado.
 
     Args:
-        valor (str): Valor já validado como string não vazia.
+        valor (str): Nome do estado ou da ação a ser validado.
         nome_campo (str): Nome do campo usado na mensagem de erro.
 
     Raises:

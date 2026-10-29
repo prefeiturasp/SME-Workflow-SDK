@@ -5,8 +5,11 @@ execução de workflow, registrando a transição realizada, o status da execuç
 os horários de início e término, o autor responsável e o contexto associado.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from datetime import datetime
+from enum import Enum
+from types import MappingProxyType
+from typing import Any
 
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.validacao import (
@@ -128,3 +131,51 @@ class ResultadoWorkflow:
                 "terminal deve indicar um estado de destino diferente do "
                 "estado anterior."
             )
+
+    def _converter_para_dict(self, valor: Any) -> Any:
+        """Converte recursivamente valores para estruturas compatíveis em JSON.
+
+        Converte dataclasses em dicionários, mapeamentos em dicionários
+        comuns, listas e tuplas em listas, enums em seus valores e datas
+        em strings no formato ISO 8601.
+
+        Args:
+            valor (Any): Valor a ser convertido.
+
+        Returns:
+            Any: Valor convertido para uma estrutura compatível com JSON.
+        """
+        if is_dataclass(valor) and not isinstance(valor, type):
+            return {
+                campo.name: self._converter_para_dict(
+                    getattr(valor, campo.name)
+                )
+                for campo in fields(valor)
+            }
+
+        if isinstance(valor, (dict | MappingProxyType)):
+            return {
+                chave: self._converter_para_dict(item)
+                for chave, item in valor.items()
+            }
+
+        if isinstance(valor, (list | tuple)):
+            return [self._converter_para_dict(item) for item in valor]
+
+        if isinstance(valor, Enum):
+            return self._converter_para_dict(valor.value)
+
+        return valor
+
+    def para_dict(self) -> dict[str, Any]:
+        """Converte o resultado do workflow em um dicionário.
+
+        Converte os objetos aninhados e os mapeamentos imutáveis, preservando
+        os valores datetime e seus fusos horários.
+
+        Returns:
+            dict[str, Any]: Dicionário com os dados do resultado,
+                incluindo objetos aninhados e datas em formato ISO 8601.
+        """
+        dicionario: dict[str, Any] = self._converter_para_dict(self)
+        return dicionario
