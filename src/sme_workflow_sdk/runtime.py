@@ -63,3 +63,10 @@ def get_workflow() -> MotorWorkflow:
         raise RuntimeError("O runtime do workflow ainda não foi inicializado.")
 
     return _ESTADO.workflow
+
+
+def shutdown() -> None:
+    """Encerra o runtime e libera a instância registrada."""
+    global _ESTADO
+
+    _ESTADO = None
