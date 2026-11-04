@@ -12,6 +12,21 @@ from sme_workflow_sdk.configuracao.configurador import (
 
 
 class TestRuntime:
+    def test_configure_deve_carregar_yaml_e_disponibilizar_workflow(
+        self,
+        yaml_valido: Path,
+    ) -> None:
+        """Deve inicializar o runtime utilizando um arquivo YAML válido."""
+        runtime.configure(yaml_valido)
+
+        workflow = runtime.get_workflow()
+
+        execucao = workflow.validar("aberto", "aprovar")
+
+        assert execucao.estado_atual == "aberto"
+        assert execucao.acao.nome == "aprovar"
+        assert execucao.acao.proximo_estado == "aprovado"
+
     def test_configure_deve_inicializar_runtime(
         self,
         tmp_path: Path,
@@ -79,8 +94,14 @@ class TestRuntime:
         ):
             runtime.configure(primeiro_caminho)
 
-            with pytest.raises(RuntimeError, match="outra configuração"):
+            with pytest.raises(RuntimeError) as exc:
                 runtime.configure(segundo_caminho)
+
+            assert (
+                str(exc.value)
+                == "O runtime do workflow já está inicializado com outra "
+                "configuração."
+            )
 
     def test_configure_deve_manter_runtime_nao_inicializado_se_falhar(
         self,
@@ -99,15 +120,24 @@ class TestRuntime:
         ):
             runtime.configure(caminho)
 
-        with pytest.raises(RuntimeError, match="ainda não foi inicializado"):
+        with pytest.raises(RuntimeError) as exc:
             runtime.get_workflow()
+
+        assert (
+            str(exc.value)
+            == "O runtime do workflow ainda não foi inicializado."
+        )
 
     def test_get_workflow_deve_lancar_erro_quando_nao_inicializado(
         self,
     ) -> None:
         """Deve impedir o acesso ao motor antes da inicialização."""
-        with pytest.raises(RuntimeError, match="ainda não foi inicializado"):
+        with pytest.raises(RuntimeError) as exc:
             runtime.get_workflow()
+        assert (
+            str(exc.value)
+            == "O runtime do workflow ainda não foi inicializado."
+        )
 
     def test_shutdown_deve_limpar_runtime(
         self,
@@ -127,5 +157,10 @@ class TestRuntime:
             runtime.configure(caminho)
             runtime.shutdown()
 
-        with pytest.raises(RuntimeError, match="ainda não foi inicializado"):
+        with pytest.raises(RuntimeError) as exc:
             runtime.get_workflow()
+
+        assert (
+            str(exc.value)
+            == "O runtime do workflow ainda não foi inicializado."
+        )
