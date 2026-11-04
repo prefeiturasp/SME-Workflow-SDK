@@ -8,14 +8,14 @@ from sme_workflow_sdk.configuracao.configurador import ConfiguradorWorkflow
 
 
 @dataclass
-class _EstadoRuntime:
+class RuntimeContext:
     """Armazena o estado da instância do SDK."""
 
     caminho: Path
     workflow: MotorWorkflow
 
 
-_ESTADO: _EstadoRuntime | None = None
+_RUNTIME_CONTEXT: RuntimeContext | None = None
 
 
 def configure(caminho: str | Path) -> None:
@@ -30,12 +30,12 @@ def configure(caminho: str | Path) -> None:
     Raises:
         RuntimeError: Se o runtime já estiver configurado com outro caminho.
     """
-    global _ESTADO
+    global _RUNTIME_CONTEXT
 
     caminho = Path(caminho).resolve()
 
-    if _ESTADO is not None:
-        if _ESTADO.caminho == caminho:
+    if _RUNTIME_CONTEXT is not None:
+        if _RUNTIME_CONTEXT.caminho == caminho:
             return
 
         raise RuntimeError(
@@ -47,7 +47,7 @@ def configure(caminho: str | Path) -> None:
     configuracao = configurador.carregar(str(caminho))
     workflow = MotorWorkflow(configuracao)
 
-    _ESTADO = _EstadoRuntime(
+    _RUNTIME_CONTEXT = RuntimeContext(
         caminho=caminho,
         workflow=workflow,
     )
@@ -59,14 +59,14 @@ def get_workflow() -> MotorWorkflow:
     Raises:
         RuntimeError: Se o runtime ainda não foi inicializado.
     """
-    if _ESTADO is None:
+    if _RUNTIME_CONTEXT is None:
         raise RuntimeError("O runtime do workflow ainda não foi inicializado.")
 
-    return _ESTADO.workflow
+    return _RUNTIME_CONTEXT.workflow
 
 
 def shutdown() -> None:
     """Encerra o runtime e libera a instância registrada."""
-    global _ESTADO
+    global _RUNTIME_CONTEXT
 
-    _ESTADO = None
+    _RUNTIME_CONTEXT = None
