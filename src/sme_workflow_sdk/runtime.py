@@ -51,3 +51,15 @@ def configure(caminho: str | Path) -> None:
         caminho=caminho,
         workflow=workflow,
     )
+
+
+def get_workflow() -> MotorWorkflow:
+    """Retorna a instância global do motor de workflow.
+
+    Raises:
+        RuntimeError: Se o runtime ainda não foi inicializado.
+    """
+    if _ESTADO is None:
+        raise RuntimeError("O runtime do workflow ainda não foi inicializado.")
+
+    return _ESTADO.workflow
