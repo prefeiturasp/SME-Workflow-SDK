@@ -1,5 +1,6 @@
 """Motor responsável por coordenar a execução do workflow."""
 
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
@@ -10,6 +11,8 @@ from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
 from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
 from sme_workflow_sdk.excecoes.workflow import TransicaoInvalidaError
+
+logger = logging.getLogger(__name__)
 
 
 class MotorWorkflow:
@@ -121,8 +124,33 @@ class MotorWorkflow:
             >>> execucao.estado_atual
             'pendente'
         """
-        execucao = self._decisao_resolver.validar(estado_atual, acao)
-        return self._transicao_resolver.resolver(execucao)
+        logger.info(
+            "Validando ação do workflow. Estado atual: %s | Ação: %s",
+            estado_atual,
+            acao,
+        )
+        try:
+            execucao = self._decisao_resolver.validar(estado_atual, acao)
+            transicao = self._transicao_resolver.resolver(execucao)
+
+            logger.info(
+                "Ação validada com sucesso. Estado atual: %s | "
+                "Ação: %s | Próximo estado: %s",
+                execucao.estado_atual,
+                execucao.acao.nome,
+                execucao.acao.proximo_estado,
+            )
+
+            return transicao
+
+        except Exception:
+            logger.exception(
+                "Falha ao validar ação do workflow. "
+                "Estado atual: %s | Ação: %s",
+                estado_atual,
+                acao,
+            )
+            raise
 
     def executar(
         self,
@@ -156,6 +184,14 @@ class MotorWorkflow:
             >>> resultado["sucesso"]
             True
         """
+        logger.info(
+            "Iniciando execução do workflow. Identificador: %s | "
+            "Estado atual: %s | Ação: %s | Autor: %s",
+            contexto.identificador,
+            dados_transicao.estado_atual,
+            dados_transicao.acao.nome,
+            contexto.autor,
+        )
         try:
             execucao = self._transicao_resolver.resolver(dados_transicao)
             sucesso = True
@@ -174,6 +210,17 @@ class MotorWorkflow:
                 contexto=contexto,
                 mensagem=mensagem,
             )
+
+            logger.info(
+                "Workflow executado com sucesso. Identificador: %s | "
+                "Estado anterior: %s | Ação: %s | Próximo estado: %s | "
+                "Terminal: %s",
+                resultado.identificador,
+                resultado.estado_anterior,
+                resultado.acao,
+                resultado.proximo_estado,
+                resultado.terminal,
+            )
         except TransicaoInvalidaError as exc:
             estado_atual = dados_transicao.estado_atual
             resultado = ResultadoWorkflow(
@@ -188,6 +235,14 @@ class MotorWorkflow:
                 autor=contexto.autor,
                 contexto=contexto,
                 mensagem=f"Transição não executada! {str(exc)}",
+            )
+            logger.warning(
+                "Falha na execução do workflow. Identificador: %s | "
+                "Estado atual: %s | Ação: %s | Motivo: %s",
+                contexto.identificador,
+                estado_atual,
+                dados_transicao.acao.nome,
+                exc,
             )
 
         return resultado.para_dict()

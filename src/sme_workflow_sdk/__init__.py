@@ -5,6 +5,11 @@ from sme_workflow_sdk.configuracao.configurador import ConfiguradorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
 from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
+from sme_workflow_sdk.runtime import (
+    configure,
+    get_workflow,
+    shutdown,
+)
 
 __all__ = [
     "ConfiguradorWorkflow",
@@ -12,4 +17,7 @@ __all__ = [
     "ExecucaoValidada",
     "MotorWorkflow",
     "ResultadoWorkflow",
+    "configure",
+    "get_workflow",
+    "shutdown",
 ]
