@@ -1,10 +1,13 @@
 """_summary_."""
 
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 
 from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
 from sme_workflow_sdk.configuracao.configurador import ConfiguradorWorkflow
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -36,21 +39,38 @@ def configure(caminho: str | Path) -> None:
 
     if _RUNTIME_CONTEXT is not None:
         if _RUNTIME_CONTEXT.caminho == caminho:
+            logger.debug(
+                "Workflow já inicializado com a configuração: %s",
+                caminho,
+            )
             return
-
+        logger.error(
+            "Tentativa de inicializar o workflow com outra configuração: %s",
+            caminho,
+        )
         raise RuntimeError(
             "O runtime do workflow já está inicializado com outra "
             "configuração."
         )
 
-    configurador = ConfiguradorWorkflow()
-    configuracao = configurador.carregar(str(caminho))
-    workflow = MotorWorkflow(configuracao)
+    try:
+        configurador = ConfiguradorWorkflow()
+        configuracao = configurador.carregar(str(caminho))
+        workflow = MotorWorkflow(configuracao)
 
-    _RUNTIME_CONTEXT = RuntimeContext(
-        caminho=caminho,
-        workflow=workflow,
-    )
+        _RUNTIME_CONTEXT = RuntimeContext(
+            caminho=caminho,
+            workflow=workflow,
+        )
+
+        logger.info("SDK de workflow inicializado com sucesso.")
+
+    except Exception:
+        logger.exception(
+            "Falha ao inicializar o SDK de workflow. Configuração: %s",
+            caminho,
+        )
+        raise
 
 
 def get_workflow() -> MotorWorkflow:
@@ -69,4 +89,12 @@ def shutdown() -> None:
     """Encerra o runtime e libera a instância registrada."""
     global _RUNTIME_CONTEXT
 
+    if _RUNTIME_CONTEXT is None:
+        logger.debug("Solicitação de encerramento ignorada: runtime inativo.")
+        return
+
+    logger.info("Encerrando SDK de workflow.")
+
     _RUNTIME_CONTEXT = None
+
+    logger.info("SDK de workflow encerrado.")
