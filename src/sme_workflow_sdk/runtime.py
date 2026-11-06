@@ -1,4 +1,23 @@
-"""_summary_."""
+"""Gerencia o ciclo de vida do runtime do SDK de workflow.
+
+Este módulo é responsável por inicializar, disponibilizar e encerrar
+a instância do motor de workflow utilizada pela aplicação consumidora.
+
+O runtime mantém uma instância compartilhada do motor durante o ciclo
+de vida da aplicação, evitando inicializações desnecessárias.
+
+Principais responsabilidades:
+    - Inicializar o motor de workflow a partir de um arquivo YAML.
+    - Garantir a inicialização única do runtime.
+    - Disponibilizar a instância configurada do motor.
+    - Permitir o encerramento do runtime.
+    - Registrar logs das operações de inicialização e encerramento.
+
+Funções públicas:
+    configure: Inicializa o runtime com o arquivo de configuração.
+    get_workflow: Retorna a instância configurada do motor.
+    shutdown: Encerra o runtime e libera a instância compartilhada.
+"""
 
 import logging
 from dataclasses import dataclass
