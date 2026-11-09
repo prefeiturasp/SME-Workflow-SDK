@@ -1,13 +1,13 @@
-"""Exceções base relacionadas a biblioteca."""
+"""Define as exceções base utilizadas pelo SDK de workflow."""
 
 
 class LeitorWorkflowError(Exception):
-    """Erro base do leitor de workflow."""
+    """Exceção base para erros relacionados à leitura da configuração."""
 
 
 class ValidadorWorkflowError(Exception):
-    """Erro base do validador de workflow."""
+    """Exceção base para erros relacionados à validação da configuração."""
 
 
 class ValidacaoDominioError(Exception):
-    """Erro base do domínio de workflow."""
+    """Exceção base para erros de validação das entidades de domínio."""
