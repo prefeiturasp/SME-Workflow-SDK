@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from sme_workflow_sdk import ConfiguradorWorkflow
+from sme_workflow_sdk import ConfiguradorWorkflow, runtime
 from sme_workflow_sdk.aplicacao.decisao_resolver import DecisaoResolver
 from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
 from sme_workflow_sdk.aplicacao.transicao_resolver import TransicaoResolver
@@ -365,3 +365,11 @@ def resultado_workflow() -> ResultadoWorkflow:
 def transisao_resolver(estados: dict[str, Estado]) -> TransicaoResolver:
     """Cria o resolvedor com os estados de teste."""
     return TransicaoResolver(estados)
+
+
+@pytest.fixture(autouse=True)
+def limpar_runtime() -> Any:
+    """Garante que o runtime esteja limpo antes e depois de cada teste."""
+    runtime.shutdown()
+    yield
+    runtime.shutdown()
