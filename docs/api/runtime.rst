@@ -11,3 +11,4 @@ necessário.
 .. automodule:: sme_workflow_sdk.runtime
    :members:
    :undoc-members:
+   :show-inheritance:

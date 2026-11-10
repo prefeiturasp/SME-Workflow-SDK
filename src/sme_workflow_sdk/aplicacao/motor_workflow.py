@@ -36,14 +36,14 @@ class MotorWorkflow:
     realiza operações de persistência.
 
     Attributes:
-    _configuracao: Configuração carregada e validada do workflow.
-    _estados: Estados e ações convertidos em entidades de domínio.
-    _decisao_resolver: Responsável por validar estados e ações.
-    _transicao_resolver: Responsável por validar a consistência
-        das transições.
+        _configuracao: Configuração carregada e validada do workflow.
+        _estados: Estados e ações convertidos em entidades de domínio.
+        _decisao_resolver: Responsável por validar estados e ações.
+        _transicao_resolver: Responsável por validar a consistência
+            das transições.
 
 
-    Exemplo:
+    Exemples:
         >>> configurador = ConfiguradorWorkflow()
         >>> configuracao = configurador.carregar("workflow.yaml")
         >>> configurador.validar(configuracao)

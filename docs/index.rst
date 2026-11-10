@@ -20,7 +20,6 @@ e a referência técnica da API do SDK.
    :maxdepth: 2
    :caption: Documentação
 
-   configuracao
    api/index
 
 Índices e tabelas

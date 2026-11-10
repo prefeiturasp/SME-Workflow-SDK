@@ -83,16 +83,19 @@ class ConfiguradorWorkflow:
 
         Args:
             configuracao (dict[str, Any]): Configuração do workflow,
-            normalmente obtida por meio de :meth:`carregar`.
+                normalmente obtida por meio de :meth:`carregar`.
 
         Raises:
             EstadoInvalidoError:
+
                 - Se a configuração não for um dicionário.
                 - Se o campo ``estados`` estiver ausente, não for um
                   dicionário ou estiver vazio.
                 - Se algum estado tiver nome ou dados inválidos.
                 - Se alguma ação referenciar um estado inexistente.
+
             AcaoInvalidaError:
+
                 - Se algum estado não possuir o campo ``acoes``.
                 - Se ``acoes`` não for um dicionário válido, nem ``None``,
                     ou se for um dicionário vazio.
