@@ -20,6 +20,11 @@ e a referência técnica da API do SDK.
    :maxdepth: 2
    :caption: Documentação
 
+   primeiros_passos
+   configurando_workflow
+   integrando_aplicacao
+   tratamento_excecoes
+   arquitetura
    api/index
 
 Índices e tabelas
