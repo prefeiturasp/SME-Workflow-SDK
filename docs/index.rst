@@ -21,6 +21,7 @@ e a referência técnica da API do SDK.
    :caption: Documentação
 
    configuracao
+   api/index
 
 Índices e tabelas
 -----------------
