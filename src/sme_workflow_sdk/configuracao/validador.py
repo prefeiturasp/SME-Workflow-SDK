@@ -60,11 +60,12 @@ class ValidadorWorkflow:
                 - Se alguma ação referenciar um estado inexistente.
             AcaoInvalidaError:
                 - Se algum estado não possuir o campo ``acoes``.
-                - Se ``acoes`` não for dicionário nem ``None``.
-                - Se alguma ação estiver mal formada (nome, dados,
-                  campos obrigatórios ou chaves extras).
+                - Se ``acoes`` não for um dicionário nem ``None``.
+                - Se ``acoes`` for um dicionário vazio.
+                - Se alguma ação estiver malformada (nome, dados,
+                campos obrigatórios ou chaves extras).
                 - Se houver incoerência entre o campo ``terminal``
-                  de uma ação e as ações do estado de destino.
+                de uma ação e as ações do estado de destino.
         """
         if not isinstance(configuracao, dict):
             raise EstadoInvalidoError("A configuração fornecida é inválida.")
@@ -100,7 +101,8 @@ class ValidadorWorkflow:
                 - Se os dados do estado não forem um dicionário.
             AcaoInvalidaError:
                 - Se o estado não possuir o campo ``acoes``.
-                - Se o campo ``acoes`` não for dicionário nem ``None``.
+                - Se ``acoes`` não for um dicionário nem ``None``.
+                - Se ``acoes`` for um dicionário vazio.
         """
         if not isinstance(nome_estado, str) or not nome_estado.strip():
             raise EstadoInvalidoError(
@@ -244,9 +246,11 @@ class ValidadorWorkflow:
         """Valida uma única transição de ação.
 
         Confere se o estado de destino existe e se o campo
-        ``terminal`` é coerente com a presença de ações no destino:
-        estados terminais devem ir para destinos sem ações; estados
-        não terminais devem ir para destinos com ações.
+        ``terminal`` é coerente com a configuração de ações do destino.
+
+        Quando ``terminal`` é ``True``, o destino deve possuir
+        ``acoes=None``. Quando é ``False``, o destino deve possuir
+        um dicionário de ações não vazio.
 
         Args:
             estados (dict[str, Any]): Dicionário completo de estados,

@@ -1,4 +1,13 @@
-"""Validação de estado e ação do workflow."""
+"""Resolve e valida as decisões disponíveis no workflow.
+
+Este módulo disponibiliza a classe DecisaoResolver, responsável por
+verificar se o estado informado existe na configuração e se a ação
+solicitada está disponível para esse estado.
+
+Após validar a decisão, retorna uma instância de ExecucaoValidada,
+que será utilizada pelo TransicaoResolver para verificar a consistência
+da transição configurada.
+"""
 
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
@@ -11,19 +20,24 @@ from sme_workflow_sdk.excecoes import (
 class DecisaoResolver:
     """Resolve e valida as decisões permitidas em um workflow.
 
-    Verifica se o estado atual está configurado e se a ação solicitada
-    está disponível para esse estado. Retorna os dados validados para
-    que o fluxo de execução possa prosseguir com a validação da transição.
+    Recebe os estados previamente convertidos em entidades de domínio
+    pelo MotorWorkflow e verifica se o estado informado existe e se
+    a ação solicitada está disponível para esse estado.
+
+    Quando as validações são concluídas, retorna uma instância de
+    ExecucaoValidada para processamento pelo TransicaoResolver.
 
     A validação do próximo estado, do campo ``terminal`` e das regras
-    específicas da transição é responsabilidade do TransicaoResolver.
+    de consistência da transição não é responsabilidade desta classe.
+
+    O resolvedor não executa regras de negócio nem realiza persistência.
     """
 
     def __init__(self, estados: dict[str, Estado]) -> None:
         """Inicializa o resolvedor com os estados do workflow.
 
-        Recebe o mapeamento de estados previamente convertido em entidades
-        de domínio e o reutiliza nas validações das ações e transições.
+        Armazena o mapeamento de estados previamente convertido em
+        entidades de domínio, que será utilizado durante as validações.
 
         Args:
             estados (dict[str, Estado]): Dicionário de estados indexados por
@@ -32,11 +46,17 @@ class DecisaoResolver:
         self._estados = estados
 
     def validar(self, estado_atual: str, acao: str) -> ExecucaoValidada:
-        """Valida se uma ação está disponível no estado atual do workflow.
+        """Valida a disponibilidade de uma ação no estado atual.
 
-        Verifica a existência do estado informado e se ele permite a ação
-        solicitada. Caso as validações sejam bem-sucedidas, retorna os dados
-        necessários para a etapa seguinte do processamento do workflow.
+        Verifica se o estado informado existe na configuração e se
+        disponibiliza a ação solicitada.
+
+        Quando as validações são concluídas, cria e retorna uma instância
+        de ExecucaoValidada contendo o estado atual, a ação correspondente
+        e o horário de início da transição.
+
+        A validação da consistência da transição é realizada posteriormente
+        pelo TransicaoResolver.
 
         Args:
             estado_atual (str): Nome do estado atual do workflow.
@@ -45,11 +65,12 @@ class DecisaoResolver:
         Raises:
             EstadoInvalidoError: Se o estado informado não existir
                 na configuração.
-            AcaoInvalidaError: Se a ação não estiver disponível no estado
-                ou se os dados da transição forem inválidos.
+            AcaoInvalidaError: Se o estado não possuir ações configuradas
+            ou se a ação solicitada não estiver disponível nele.
 
         Returns:
-            ExecucaoValidada: Dados validados para a execução da ação.
+            ExecucaoValidada: Dados da execução necessários para a etapa
+                seguinte do processamento do workflow.
         """
         estado = self._validar_estado(estado_atual)
         acao_configurada = self._validar_acao(estado, acao)
@@ -58,7 +79,9 @@ class DecisaoResolver:
         )
 
     def _validar_estado(self, estado_atual: str) -> Estado:
-        """Obtém o estado informado ou lança uma exceção.
+        """Obtém o estado informado na configuração do workflow.
+
+        Consulta o mapeamento de estados utilizando o nome informado
 
         Args:
             estado_atual (str): Nome do estado que será localizado.
@@ -79,10 +102,10 @@ class DecisaoResolver:
         return estado
 
     def _validar_acao(self, estado: Estado, nome_acao: str) -> Acao:
-        """Obtém a ação configurada para o estado informado.
+        """Obtém a ação disponível no estado informado.
 
         Verifica se o estado possui ações configuradas e se a ação
-        solicitada está disponível nesse estado.
+        solicitada está disponível no mapeamento de ações do estado.
 
         Args:
             estado (Estado): Estado em que a ação será procurada.

@@ -14,9 +14,9 @@ Principais responsabilidades:
     - Registrar logs das operações de inicialização e encerramento.
 
 Funções públicas:
-    configure: Inicializa o runtime com o arquivo de configuração.
+    configure: Carrega, valida e inicializa o runtime.
     get_workflow: Retorna a instância configurada do motor.
-    shutdown: Encerra o runtime e libera a instância compartilhada.
+    shutdown: Encerra o runtime removendo a referência global ao motor.
 """
 
 import logging
@@ -31,7 +31,17 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RuntimeContext:
-    """Armazena o estado da instância do SDK."""
+    """Armazena o estado da instância do SDK.
+
+    Mantém as informações necessárias para identificar a configuração
+    utilizada e disponibilizar o motor de workflow inicializado.
+
+    Attributes:
+        caminho: Caminho absoluto do arquivo YAML utilizado na inicialização
+            do runtime.
+        workflow: Instância do motor de workflow criada a partir
+            da configuração carregada e validada.
+    """
 
     caminho: Path
     workflow: MotorWorkflow
@@ -43,6 +53,9 @@ _RUNTIME_CONTEXT: RuntimeContext | None = None
 def configure(caminho: str | Path) -> None:
     """Inicializa o runtime do SDK com um arquivo de configuração.
 
+    Carrega e valida a configuração do workflow antes de criar o motor.
+    A instância criada é armazenada no contexto global do runtime.
+
     A inicialização é idempotente para o mesmo caminho. Caso o runtime
     já esteja inicializado com outro caminho, uma exceção será lançada.
 
@@ -51,6 +64,12 @@ def configure(caminho: str | Path) -> None:
 
     Raises:
         RuntimeError: Se o runtime já estiver configurado com outro caminho.
+        ArquivoNaoEncontradoError: Se o arquivo não existir ou não for válido.
+        FormatoInvalidoError: Se a extensão ou o conteúdo YAML for inválido.
+        ConfiguracaoInvalidaError: Se o conteúdo carregado não possuir
+            uma estrutura YAML válida.
+        EstadoInvalidoError: Se houver estados ou referências inválidas.
+        AcaoInvalidaError: Se houver ações ou transições inconsistentes.
     """
     global _RUNTIME_CONTEXT
 
@@ -71,10 +90,11 @@ def configure(caminho: str | Path) -> None:
             "O runtime do workflow já está inicializado com outra "
             "configuração."
         )
-
+    logger.info("Inicializando SDK de workflow. Configuração: %s", caminho)
     try:
         configurador = ConfiguradorWorkflow()
         configuracao = configurador.carregar(str(caminho))
+        configurador.validar(configuracao)
         workflow = MotorWorkflow(configuracao)
 
         _RUNTIME_CONTEXT = RuntimeContext(
@@ -105,7 +125,14 @@ def get_workflow() -> MotorWorkflow:
 
 
 def shutdown() -> None:
-    """Encerra o runtime e libera a instância registrada."""
+    """Encerra o runtime removendo a referência global ao motor.
+
+    Após o encerramento, chamadas a get_workflow() lançarão RuntimeError
+    até que o runtime seja inicializado novamente.
+
+    Referências ao motor mantidas externamente não são invalidadas
+    automaticamente.
+    """
     global _RUNTIME_CONTEXT
 
     if _RUNTIME_CONTEXT is None:

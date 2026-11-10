@@ -1,4 +1,13 @@
-"""Funções genéricas para validação de dados do domínio."""
+"""Disponibiliza funções genéricas para validação de dados do domínio.
+
+Este módulo reúne funções reutilizáveis para validar tipos, strings,
+valores booleanos, mapeamentos e identificadores utilizados pelas
+entidades do workflow.
+
+As funções centralizam as regras básicas de validação e lançam
+ValidacaoDominioError quando os valores informados não atendem
+aos critérios estabelecidos.
+"""
 
 import re
 from collections.abc import Mapping
@@ -12,7 +21,10 @@ def validar_tipo(
     tipo_esperado: type | tuple[type, ...],
     nome_campo: str,
 ) -> None:
-    """Valida se um valor corresponde ao tipo esperado.
+    """Valida se um valor corresponde a um dos tipos esperados.
+
+    Utiliza isinstance() para verificar se o valor pertence ao tipo
+    informado ou a uma tupla de tipos aceitos
 
     Args:
         valor (Any): Valor que será validado.
@@ -21,8 +33,8 @@ def validar_tipo(
         nome_campo (str): Nome do campo usado na mensagem de erro.
 
     Raises:
-        ValidacaoDominioError: Se o valor não corresponder a nenhum dos tipos
-            esperados. A causa original será um TypeError.
+        ValidacaoDominioError: Se o valor não corresponder a nenhum
+            dos tipos esperados.
     """
     if not isinstance(valor, tipo_esperado):
         if isinstance(tipo_esperado, tuple):
@@ -36,14 +48,18 @@ def validar_tipo(
 
 
 def validar_string_nao_vazia(valor: Any, nome_campo: str) -> None:
-    """Valida se um valor é uma string não vazia ou composta por espaços.
+    """Valida se um valor é uma string não vazia.
+
+    Considera inválidas strings vazias ou compostas exclusivamente
+    por espaços em branco. A função não remove os espaços do valor
+    original.
 
     Args:
         valor (Any): Valor que será validado.
         nome_campo (str): Nome do campo usado na mensagem de erro.
 
     Raises:
-        ValidacaoDominioError: e o valor não for uma string ou estiver vazio
+        ValidacaoDominioError: Se o valor não for uma string ou estiver vazio
             após a remoção de espaços.
     """
     validar_tipo(valor, str, nome_campo)
@@ -54,8 +70,8 @@ def validar_string_nao_vazia(valor: Any, nome_campo: str) -> None:
 def validar_booleano(valor: Any, nome_campo: str) -> None:
     """Valida se um valor é estritamente do tipo bool.
 
-    Valores inteiros como 0 e 1 não são aceitos, mesmo que possam ser
-    utilizados como booleanos em algumas expressões Python.
+    Não aceita valores de outros tipos, incluindo inteiros como 0 e 1,
+    mesmo que possam ser utilizados como booleanos em expressões Python.
 
     Args:
         valor (Any): Valor que será validado.
@@ -76,7 +92,10 @@ def validar_mapping(
     *,
     permitir_none: bool = False,
 ) -> None:
-    """Valida se um valor implementa Mapping.
+    """Valida se um valor implementa a interface Mapping.
+
+    Verifica se o valor implementa collections.abc.Mapping.
+    Quando permitir_none é True, o valor None também é aceito.
 
     Args:
         valor (Any): Valor que será validado.
@@ -85,8 +104,8 @@ def validar_mapping(
             padrão é False.
 
     Raises:
-        ValidacaoDominioError: Se o valor não implementar Mapping e não
-            for None em um campo que permita esse valor.
+        ValidacaoDominioError: Se o valor não implementar Mapping
+            e None não for permitido.
     """
     if valor is None and permitir_none:
         return
@@ -106,9 +125,11 @@ def validar_mapping(
 def validar_identificador(valor: str, nome_campo: str) -> None:
     """Valida o formato de um identificador de estado ou ação.
 
-    Os identificadores devem conter apenas letras ASCII e palavras
-    separadas por sublinhados. Não são permitidos espaços, hífens,
-    acentos ou números.
+    Aceita somente letras ASCII, com palavras separadas por
+    sublinhados. Cada palavra deve conter pelo menos uma letra.
+
+    Não são permitidos números, espaços, hífens, caracteres acentuados,
+    sublinhados no início ou no fim, nem sublinhados consecutivos.
 
     Exemplos de identificadores válidos:
         - ``pendente``
@@ -126,8 +147,8 @@ def validar_identificador(valor: str, nome_campo: str) -> None:
         nome_campo (str): Nome do campo usado na mensagem de erro.
 
     Raises:
-        ValidacaoDominioError: Se o valor contiver caracteres fora de
-            ``[A-Za-z_]``, ou se o ``_`` não estiver entre palavras.
+        ValidacaoDominioError: Se o identificador não respeitar
+            o padrão definido pelo domínio.
     """
     identificador = re.compile(r"[A-Za-z]+(?:_[A-Za-z]+)*")
     if not identificador.fullmatch(valor):

@@ -167,7 +167,14 @@ class LeitorWorkflow:
     def _validar_conteudo(
         self, configuracao: Any, caminho_arquivo: Path
     ) -> None:
-        """Valida se o conteúdo carregado é um mapeamento não vazio.
+        """Valida se o conteúdo carregado possui um mapeamento na raiz.
+
+        Verifica se o conteúdo YAML foi carregado corretamente e se sua
+        estrutura de alto nível é um dicionário.
+
+        Não verifica se o dicionário possui estados ou se atende ao
+        esquema semântico do workflow. Essas validações são realizadas
+        posteriormente pelo ValidadorWorkflow.
 
         Args:
             configuracao (Any): Objeto retornado por :meth:`_ler_yaml`. Pode
@@ -177,11 +184,9 @@ class LeitorWorkflow:
                 compor mensagens de erro.
 
         Raises:
-            ConfiguracaoInvalidaError: Se ``configuracao`` for ``None``,
-                indicando arquivo vazio ou só com comentários.
-            ConfiguracaoInvalidaError: Se ``configuracao`` não for um
-                ``dict``, indicando que a raiz do YAML não é um
-                mapeamento.
+            ConfiguracaoInvalidaError: Se o conteúdo for ``None``,
+                indicando arquivo vazio ou contendo apenas comentários,
+                ou se a raiz do YAML não for um dicionário.
         """
         if configuracao is None:
             raise ConfiguracaoInvalidaError(

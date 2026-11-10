@@ -1,11 +1,13 @@
-"""Contexto de execução do workflow.
+"""Define o contexto associado à execução de um workflow.
 
-Este módulo define a entidade responsável por armazenar as informações
-associadas à execução de um workflow, incluindo o autor, o identificador
-da execução e os dados adicionais relacionados ao processo.
+Este módulo disponibiliza a entidade ContextoExecucao, responsável por
+armazenar informações complementares de uma execução, como o autor,
+o identificador e os dados adicionais fornecidos pela aplicação consumidora.
 
-O contexto é imutável após sua inicialização, e o mapeamento de dados
-é protegido contra alterações diretas por meio de ``MappingProxyType``.
+O contexto utiliza uma dataclass imutável e protege o mapeamento de dados
+por meio de MappingProxyType. A proteção impede alterações diretas nas
+chaves e nos valores do mapeamento, mas não garante a imutabilidade
+profunda dos objetos armazenados nele.
 """
 
 from collections.abc import Mapping
@@ -23,17 +25,26 @@ from sme_workflow_sdk.excecoes.base import ValidacaoDominioError
 
 @dataclass(frozen=True, slots=True)
 class ContextoExecucao:
-    """Armazena informações da execução do workflow.
+    """Representa o contexto associado a uma execução do workflow.
 
-    O contexto identifica o autor da execução, gera um identificador único
-    por padrão e permite armazenar dados adicionais relacionados ao processo.
+    Armazena a identificação do autor, um identificador único da execução
+    e dados adicionais fornecidos pela aplicação consumidora.
 
-    A classe é imutável após sua inicialização. O atributo ``dados`` é
-    copiado e convertido em ``MappingProxyType``, impedindo alterações
-    diretas no mapeamento por meio da instância.
+    Quando não informado, o identificador é gerado automaticamente
+    utilizando UUID4. A aplicação consumidora também pode fornecer
+    seu próprio identificador, desde que seja uma string não vazia.
+
+    A instância é imutável após sua criação. O atributo ``dados`` é
+    copiado e convertido em MappingProxyType, impedindo alterações
+    diretas no mapeamento armazenado.
+
+    A cópia dos dados é superficial: objetos mutáveis armazenados como
+    valores não são copiados recursivamente e podem continuar sendo
+    modificados por referências externas.
 
     Attributes:
-        autor: Identificação do autor responsável pela execução.
+        autor: Identificação do autor responsável pela execução. Deve ser uma
+            string não vazia.
         identificador: Identificador único da execução. Caso não seja
             informado, um UUID é gerado automaticamente.
         dados: Mapeamento com informações adicionais da execução.
@@ -50,9 +61,9 @@ class ContextoExecucao:
         Valida se ``autor`` e ``identificador`` são strings não vazias
         e se ``dados`` implementa a interface ``Mapping``.
 
-        Em seguida, cria uma cópia do mapeamento e a converte em
-        ``MappingProxyType``, impedindo alterações diretas em suas chaves
-        e valores por meio do mapeamento armazenado na instância.
+        Após as validações, cria uma cópia superficial do mapeamento
+        informado e o converte em MappingProxyType, impedindo alterações
+        diretas nas chaves e nos valores do mapeamento armazenado.
 
         Raises:
             ValidacaoDominioError: Se algum atributo não atender às regras

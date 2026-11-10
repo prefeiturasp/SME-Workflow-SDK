@@ -23,30 +23,32 @@ from sme_workflow_sdk.excecoes import ValidacaoDominioError
 
 @dataclass(frozen=True, slots=True)
 class ResultadoWorkflow:
-    """Representa o resultado da execução de uma ação do workflow.
+    """Representa o resultado de uma execução do workflow.
 
-    A entidade reúne as informações necessárias para identificar uma execução,
-    descrever a transição de estado realizada e registrar seu resultado.
+    Reúne as informações necessárias para identificar uma execução,
+    descrever a transição solicitada e registrar seu resultado.
 
-    A classe é imutável após sua inicialização. As validações garantem que
-    os atributos obrigatórios tenham os tipos e valores esperados, que os
-    horários sejam compatíveis e que transições não terminais não retornem
-    ao mesmo estado.
+    A entidade é imutável após sua inicialização. Suas validações
+    verificam os tipos e valores dos atributos, a compatibilidade
+    dos horários e a consistência da transição.
+
+    Uma execução bem-sucedida e não terminal deve indicar um estado
+    de destino diferente do estado anterior. Execuções malsucedidas
+    podem manter o estado anterior como próximo estado.
 
     Attributes:
-        identificador: Identificador único da execução do workflow.
+        identificador: Identificador único da execução.
         estado_anterior: Nome do estado em que a ação foi executada.
         acao: Nome da ação executada.
-        proximo_estado: Nome do estado resultante da execução da ação.
-        terminal: Indica se a transição corresponde ao encerramento
-            do workflow.
-        sucesso: Indica se a execução da ação foi concluída com sucesso.
-        mensagem: Mensagem complementar de sucesso ou falha da execução.
-        inicio: Data e hora em que a execução foi iniciada.
-        fim: Data e hora em que a execução foi finalizada.
+        proximo_estado: Nome do estado resultante da execução.
+        terminal: Indica se a transição encerra o workflow.
+        sucesso: Indica se a execução foi concluída com sucesso.
+        mensagem: Mensagem complementar sobre o resultado.
+        inicio: Data e hora de início da execução.
+        fim: Data e hora de término da execução.
         autor: Identificação do autor responsável pela execução.
         contexto: Contexto associado à execução, representado por
-            uma instância de ``ContextoExecucao``.
+            uma instância de ContextoExecucao.
     """
 
     identificador: str
@@ -64,20 +66,18 @@ class ResultadoWorkflow:
     def __post_init__(self) -> None:
         """Valida os atributos e a consistência do resultado.
 
-        Verifica se os campos textuais são strings não vazias, se os campos
-        booleanos são do tipo ``bool`` e se os horários e o contexto possuem
-        os tipos esperados.
+        Verifica os tipos e valores dos atributos obrigatórios,
+        a validade dos identificadores e a consistência dos horários.
 
-        Também verifica se o horário de término não é anterior ao horário
-        de início e se uma transição não terminal aponta para um estado
-        diferente do estado anterior.
+        Também verifica se o horário de término não é anterior ao
+        horário de início e se uma execução bem-sucedida e não terminal
+        aponta para um estado diferente do estado anterior.
 
 
         Raises:
-            ValidacaoDominioError: Se algum atributo for inválido, se o
-                horário de término for anterior ao início, se os horários
-                possuírem fusos incompatíveis ou se uma transição não
-                terminal apontar para o próprio estado de origem.
+            ValidacaoDominioError: Se algum atributo for inválido,
+            se os horários forem incompatíveis ou se a transição
+            não respeitar as regras de consistência do resultado.
         """
         validar_string_nao_vazia(
             self.identificador, "ResultadoWorkflow.identificador"
@@ -133,17 +133,22 @@ class ResultadoWorkflow:
             )
 
     def _converter_para_dict(self, valor: Any) -> Any:
-        """Converte recursivamente valores para estruturas compatíveis em JSON.
+        """Converte recursivamente estruturas de dados em valores simples.
 
         Converte dataclasses em dicionários, mapeamentos em dicionários
-        comuns, listas e tuplas em listas, enums em seus valores e datas
-        em strings no formato ISO 8601.
+        comuns, listas e tuplas em listas e enums em seus respectivos
+        valores.
+
+        A conversão é recursiva, permitindo tratar estruturas aninhadas.
+        Tipos não contemplados pelas conversões são preservados,
+        incluindo objetos datetime.
 
         Args:
             valor (Any): Valor a ser convertido.
 
         Returns:
-            Any: Valor convertido para uma estrutura compatível com JSON.
+            Any: Valor convertido conforme seu tipo, preservando os objetos
+                que não possuem uma regra específica de conversão.
         """
         if is_dataclass(valor) and not isinstance(valor, type):
             return {
@@ -170,12 +175,17 @@ class ResultadoWorkflow:
     def para_dict(self) -> dict[str, Any]:
         """Converte o resultado do workflow em um dicionário.
 
-        Converte os objetos aninhados e os mapeamentos imutáveis, preservando
-        os valores datetime e seus fusos horários.
+        Percorre recursivamente os atributos do resultado, convertendo
+        dataclasses, mapeamentos, listas, tuplas e enums para estruturas
+        equivalentes em tipos básicos.
+
+        Os objetos datetime são preservados, não sendo convertidos
+        automaticamente para strings.
 
         Returns:
-            dict[str, Any]: Dicionário com os dados do resultado,
-                incluindo objetos aninhados e datas em formato ISO 8601.
+            dict[str, Any]: Dicionário contendo os atributos do resultado,
+                incluindo os objetos datetime originais e o contexto convertido
+                recursivamente.
         """
         dicionario: dict[str, Any] = self._converter_para_dict(self)
         return dicionario

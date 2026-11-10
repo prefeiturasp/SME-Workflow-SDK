@@ -1,6 +1,7 @@
 """Testes do gerenciamento do runtime do SDK."""
 
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -28,8 +29,7 @@ class TestRuntime:
         assert execucao.acao.proximo_estado == "aprovado"
 
     def test_configure_deve_inicializar_runtime(
-        self,
-        tmp_path: Path,
+        self, tmp_path: Path, workflow_exemplo_dict: dict[str, Any]
     ) -> None:
         """Deve carregar a configuração e inicializar o motor."""
         caminho = tmp_path / "workflow.yaml"
@@ -38,8 +38,13 @@ class TestRuntime:
             patch.object(
                 ConfiguradorWorkflow,
                 "carregar",
-                return_value={"estados": {}},
+                return_value=workflow_exemplo_dict,
             ) as carregar,
+            patch.object(
+                ConfiguradorWorkflow,
+                "validar",
+                return_value=None,
+            ) as validar,
             patch.object(
                 runtime,
                 "MotorWorkflow",
@@ -48,13 +53,13 @@ class TestRuntime:
             runtime.configure(caminho)
 
             carregar.assert_called_once_with(str(caminho.resolve()))
-            motor.assert_called_once_with({"estados": {}})
+            validar.assert_called_once_with(workflow_exemplo_dict)
+            motor.assert_called_once_with(workflow_exemplo_dict)
 
             assert runtime.get_workflow() is motor.return_value
 
     def test_configure_deve_reutilizar_instancia_para_mesmo_caminho(
-        self,
-        tmp_path: Path,
+        self, tmp_path: Path, workflow_exemplo_dict: dict[str, Any]
     ) -> None:
         """Não deve criar outro motor para o mesmo caminho."""
         caminho = tmp_path / "workflow.yaml"
@@ -63,8 +68,13 @@ class TestRuntime:
             patch.object(
                 ConfiguradorWorkflow,
                 "carregar",
-                return_value={"estados": {}},
+                return_value=workflow_exemplo_dict,
             ) as carregar,
+            patch.object(
+                ConfiguradorWorkflow,
+                "validar",
+                return_value=None,
+            ) as validar,
             patch.object(runtime, "MotorWorkflow") as motor,
         ):
             runtime.configure(caminho)
@@ -74,11 +84,11 @@ class TestRuntime:
 
             assert runtime.get_workflow() is workflow
             carregar.assert_called_once()
+            validar.assert_called_once()
             motor.assert_called_once()
 
     def test_configure_deve_rejeitar_outro_caminho(
-        self,
-        tmp_path: Path,
+        self, tmp_path: Path
     ) -> None:
         """Deve impedir a substituição silenciosa da configuração."""
         primeiro_caminho = tmp_path / "workflow.yaml"
@@ -89,6 +99,11 @@ class TestRuntime:
                 ConfiguradorWorkflow,
                 "carregar",
                 return_value={"estados": {}},
+            ),
+            patch.object(
+                ConfiguradorWorkflow,
+                "validar",
+                return_value=None,
             ),
             patch.object(runtime, "MotorWorkflow"),
         ):
@@ -140,8 +155,7 @@ class TestRuntime:
         )
 
     def test_shutdown_deve_limpar_runtime(
-        self,
-        tmp_path: Path,
+        self, tmp_path: Path, workflow_exemplo_dict: dict[str, Any]
     ) -> None:
         """Deve remover a instância registrada."""
         caminho = tmp_path / "workflow.yaml"
@@ -150,7 +164,12 @@ class TestRuntime:
             patch.object(
                 ConfiguradorWorkflow,
                 "carregar",
-                return_value={"estados": {}},
+                return_value=workflow_exemplo_dict,
+            ),
+            patch.object(
+                ConfiguradorWorkflow,
+                "validar",
+                return_value=None,
             ),
             patch.object(runtime, "MotorWorkflow"),
         ):
