@@ -108,40 +108,37 @@ As transições devem respeitar as regras de consistência: o destino precisa ex
 
 ## Integração com a aplicação
 
-### Carregamento e validação
+A aplicação consumidora utiliza o motor de workflow para validar ações e obter os resultados das transições.
 
-O `ConfiguradorWorkflow` é o ponto de entrada para carregar e validar o arquivo YAML.
+### Inicialização
+
+Inicialize o SDK informando o caminho do arquivo YAML:
 
 ```python
-from sme_workflow_sdk import (
-    ConfiguradorWorkflow,
-    ContextoExecucao,
-    MotorWorkflow,
-)
+from sme_workflow_sdk import configure, get_workflow
 
-configurador = ConfiguradorWorkflow()
+configure("workflow.yaml")
 
-configuracao = configurador.carregar("workflow.yaml")
-configurador.validar(configuracao)
-
-motor = MotorWorkflow(configuracao)
+workflow = get_workflow()
 ```
-
-A configuração deve ser validada antes de ser utilizada pelo motor.
 
 ### Validação e execução de uma ação
 
-O exemplo abaixo demonstra o fluxo de integração. A aplicação consumidora deve executar sua regra de negócio entre a validação da ação e a produção do resultado.
+Antes de executar uma ação, a aplicação deve validar se ela está disponível para o estado atual.
 
 ```python
 from sme_workflow_sdk import ContextoExecucao
 
-# Estado atual e ação solicitada.
-execucao = motor.validar("pendente", "aprovar")
+# Validar a ação solicitada.
+execucao = workflow.validar(
+    estado_atual="pendente",
+    acao="aprovar",
+)
 
-# A aplicação consumidora executa aqui a regra de negócio
-# correspondente à aprovação.
+# A aplicação consumidora executa aqui suas regras de negócio.
+# Exemplo: verificar as condições necessárias para aprovação.
 
+# Criar o contexto da execução.
 contexto = ContextoExecucao(
     autor="usuario_sistema",
     dados={
@@ -149,7 +146,8 @@ contexto = ContextoExecucao(
     },
 )
 
-resultado = motor.executar(execucao, contexto)
+# Gerar o resultado da transição.
+resultado = workflow.executar(execucao, contexto)
 
 if resultado["sucesso"]:
     novo_estado = resultado["proximo_estado"]
@@ -158,45 +156,32 @@ if resultado["sucesso"]:
     # o novo estado e o histórico do processo.
 ```
 
-**Importante:** a aplicação consumidora deve persistir o novo estado somente após a conclusão bem-sucedida da regra de negócio e conforme as regras transacionais do sistema.
-
-O resultado do motor é um dicionário Python. Os campos de horário continuam sendo objetos `datetime`; portanto, caso seja necessário serializar o resultado em JSON, a aplicação deve definir a conversão desses valores.
-
+**Importante:** o SDK não executa regras de negócio específicas nem realiza operações de persistência. A aplicação consumidora deve atualizar o estado somente após a conclusão bem-sucedida das regras de negócio, respeitando suas próprias regras transacionais.
 
 ## Resultado da execução
 
-O método `MotorWorkflow.executar()` retorna um dicionário com informações sobre a execução.
+O método `MotorWorkflow.executar()` retorna um dicionário com informações sobre a transição realizada.
+
+Entre os principais campos estão:
 
 | Campo | Descrição |
 |---|---|
-| `identificador` | Identificador da execução. |
+| `sucesso` | Indica se a execução foi bem-sucedida. |
 | `estado_anterior` | Estado em que a ação foi solicitada. |
-| `acao` | Nome da ação executada. |
+| `acao` | Ação executada. |
 | `proximo_estado` | Estado de destino da transição. |
 | `terminal` | Indica se a transição é terminal. |
-| `sucesso` | Indica se o resultado representa uma execução bem-sucedida. |
-| `mensagem` | Mensagem descritiva do resultado. |
-| `inicio` | Data e hora de início da execução. |
-| `fim` | Data e hora de término da execução. |
-| `autor` | Identificação do responsável pela execução. |
-| `contexto` | Contexto associado à execução. |
+| `identificador` | Identificador da execução. |
+
+A aplicação consumidora pode utilizar essas informações para atualizar o estado da entidade e registrar o histórico do processo.
+
+Os campos `inicio` e `fim` são retornados como objetos `datetime`. Caso o resultado precise ser serializado em JSON, a aplicação deve realizar a conversão desses valores.
 
 ## Tratamento de exceções
 
-O SDK define exceções específicas para os problemas encontrados durante a leitura, a validação e o processamento do workflow.
+O SDK disponibiliza exceções específicas para identificar falhas na leitura e validação da configuração e nas operações do workflow.
 
-Entre as principais estão:
-
-- `ArquivoNaoEncontradoError`: arquivo de configuração inexistente ou caminho inválido.
-- `FormatoInvalidoError`: extensão não suportada, erro de sintaxe YAML ou quantidade inválida de documentos.
-- `ConfiguracaoInvalidaError`: conteúdo YAML vazio ou com estrutura de raiz inválida.
-- `EstadoInvalidoError`: estado inexistente ou inválido na configuração ou na solicitação.
-- `AcaoInvalidaError`: ação indisponível ou malformada.
-- `TransicaoInvalidaError`: transição que não atende às regras de validação.
-- `ValidacaoDominioError`: dados inválidos nas entidades do domínio.
-
-A aplicação consumidora deve tratar as exceções conforme sua política de erros e garantir que uma operação de negócio não seja considerada concluída quando sua execução falhar.
-
+A aplicação consumidora deve tratar essas exceções conforme sua política de tratamento de erros, evitando considerar uma operação concluída quando ocorrer uma falha durante o processamento.
 
 ## Desenvolvimento
 
@@ -253,9 +238,41 @@ mypy src/
 pre-commit run --all-files
 ```
 
-## Documentação viva (Sphinx)
+## Documentação
 
-A documentação técnica do projeto utiliza Sphinx.
+A documentação técnica do projeto é desenvolvida com **Sphinx** e está organizada no diretório `docs/`. Ela reúne os guias de utilização, configuração, integração e arquitetura do SDK, além da referência da API.
+
+Os principais documentos são:
+
+- [Primeiros passos](docs/primeiros_passos.md)
+- [Configuração do workflow](docs/configurando_workflow.md)
+- [Integração com a aplicação](docs/integrando_aplicacao.md)
+- [Tratamento de exceções](docs/tratamento_excecoes.md)
+- [Arquitetura](docs/arquitetura.md)
+- [Referência da API](docs/api/index.rst)
+
+### Gerar a documentação localmente
+
+Para limpar os arquivos gerados anteriormente e iniciar a documentação em modo de visualização automática, execute os comandos abaixo, na ordem apresentada:
+
+```bash
+# Limpa os arquivos de build anteriores
+make -C docs clean
+
+# Inicia a documentação com atualização automática
+make -C docs livehtml
+```
+
+O comando `livehtml` inicia um servidor local para visualizar a documentação no navegador, atualizando a página conforme os arquivos são modificados.
+
+Para gerar apenas a versão HTML estática, execute:
+
+```bash
+make -C docs html
+```
+
+Os arquivos HTML serão gerados no diretório `docs/_build/html/`.
+
 
 Para consultar a documentação publicada, acesse:
 
