@@ -270,7 +270,7 @@ Também é possível inicializar o SDK pelo Runtime, que realiza o carregamento 
 
 ## Próximos passos
 
-- [Primeiros passos](getting_started)
+- [Primeiros passos](primeiros_passos)
 - [Integração com a aplicação](integrando_aplicacao)
 - [Tratamento de exceções](tratamento_excecoes)
 - [Referência da API](api/index)
