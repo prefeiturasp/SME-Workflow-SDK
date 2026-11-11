@@ -251,6 +251,10 @@ Os principais documentos são:
 - [Arquitetura](docs/arquitetura.md)
 - [Referência da API](docs/api/index.rst)
 
+A documentação também está disponível online, permitindo consultar os guias e a referência da API.
+Para consultar a documentação publicada, acesse **[Documentação do SME-Workflow-SDK](https://prefeiturasp.github.io/SME-Workflow-SDK/)**
+
+
 ### Gerar a documentação localmente
 
 Para limpar os arquivos gerados anteriormente e iniciar a documentação em modo de visualização automática, execute os comandos abaixo, na ordem apresentada:
@@ -272,12 +276,6 @@ make -C docs html
 ```
 
 Os arquivos HTML serão gerados no diretório `docs/_build/html/`.
-
-
-Para consultar a documentação publicada, acesse:
-
-[Documentação do SME-Workflow-SDK](https://prefeiturasp.github.io/SME-Workflow-SDK/)
-
 
 ## Licença
 
