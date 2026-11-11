@@ -134,7 +134,7 @@ Ao integrar o tratamento de exceções do SDK à aplicação, considere as segui
 
 ## 6. Referência da API
 
-Para consultar a hierarquia e a implementação das exceções disponibilizadas pelo SDK, acesse a [Referência da API — Exceções](api/excecoes.md).
+Para consultar a hierarquia e a implementação das exceções disponibilizadas pelo SDK, acesse a [Referência da API — Exceções](api/excecoes.rst).
 
 Consulte também:
 

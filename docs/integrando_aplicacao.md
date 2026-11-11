@@ -210,6 +210,6 @@ A integração deve respeitar a separação de responsabilidades entre o SDK e a
 | Atualizar o estado da entidade | Aplicação consumidora |
 | Persistir as alterações | Aplicação consumidora |
 
-Para conhecer os detalhes das classes e métodos utilizados neste guia, consulte a [Referência da API](api/index.md).
+Para conhecer os detalhes das classes e métodos utilizados neste guia, consulte a [Referência da API](api/index.rst).
 
 Consulte também [Configurando o workflow](configurando_workflow.md) e [Tratamento de exceções](tratamento_excecoes.md).
