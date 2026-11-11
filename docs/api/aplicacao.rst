@@ -1,3 +1,5 @@
+.. py:module:: sme_workflow_sdk.aplicacao
+
 Camada de Aplicação
 ===================
 

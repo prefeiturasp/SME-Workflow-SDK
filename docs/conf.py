@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 import sys
+from datetime import datetime
 
 # Adiciona o diretório src ao caminho de importação do Python.
 docs = os.path.abspath(os.path.dirname(__file__))
@@ -20,8 +21,8 @@ sys.path.insert(0, os.path.join(root, "src"))
 
 # Informações do projeto.
 project = "SME Workflow SDK"
-copyright = "2026, SME São Paulo"
 author = "SME São Paulo"
+copyright = f"{datetime.now().year}, {author}"
 release = "0.1.0"
 
 # -- General configuration ---------------------------------------------------
@@ -51,7 +52,7 @@ language = "pt_BR"
 # Configurações do Napoleon (docstrings no padrão Google).
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
-napoleon_include_init_with_doc = True
+napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = False
 napoleon_include_special_with_doc = True
 napoleon_use_ivar = True
@@ -61,7 +62,6 @@ napoleon_use_rtype = True
 # Configurações do autodoc.
 autodoc_default_options = {
     "members": True,
-    "undoc-members": True,
     "show-inheritance": True,
     "member-order": "bysource",
 }
@@ -88,8 +88,10 @@ html_theme = "sphinx_rtd_theme"
 html_baseurl = "https://prefeiturasp.github.io/SME-Workflow-SDK/"
 html_static_path = ["_static"]
 
-
 # Referências externas.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
+
+# Habilita o índice alfabético automático do Sphinx.
+html_use_index = True
