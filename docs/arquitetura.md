@@ -17,7 +17,6 @@ A arquitetura do SDK considera os seguintes princípios:
 - **Configuração declarativa:** estados e transições são definidos externamente em arquivos YAML.
 - **Reutilização:** uma mesma implementação pode atender diferentes sistemas e domínios.
 - **Testabilidade:** as regras de transição podem ser validadas independentemente da aplicação consumidora.
-- **Evolução incremental:** novas funcionalidades podem ser incorporadas sem acoplar o motor a um domínio específico.
 
 ## 3. Estrutura de diretórios
 
@@ -28,7 +27,6 @@ sme_workflow_sdk/
 │
 ├── __init__.py
 ├── runtime.py
-├── py.typed
 │
 ├── aplicacao/
 │   ├── __init__.py
@@ -67,7 +65,6 @@ sme_workflow_sdk/
 | `configuracao/` | Realizar a leitura, configuração e validação dos arquivos YAML. |
 | `dominio/` | Reunir as entidades, o contexto, os resultados e as regras do domínio. |
 | `excecoes/` | Organizar as exceções específicas do SDK. |
-| `py.typed` | Indicar que o pacote disponibiliza informações de tipagem para ferramentas de análise estática. |
 
 Essa organização mantém as responsabilidades separadas e facilita a manutenção, a evolução e a reutilização do SDK.
 
