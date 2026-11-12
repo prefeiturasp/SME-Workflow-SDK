@@ -12,19 +12,23 @@ Este guia apresenta o processo inicial para instalar o SME Workflow SDK, configu
 
 ### Instalar o SDK
 
-Instale o SDK diretamente do repositório:
+Atualmente, a instalação do SDK deve ser realizada informando explicitamente a branch `homolog`, que é a branch padrão disponibilizada para instalação.
+
+Execute o comando:
 
 ```bash
-pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git
+pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git@homolog
 ```
 
-Para instalar uma branch específica:
+Caso seja necessário instalar uma versão de outra branch, substitua `homolog` pelo nome da branch desejada:
 
 ```bash
 pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git@NOME_DA_BRANCH
 ```
 
-Substitua `NOME_DA_BRANCH` pelo nome da branch desejada.
+```{note}
+Futuramente, a instalação poderá ser realizada sem informar a branch, utilizando diretamente o repositório.
+```
 
 ## Criar o arquivo de workflow
 
@@ -111,21 +115,21 @@ from sme_workflow_sdk import configure, get_workflow
 
 configure("workflow.yaml")
 
-motor = get_workflow()
+workflow = get_workflow()
 ```
 
-A função `configure()` carrega e valida a configuração YAML antes de inicializar o motor.
+A função `configure()` carrega e valida a configuração YAML antes de inicializar o workflow.
 
-A inicialização é idempotente para o mesmo caminho de configuração. Caso o runtime já esteja inicializado com outro caminho, uma exceção será lançada.
+A inicialização não gera efeitos adicionais quando realizada novamente com o mesmo caminho de configuração. Caso o runtime já esteja inicializado com outro caminho, uma exceção será lançada.
 
 ## Validar uma ação
 
-Com o motor inicializado, a aplicação pode verificar se uma ação está disponível para o estado atual.
+Com o workflow inicializado, a aplicação pode verificar se uma ação está disponível para o estado atual.
 
 Por exemplo, para enviar uma solicitação que está em rascunho para análise:
 
 ```python
-execucao = motor.validar(
+execucao = workflow .validar(
     estado_atual="rascunho",
     acao="enviar_para_analise",
 )
@@ -155,7 +159,7 @@ contexto = ContextoExecucao(
     },
 )
 
-resultado = motor.executar(execucao, contexto)
+resultado = workflow.executar(execucao, contexto)
 
 if resultado["sucesso"]:
     novo_estado = resultado["proximo_estado"]
@@ -174,7 +178,9 @@ O resultado é um dicionário Python com informações como:
 - Autor e contexto.
 - Horários de início e término.
 
-**Importante:** o SDK não executa regras de negócio específicas da aplicação, não altera o estado persistido da entidade e não realiza operações de persistência.
+```{important}
+O SDK não executa regras de negócio específicas da aplicação, não altera o estado persistido da entidade e não realiza operações de persistência.
+```
 
 A aplicação consumidora é responsável por persistir o novo estado e o histórico do processo após a conclusão bem-sucedida da operação.
 
