@@ -25,7 +25,7 @@ Após a inicialização, utilize `get_workflow()` para obter a instância config
 ```python
 from sme_workflow_sdk import get_workflow
 
-motor = get_workflow()
+workflow = get_workflow()
 ```
 
 Caso o runtime ainda não tenha sido inicializado, a chamada lançará uma exceção `RuntimeError`.
@@ -37,7 +37,7 @@ Antes de executar as regras de negócio associadas à operação, a aplicação 
 Para isso, utilize o método `validar()`.
 
 ```python
-execucao = motor.validar(
+execucao = workflow.validar(
     estado_atual="aguardando_analise",
     acao="aprovar",
 )
@@ -69,7 +69,7 @@ def aprovar_solicitacao(solicitacao):
     pass
 ```
 
-A aplicação deve garantir que as regras de negócio sejam executadas com sucesso antes de chamar `motor.executar()`.
+A aplicação deve garantir que as regras de negócio sejam executadas com sucesso antes de chamar `workflow.executar()`.
 
 ## 5. Criando o contexto da execução
 
@@ -97,7 +97,7 @@ O atributo `dados` recebe um mapeamento com informações adicionais e é proteg
 Depois que as regras de negócio forem executadas com sucesso, utilize `motor.executar()` para produzir o resultado da transição.
 
 ```python
-resultado = motor.executar(
+resultado = workflow.executar(
     dados_transicao=execucao,
     contexto=contexto,
 )
@@ -144,10 +144,10 @@ from sme_workflow_sdk import (
 
 
 def aprovar_solicitacao(solicitacao, usuario):
-    motor = get_workflow()
+    workflow = get_workflow()
 
     # 1. Validar a ação no estado atual.
-    execucao = motor.validar(
+    execucao = workflow.validar(
         estado_atual=solicitacao.situacao,
         acao="aprovar",
     )
@@ -166,7 +166,7 @@ def aprovar_solicitacao(solicitacao, usuario):
     )
 
     # 4. Gerar o resultado da transição.
-    resultado = motor.executar(
+    resultado = workflow.executar(
         dados_transicao=execucao,
         contexto=contexto,
     )
