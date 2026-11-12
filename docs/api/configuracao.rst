@@ -29,6 +29,7 @@ LeitorWorkflow
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:
 
 ValidadorWorkflow
 -----------------
@@ -37,3 +38,4 @@ ValidadorWorkflow
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:

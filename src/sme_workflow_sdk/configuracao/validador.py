@@ -32,7 +32,9 @@ class ValidadorWorkflow:
     A classe percorre a configuração em três níveis — estados, ações e
     transições — e lança exceções específicas quando encontra problemas.
     Use-a depois de obter o dicionário do workflow, seja via
-    :class:`LeitorWorkflow` ou de outra fonte.
+    :class:`LeitorWorkflow
+    <sme_workflow_sdk.configuracao.leitor.LeitorWorkflow>`
+    ou de outra fonte.
 
     Examples:
         validador = ValidadorWorkflow()
@@ -52,20 +54,17 @@ class ValidadorWorkflow:
                 YAML.
 
         Raises:
-            EstadoInvalidoError:
-                - Se a configuração não for um dicionário.
-                - Se o campo ``estados`` estiver ausente, não for um
-                  dicionário ou estiver vazio.
-                - Se algum estado tiver nome ou dados inválidos.
-                - Se alguma ação referenciar um estado inexistente.
-            AcaoInvalidaError:
-                - Se algum estado não possuir o campo ``acoes``.
-                - Se ``acoes`` não for um dicionário nem ``None``.
-                - Se ``acoes`` for um dicionário vazio.
-                - Se alguma ação estiver malformada (nome, dados,
-                campos obrigatórios ou chaves extras).
-                - Se houver incoerência entre o campo ``terminal``
-                de uma ação e as ações do estado de destino.
+            EstadoInvalidoError:Lançada quando a configuração apresenta uma
+                estrutura inválida, como ausência do campo estados, definição
+                inválida ou inexistente de estados, ou quando alguma ação
+                referencia um estado que não está definido na configuração.
+            AcaoInvalidaError:Lançada quando algum estado não possui o campo
+                acoes, quando esse campo apresenta uma definição inválida ou
+                está vazio, ou quando alguma ação possui nome ou estrutura
+                incorretos, campos obrigatórios ausentes ou propriedades
+                adicionais não permitidas. Também é lançada quando há
+                incompatibilidade entre o valor do campo terminal de uma ação
+                e a existência de ações no estado de destino.
         """
         if not isinstance(configuracao, dict):
             raise EstadoInvalidoError("A configuração fornecida é inválida.")
@@ -96,13 +95,12 @@ class ValidadorWorkflow:
             dados_estado (Any): Dados associados ao estado.
 
         Raises:
-            EstadoInvalidoError:
-                - Se o nome do estado não for uma string não vazia.
-                - Se os dados do estado não forem um dicionário.
-            AcaoInvalidaError:
-                - Se o estado não possuir o campo ``acoes``.
-                - Se ``acoes`` não for um dicionário nem ``None``.
-                - Se ``acoes`` for um dicionário vazio.
+            EstadoInvalidoError:Lançada quando o nome do estado não é uma
+                string não vazia ou quando sua definição apresenta uma
+                estrutura inválida.
+            AcaoInvalidaError: Lançada quando o estado não possui o campo
+                acoes, quando esse campo não contém uma definição válida ou
+                quando apresenta uma definição vazia.
         """
         if not isinstance(nome_estado, str) or not nome_estado.strip():
             raise EstadoInvalidoError(
@@ -150,15 +148,13 @@ class ValidadorWorkflow:
             dados_acao (Any): Dados associados à ação.
 
         Raises:
-            AcaoInvalidaError:
-                - Se o nome da ação não for uma string não vazia.
-                - Se os dados da ação não forem um dicionário.
-                - Se houver chaves além de ``proximo_estado`` e
-                  ``terminal``.
-                - Se a ação não possuir o campo ``proximo_estado``.
-                - Se ``proximo_estado`` não for string não vazia.
-                - Se a ação não possuir o campo ``terminal``.
-                - Se ``terminal`` não for booleano.
+            AcaoInvalidaError:Lançada quando o nome da ação não é uma string
+                não vazia, quando sua definição apresenta uma estrutura
+                inválida ou contém propriedades adicionais além de
+                proximo_estado e terminal. Também é lançada quando algum
+                desses campos obrigatórios está ausente ou quando
+                proximo_estado não é uma string não vazia ou terminal não
+                possui um valor booleano.
         """
         if not isinstance(nome_acao, str) or not nome_acao.strip():
             raise AcaoInvalidaError(
@@ -264,10 +260,10 @@ class ValidadorWorkflow:
         Raises:
             EstadoInvalidoError: Se o ``proximo_estado`` não existir na
                 configuração.
-            AcaoInvalidaError:
-                - Se a ação for terminal e o destino possuir ações.
-                - Se a ação não for terminal e o destino não possuir
-                  ações.
+            AcaoInvalidaError:Lançada quando uma ação está definida como
+                terminal, mas o estado de destino possui ações disponíveis,
+                ou quando uma ação não terminal direciona para um estado que
+                não possui ações.
         """
         proximo_estado = dados_acao["proximo_estado"]
         terminal = dados_acao["terminal"]
