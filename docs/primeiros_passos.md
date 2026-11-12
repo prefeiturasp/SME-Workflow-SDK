@@ -129,7 +129,7 @@ Com o workflow inicializado, a aplicação pode verificar se uma ação está di
 Por exemplo, para enviar uma solicitação que está em rascunho para análise:
 
 ```python
-execucao = workflow .validar(
+execucao = workflow.validar(
     estado_atual="rascunho",
     acao="enviar_para_analise",
 )

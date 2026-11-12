@@ -218,31 +218,30 @@ Após a realização dos ajustes, a solicitação pode retornar para análise.
 
 ## Regras de validação
 
-O SDK realiza verificações estruturais e de consistência na configuração do workflow.
+O SDK realiza verificações estruturais e de consistência na configuração do workflow definida no arquivo YAML.
 
 As principais regras são:
 
 ### Estrutura geral
 
-- O conteúdo da configuração deve ser um dicionário.
-- O campo `estados` deve existir.
-- `estados` deve ser um dicionário não vazio.
+- A configuração deve possuir a seção `estados`.
+- A seção `estados` deve conter pelo menos um estado.
 - Os nomes dos estados devem ser válidos.
 
 ### Estados e ações
 
-- Cada estado deve possuir o campo `acoes`.
-- `acoes` deve ser um dicionário válido ou `null`.
-- Um dicionário de ações não pode estar vazio.
+- Cada estado deve possuir a propriedade `acoes`.
+- A propriedade `acoes` deve conter uma ou mais ações ou receber o valor `null`.
+- Quando informadas, as ações não podem estar vazias.
 - Os nomes das ações devem ser válidos.
-- Cada ação deve possuir os campos `proximo_estado` e `terminal`.
-- Não são permitidas chaves adicionais na definição de uma ação.
+- Cada ação deve possuir as propriedades `proximo_estado` e `terminal`.
+- Não são permitidas propriedades adicionais na definição de uma ação.
 
 ### Transições
 
-- O campo `proximo_estado` deve possuir um valor válido.
+- A propriedade `proximo_estado` deve possuir um valor válido.
 - O estado de destino deve existir na configuração.
-- O campo `terminal` deve possuir um valor booleano.
+- A propriedade `terminal` deve receber um valor booleano (`true` ou `false`).
 - Uma transição não terminal não pode apontar para o próprio estado.
 - Um estado terminal deve possuir `acoes: null`.
 - Um estado não terminal deve possuir ações disponíveis.
@@ -251,22 +250,25 @@ Caso alguma dessas regras não seja atendida, o SDK lança a exceção correspon
 
 ## Validando a configuração
 
-A validação pode ser realizada explicitamente utilizando `ConfiguradorWorkflow`:
+A leitura e a validação do arquivo YAML devem ser realizadas por meio da função `configure()`, disponibilizada pelo SDK.
+
+Para inicializar o SDK, basta informar o caminho do arquivo de configuração:
 
 ```python
-from sme_workflow_sdk.configuracao.configurador import ConfiguradorWorkflow
+from sme_workflow_sdk import configure
 
-configurador = ConfiguradorWorkflow()
-
-configuracao = configurador.carregar("workflow.yaml")
-configurador.validar(configuracao)
+configure("workflow.yaml")
 ```
 
-O método `carregar()` realiza a leitura do arquivo YAML e verifica sua estrutura básica.
+Ao executar `configure()`, o SDK realiza internamente as seguintes operações:
 
-O método `validar()` verifica as regras de estrutura e consistência dos estados, ações e transições.
+1. **Carregamento:** lê o arquivo YAML informado e converte seu conteúdo para a estrutura interna utilizada pela biblioteca.
+2. **Validação:** verifica a estrutura e a consistência da configuração, incluindo estados, ações e transições.
+3. **Inicialização:** disponibiliza o runtime com o motor de workflow configurado para utilização pela aplicação.
 
-Também é possível inicializar o SDK pelo Runtime, que realiza o carregamento e a validação antes de disponibilizar o motor de workflow.
+Caso o arquivo não seja encontrado ou alguma regra de validação não seja atendida, o SDK lança a exceção correspondente.
+
+Não é necessário instanciar diretamente `ConfiguradorWorkflow` nem chamar seus métodos `carregar()` e `validar()`, pois essas operações são executadas internamente por `configure()`.
 
 ## Próximos passos
 
