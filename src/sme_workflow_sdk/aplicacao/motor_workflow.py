@@ -19,15 +19,16 @@ class MotorWorkflow:
     """Coordena a validação e a execução das transições do workflow.
 
     Recebe uma configuração previamente carregada e validada pelo
-    ConfiguradorWorkflow, converte seus estados e ações em entidades
-    de domínio e utiliza os resolvedores para validar as decisões
-    e as transições permitidas.
+    :class:`ConfiguradorWorkflow
+    <sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow>`,
+    converte seus estados e ações em entidades de domínio e utiliza os
+    resolvedores para validar as decisões e as transições permitidas.
 
-    O método validar() verifica se o estado e a ação informados são
+    O método :meth:`validar()` verifica se o estado e a ação informados são
     permitidos e se a transição correspondente respeita as regras
     de consistência do workflow.
 
-    O método executar() produz o resultado da transição validada,
+    O método :meth:`executar()` produz o resultado da transição validada,
     contendo os estados envolvidos, a ação, os horários, o autor
     e o contexto da execução.
 
@@ -62,7 +63,8 @@ class MotorWorkflow:
 
         Args:
             configuracao (dict[str, Any]): Configuração do workflow carregada
-                e validada pelo ConfiguradorWorkflow.
+            e validada pelo :class:`ConfiguradorWorkflow
+            <sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow>`.
         """
         self._configuracao = configuracao
         self._estados = self._converter_estados(configuracao)
@@ -76,13 +78,16 @@ class MotorWorkflow:
         """Converte os estados e suas ações em entidades de domínio.
 
         Percorre os estados definidos na configuração e cria instâncias
-        de Estado e Acao para representar as regras do workflow.
+        de  :class:`Estado <sme_workflow_sdk.dominio.entidades.Estado>` e
+        :class:`Acao <sme_workflow_sdk.dominio.entidades.Acao>` para
+        representar as regras do workflow.
 
         Estados com ``acoes: null`` são representados com ``acoes=None``,
         indicando que não possuem ações disponíveis.
 
         Este método pressupõe que a configuração já passou pelas validações
-        estruturais e semânticas do ConfiguradorWorkflow.
+        estruturais e semânticas do :class:`ConfiguradorWorkflow
+        <sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow>`.
 
         Args:
             configuracao (dict[str, Any]): Configuração validada contendo os
@@ -134,8 +139,8 @@ class MotorWorkflow:
             TransicaoInvalidaError: Se a transição configurada for inválida.
 
         Returns:
-            ExecucaoValidada: Dados da execução com o estado atual,
-                a ação configurada e o horário de início da transição.
+            ExecucaoValidada: Dados da execução com o estado atual, a ação
+            configurada e o horário de início da transição.
 
         Examples:
             >>> execucao = motor.validar("pendente", "aprovar")
@@ -187,9 +192,10 @@ class MotorWorkflow:
         Este método não executa regras de negócio, não altera o estado
         persistido da entidade e não realiza operações de persistência.
 
-        Se ocorrer uma TransicaoInvalidaError durante a resolução da transição,
-        o método captura a exceção e retorna um resultado indicando que a
-        execução não foi bem-sucedida.
+        Se ocorrer uma :class:`TransicaoInvalidaError
+        <sme_workflow_sdk.excecoes.workflow.TransicaoInvalidaError>` durante a
+        resolução da transição, o método captura a exceção e retorna um
+        resultado indicando que a execução não foi bem-sucedida.
 
         Args:
             dados_transicao (ExecucaoValidada): Dados da transição
@@ -199,12 +205,13 @@ class MotorWorkflow:
 
         Returns:
             dict[str, Any]: Dicionário contendo os dados do resultado da
-                execução, incluindo identificador, estado anterior, ação,
-                próximo estado, terminalidade, indicador de sucesso, mensagem,
-                horários, autor e contexto.
+            execução, incluindo identificador, estado anterior, ação,
+            próximo estado, terminalidade, indicador de sucesso, mensagem,
+            horários, autor e contexto.
 
-                Os valores de data e hora permanecem como objetos datetime,
-                conforme o comportamento de ResultadoWorkflow.para_dict().
+            Os valores de data e hora permanecem como objetos datetime,
+            conforme o comportamento de :meth:`ResultadoWorkflow.para_dict()
+            <sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.para_dict>`
 
         Examples:
             >>> execucao = motor.validar("pendente", "aprovar")

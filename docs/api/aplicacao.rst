@@ -21,6 +21,7 @@ MotorWorkflow
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:
 
 DecisaoResolver
 ---------------
@@ -29,6 +30,7 @@ DecisaoResolver
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:
 
 TransicaoResolver
 -----------------
@@ -37,3 +39,4 @@ TransicaoResolver
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:
