@@ -28,6 +28,25 @@ A estrutura possui três elementos principais:
 | `proximo_estado` | Identifica o estado para o qual a transição será direcionada. |
 | `terminal` | Indica se o estado de destino é terminal. |
 
+```{important}
+**Regras para nomes de estados e ações**
+
+Os nomes dos estados e das ações devem conter apenas letras ASCII, sem números, espaços ou caracteres especiais.
+São permitidas letras maiúsculas e minúsculas (A–Z e a–z), além do caractere sublinhado (**_**).
+
+Exemplos válidos:
+- aguardando_analise
+- em_execucao
+- aprovar
+- encaminhar_para_dre
+
+Exemplos inválidos:
+- estado1 (contém número)
+- em análise (contém espaço e acento)
+- aprovar! (contém caractere especial)
+- aguardando-analise (contém hífen)
+```
+
 ## Definindo estados
 
 Os estados representam as etapas pelas quais uma entidade pode passar durante seu ciclo de vida.
