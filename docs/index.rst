@@ -18,7 +18,7 @@ e a referência técnica da API do SDK.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Documentação
+   :caption: Conteúdo
 
    primeiros_passos
    configurando_workflow

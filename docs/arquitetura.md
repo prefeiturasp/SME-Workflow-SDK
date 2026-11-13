@@ -1,4 +1,4 @@
-# Arquitetura do SME Workflow SDK
+# Arquitetura
 
 ## 1. Visão geral
 
