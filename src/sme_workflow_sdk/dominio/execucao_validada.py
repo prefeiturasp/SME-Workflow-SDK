@@ -34,8 +34,9 @@ class ExecucaoValidada:
     Attributes:
         estado_atual: Nome do estado em que a transição será executada.
             Deve ser um identificador válido.
-        acao: Instância de Acao contendo as informações da ação
-            validada e seu próximo estado.
+        acao: Instância de :class:`Acao
+            <sme_workflow_sdk.dominio.entidades.Acao>` contendo as informações
+            da ação validada e seu próximo estado.
         inicio_transicao: Data e hora de início da transição, com fuso
             horário definido. Por padrão, utiliza o horário atual em UTC.
     """
@@ -52,8 +53,9 @@ class ExecucaoValidada:
         Verifica se o estado atual é uma string não vazia e corresponde
         ao padrão de identificadores aceito pelo domínio.
 
-        Também verifica se a ação é uma instância de Acao e se o horário
-        de início é um objeto datetime com fuso horário definido.
+        Também verifica se a ação é uma instância de :class:`Acao
+        <sme_workflow_sdk.dominio.entidades.Acao>` e se o horário de início é
+        um objeto datetime com fuso horário definido.
 
         Raises:
             ValidacaoDominioError: Se algum atributo não respeitar

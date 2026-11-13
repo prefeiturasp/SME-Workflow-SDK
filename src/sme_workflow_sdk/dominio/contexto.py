@@ -5,8 +5,8 @@ armazenar informações complementares de uma execução, como o autor,
 o identificador e os dados adicionais fornecidos pela aplicação consumidora.
 
 O contexto utiliza uma dataclass imutável e protege o mapeamento de dados
-por meio de MappingProxyType. A proteção impede alterações diretas nas
-chaves e nos valores do mapeamento, mas não garante a imutabilidade
+por meio de :py:class:`types.MappingProxyType`. A proteção impede alterações
+diretas nas chaves e nos valores do mapeamento, mas não garante a imutabilidade
 profunda dos objetos armazenados nele.
 """
 
@@ -31,12 +31,12 @@ class ContextoExecucao:
     e dados adicionais fornecidos pela aplicação consumidora.
 
     Quando não informado, o identificador é gerado automaticamente
-    utilizando UUID4. A aplicação consumidora também pode fornecer
-    seu próprio identificador, desde que seja uma string não vazia.
+    utilizando :py:func:`uuid.uuid4`. A aplicação consumidora também pode
+    fornecer seu próprio identificador, desde que seja uma string não vazia.
 
     A instância é imutável após sua criação. O atributo ``dados`` é
-    copiado e convertido em MappingProxyType, impedindo alterações
-    diretas no mapeamento armazenado.
+    copiado e convertido em  :py:class:`types.MappingProxyType`, impedindo
+    alterações diretas no mapeamento armazenado.
 
     A cópia dos dados é superficial: objetos mutáveis armazenados como
     valores não são copiados recursivamente e podem continuar sendo
@@ -46,7 +46,7 @@ class ContextoExecucao:
         autor: Identificação do autor responsável pela execução. Deve ser uma
             string não vazia.
         identificador: Identificador único da execução. Caso não seja
-            informado, um UUID é gerado automaticamente.
+            informado, um :py:func:`uuid.uuid4` é gerado automaticamente.
         dados: Mapeamento com informações adicionais da execução.
             Por padrão, é inicializado com um dicionário vazio.
     """
@@ -62,8 +62,9 @@ class ContextoExecucao:
         e se ``dados`` implementa a interface ``Mapping``.
 
         Após as validações, cria uma cópia superficial do mapeamento
-        informado e o converte em MappingProxyType, impedindo alterações
-        diretas nas chaves e nos valores do mapeamento armazenado.
+        informado e o converte em  :py:class:`types.MappingProxyType`,
+        impedindo alterações diretas nas chaves e nos valores do mapeamento
+        armazenado.
 
         Raises:
             ValidacaoDominioError: Se algum atributo não atender às regras

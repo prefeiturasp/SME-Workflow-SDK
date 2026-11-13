@@ -5,8 +5,9 @@ valores booleanos, mapeamentos e identificadores utilizados pelas
 entidades do workflow.
 
 As funções centralizam as regras básicas de validação e lançam
-ValidacaoDominioError quando os valores informados não atendem
-aos critérios estabelecidos.
+:class:`ValidacaoDominioError
+<sme_workflow_sdk.excecoes.base.ValidacaoDominioError>` quando os valores
+informados não atendem aos critérios estabelecidos.
 """
 
 import re
@@ -23,7 +24,7 @@ def validar_tipo(
 ) -> None:
     """Valida se um valor corresponde a um dos tipos esperados.
 
-    Utiliza isinstance() para verificar se o valor pertence ao tipo
+    Utiliza :py:func:`isinstance` para verificar se o valor pertence ao tipo
     informado ou a uma tupla de tipos aceitos
 
     Args:
@@ -94,8 +95,8 @@ def validar_mapping(
 ) -> None:
     """Valida se um valor implementa a interface Mapping.
 
-    Verifica se o valor implementa collections.abc.Mapping.
-    Quando permitir_none é True, o valor None também é aceito.
+    Verifica se o valor implementa :py:class:`collections.abc.Mapping`.
+    Quando ``permitir_none`` é ``True``, o valor ``None`` também é aceito.
 
     Args:
         valor (Any): Valor que será validado.
@@ -125,8 +126,9 @@ def validar_mapping(
 def validar_identificador(valor: str, nome_campo: str) -> None:
     """Valida o formato de um identificador de estado ou ação.
 
-    Aceita somente letras ASCII, com palavras separadas por
-    sublinhados. Cada palavra deve conter pelo menos uma letra.
+    Aceita somente letras `ASCII <https://www.asciitable.com/>`_ , com
+    palavras separadas por sublinhados. Cada palavra deve conter pelo menos
+    uma letra.
 
     Não são permitidos números, espaços, hífens, caracteres acentuados,
     sublinhados no início ou no fim, nem sublinhados consecutivos.
