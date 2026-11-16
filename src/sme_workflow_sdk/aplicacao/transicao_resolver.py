@@ -19,32 +19,36 @@ class TransicaoResolver:
         """Inicializa o resolvedor com os estados configurados.
 
         Args:
-            estados: Estados do workflow indexados pelo nome.
+            estados (dict[str, Estado]): Estados do workflow indexados pelo
+                nome.
         """
         self._estados = estados
 
     def resolver(self, execucao: ExecucaoValidada) -> ExecucaoValidada:
         """Valida a transição associada a uma execução previamente validada.
 
-        Verifica se o próximo estado está configurado, se o campo ``terminal``
-        é booleano e se uma transição não terminal não aponta para o próprio
-        estado atual.
+        Verifica se o próximo estado está configurado, se o campo
+        ``terminal`` possui um valor booleano e se uma transição não
+        terminal não aponta para o próprio estado atual.
 
-        Após a validação, retorna a mesma instância de ``ExecucaoValidada``
+        Caso todas as validações sejam bem-sucedidas, retorna a mesma
+        instância de :class:`ExecucaoValidada
+        <sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada>`
         recebida, sem modificar seus dados.
 
 
         Args:
             execucao (ExecucaoValidada): Dados da execução previamente
-                validados pelo DecisaoResolver.
+                validados pelo :class:`DecisaoResolver
+                <sme_workflow_sdk.aplicacao.decisao_resolver.DecisaoResolver>`.
 
         Returns:
             ExecucaoValidada: A própria instância recebida, após a validação.
 
         Raises:
             TransicaoInvalidaError: Se o próximo estado for inválido, não
-            estiver configurado, se o campo ``terminal`` não for booleano ou
-            se a transição não terminal retornar ao estado atual.
+                estiver configurado, se o campo ``terminal`` não for booleano
+                ou se a transição não terminal retornar ao estado atual.
         """
         estado_atual = execucao.estado_atual
         acao = execucao.acao

@@ -1,4 +1,4 @@
-"""Exceções relacionadas à configuração do workflow."""
+"""Exceções relacionadas à leitura e validação da configuração do workflow."""
 
 from sme_workflow_sdk.excecoes.base import (
     LeitorWorkflowError,
@@ -7,20 +7,20 @@ from sme_workflow_sdk.excecoes.base import (
 
 
 class ArquivoNaoEncontradoError(LeitorWorkflowError):
-    """Arquivo inexistente ou inacessível."""
+    """Indica que o arquivo de configuração não foi encontrado ou acessado."""
 
 
 class FormatoInvalidoError(LeitorWorkflowError):
-    """Extensão ou estrutura do arquivo inválida."""
+    """Indica que o arquivo possui extensão ou estrutura YAML inválida."""
 
 
 class ConfiguracaoInvalidaError(LeitorWorkflowError):
-    """Conteúdo da configuração inválido."""
+    """Indica que o conteúdo YAML não possui uma estrutura válida."""
 
 
 class EstadoInvalidoError(ValidadorWorkflowError):
-    """Conteúdo da configuração inválido."""
+    """Indica que um estado possui nome, estrutura ou referência inválida."""
 
 
 class AcaoInvalidaError(ValidadorWorkflowError):
-    """Conteúdo da configuração inválido."""
+    """Indica que uma ação possui nome, estrutura ou transição inválida."""
