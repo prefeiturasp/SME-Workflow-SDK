@@ -32,9 +32,9 @@ class LeitorWorkflow:
     ação, etc.) para etapas posteriores do SDK.
 
     Examples:
-        leitor = LeitorWorkflow()
-        configuracao = leitor.carregar("workflows/pedido.yaml")
-        print(configuracao["estados"])
+        >>> leitor = LeitorWorkflow()
+        >>> configuracao = leitor.carregar("workflows/pedido.yaml")
+        >>> print(configuracao["estados"])
 
     Attributes:
         EXTENSOES_VALIDAS (list[str]): Extensões aceitas pelo leitor.
@@ -89,10 +89,10 @@ class LeitorWorkflow:
         Raises:
             FormatoInvalidoError: Se a extensão do arquivo não estiver
                 entre as suportadas.
-            ArquivoNaoEncontradoError:
-                - Se o caminho não existir no sistema de arquivos.
-                - Se o caminho existir, mas não for um arquivo regular (por
-                    exemplo, um diretório).
+            ArquivoNaoEncontradoError:Lançada quando o caminho informado não
+                existe no sistema de arquivos ou quando, apesar de existir,
+                não corresponde a um arquivo regular, como no caso de um
+                diretório.
 
         Returns:
             Path: Objeto :class:`pathlib.Path` correspondente ao
@@ -129,10 +129,9 @@ class LeitorWorkflow:
             caminho_arquivo (Path): Caminho já validado do arquivo.
 
         Raises:
-            FormatoInvalidoError:
-                - Se o arquivo não estiver em UTF-8.
-                - Se o YAML tiver sintaxe inválida.
-                - Se houver mais de um documento YAML no mesmo arquivo.
+            FormatoInvalidoError:Lançada quando o arquivo não está codificado
+                em UTF-8, apresenta erros de sintaxe YAML ou contém mais de um
+                documento YAML.
 
         Returns:
             Any: Conteúdo carregado do YAML, ainda sujeito à validação

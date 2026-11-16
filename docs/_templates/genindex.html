@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% set title = _('Índice') %}
+
+{% block body %}
+<h1 id="index">{{ _('Índice') }}</h1>
+
+<nav class="genindex-jumpbox">
+    {% for key, dummy in genindexentries %}
+    <a href="#{{ key }}"><strong>{{ key }}</strong></a>
+    {% if not loop.last %}|{% endif %}
+    {% endfor %}
+</nav>
+
+{% for key, entries in genindexentries %}
+<section class="genindex-section">
+    <h2 id="{{ key }}">{{ key }}</h2>
+
+    <ul class="genindex-list">
+        {% for entryname, (links, subitems, _) in entries %}
+        {% set partes = entryname.split(' (', 1) %}
+
+        {% if partes|length > 1 %}
+        <li class="genindex-entry">
+            <strong class="genindex-name">
+                {{ partes[0] }}
+            </strong>
+
+            <ul class="genindex-occurrences">
+                <li>
+                    <a href="{{ links[0][1] }}">
+                        {{ partes[1].rstrip(')') }}
+                    </a>
+                </li>
+
+                {% for subentryname, subentrylinks in subitems %}
+                <li>
+                    <a href="{{ subentrylinks[0][1] }}">
+                        {{ subentryname.strip('()') }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% else %}
+        <li>
+            {% if links %}
+            <a href="{{ links[0][1] }}">
+                {{ entryname }}
+            </a>
+            {% else %}
+            {{ entryname }}
+            {% endif %}
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</section>
+{% endfor %}
+{% endblock %}

@@ -1,16 +1,16 @@
 """Define as entidades de domínio do workflow.
 
-Este módulo disponibiliza as entidades Acao, Estado e Transicao,
-responsáveis por representar as regras e os elementos que compõem
-um workflow.
+Este módulo disponibiliza as entidades :class:`Acao`, :class:`Estado` e
+:class:`Transicao`, responsáveis por representar as regras e os elementos que
+compõem um workflow.
 
-As entidades validam seus atributos durante a inicialização,
-garantindo a consistência dos dados e a utilização de identificadores
-válidos para estados e ações.
+As entidades validam seus atributos durante a inicialização, garantindo a
+consistência dos dados e a utilização de identificadores válidos para estados
+e ações.
 
-As classes utilizam dataclasses imutáveis. Quando aplicável,
-os mapeamentos são protegidos por MappingProxyType para impedir
-alterações diretas após a criação das entidades.
+As classes utilizam dataclasses imutáveis. Quando aplicável, os mapeamentos
+são protegidos por :py:class:`types.MappingProxyType` para impedir alterações
+diretas após a criação das entidades.
 """
 
 from collections.abc import Mapping
@@ -35,8 +35,9 @@ class Acao:
     e se a transição representa o encerramento do workflow.
 
     Os nomes da ação e do estado de destino devem seguir o padrão
-    de identificadores do domínio, contendo letras ASCII e palavras
-    separadas por sublinhados.
+    de identificadores do domínio, contendo letras
+    `ASCII <https://www.asciitable.com/>`_ e palavras separadas por
+    sublinhados.
 
     A entidade é imutável após sua criação.
 
@@ -82,10 +83,10 @@ class Estado:
     das ações e suas respectivas entidades Acao, ou ``None`` quando
     não houver ações associadas ao estado.
 
-    O mapeamento informado é copiado e convertido em MappingProxyType,
-    impedindo alterações diretas nas chaves e nos valores armazenados.
-    Essa proteção é superficial e não garante a imutabilidade profunda
-    dos objetos internos.
+    O mapeamento informado é copiado e convertido em
+    :py:class:`types.MappingProxyType`, impedindo alterações diretas nas
+    chaves e nos valores armazenados. Essa proteção é superficial e não
+    garante a imutabilidade profunda dos objetos internos.
 
     A entidade é imutável após sua criação.
 
@@ -104,11 +105,12 @@ class Estado:
         Verifica se ``nome`` é uma string não vazia e segue o padrão
         de identificadores definido pelo domínio.
 
-        Verifica se ``acoes`` implementa Mapping ou é None.
+        Verifica se ``acoes`` implementa :py:class:`collections.abc.Mapping`
+        ou é None.
 
         Quando o mapeamento está presente, valida os nomes das ações,
         verifica se cada valor é uma instância de Acao e cria uma cópia
-        protegida por MappingProxyType.
+        protegida por :py:class:`types.MappingProxyType`.
 
         Raises:
             ValidacaoDominioError: Se o nome do estado, o mapeamento,

@@ -21,11 +21,16 @@ class DecisaoResolver:
     """Resolve e valida as decisões permitidas em um workflow.
 
     Recebe os estados previamente convertidos em entidades de domínio
-    pelo MotorWorkflow e verifica se o estado informado existe e se
-    a ação solicitada está disponível para esse estado.
+    pelo :class:`MotorWorkflow
+    <sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow>` e verifica se o
+    estado informado existe e se a ação solicitada está disponível para esse
+    estado.
 
     Quando as validações são concluídas, retorna uma instância de
-    ExecucaoValidada para processamento pelo TransicaoResolver.
+    :class:`ExecucaoValidada
+    <sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada>` para
+    processamento pelo :class:`TransicaoResolver
+    <sme_workflow_sdk.aplicacao.transicao_resolver.TransicaoResolver>`.
 
     A validação do próximo estado, do campo ``terminal`` e das regras
     de consistência da transição não é responsabilidade desta classe.
@@ -52,11 +57,14 @@ class DecisaoResolver:
         disponibiliza a ação solicitada.
 
         Quando as validações são concluídas, cria e retorna uma instância
-        de ExecucaoValidada contendo o estado atual, a ação correspondente
-        e o horário de início da transição.
+        de :class:`ExecucaoValidada
+        <sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada>`
+        contendo o estado atual, a ação correspondente e o horário de início
+        da transição.
 
         A validação da consistência da transição é realizada posteriormente
-        pelo TransicaoResolver.
+        pelo :class:`TransicaoResolver
+        <sme_workflow_sdk.aplicacao.transicao_resolver.TransicaoResolver>`.
 
         Args:
             estado_atual (str): Nome do estado atual do workflow.
@@ -66,11 +74,11 @@ class DecisaoResolver:
             EstadoInvalidoError: Se o estado informado não existir
                 na configuração.
             AcaoInvalidaError: Se o estado não possuir ações configuradas
-            ou se a ação solicitada não estiver disponível nele.
+                ou se a ação solicitada não estiver disponível nele.
 
         Returns:
             ExecucaoValidada: Dados da execução necessários para a etapa
-                seguinte do processamento do workflow.
+            seguinte do processamento do workflow.
         """
         estado = self._validar_estado(estado_atual)
         acao_configurada = self._validar_acao(estado, acao)

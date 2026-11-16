@@ -32,12 +32,15 @@ class TransicaoResolver:
         terminal não aponta para o próprio estado atual.
 
         Caso todas as validações sejam bem-sucedidas, retorna a mesma
-        instância de ``ExecucaoValidada`` recebida, sem modificar seus dados.
+        instância de :class:`ExecucaoValidada
+        <sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada>`
+        recebida, sem modificar seus dados.
 
 
         Args:
             execucao (ExecucaoValidada): Dados da execução previamente
-                validados pelo DecisaoResolver.
+                validados pelo :class:`DecisaoResolver
+                <sme_workflow_sdk.aplicacao.decisao_resolver.DecisaoResolver>`.
 
         Returns:
             ExecucaoValidada: A própria instância recebida, após a validação.

@@ -48,7 +48,8 @@ class ResultadoWorkflow:
         fim: Data e hora de término da execução.
         autor: Identificação do autor responsável pela execução.
         contexto: Contexto associado à execução, representado por
-            uma instância de ContextoExecucao.
+            uma instância de :class:`ContextoExecucao
+            <sme_workflow_sdk.dominio.contexto.ContextoExecucao>`.
     """
 
     identificador: str
@@ -76,8 +77,8 @@ class ResultadoWorkflow:
 
         Raises:
             ValidacaoDominioError: Se algum atributo for inválido,
-            se os horários forem incompatíveis ou se a transição
-            não respeitar as regras de consistência do resultado.
+                se os horários forem incompatíveis ou se a transição
+                não respeitar as regras de consistência do resultado.
         """
         validar_string_nao_vazia(
             self.identificador, "ResultadoWorkflow.identificador"
@@ -148,7 +149,7 @@ class ResultadoWorkflow:
 
         Returns:
             Any: Valor convertido conforme seu tipo, preservando os objetos
-                que não possuem uma regra específica de conversão.
+            que não possuem uma regra específica de conversão.
         """
         if is_dataclass(valor) and not isinstance(valor, type):
             return {
@@ -184,8 +185,8 @@ class ResultadoWorkflow:
 
         Returns:
             dict[str, Any]: Dicionário contendo os atributos do resultado,
-                incluindo os objetos datetime originais e o contexto convertido
-                recursivamente.
+            incluindo os objetos datetime originais e o contexto convertido
+            recursivamente.
         """
         dicionario: dict[str, Any] = self._converter_para_dict(self)
         return dicionario

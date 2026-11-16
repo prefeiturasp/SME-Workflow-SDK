@@ -6,11 +6,26 @@
 SME Workflow SDK
 ================
 
+Bem-vindo à documentação técnica do **SME Workflow SDK**.
+
+O SME Workflow SDK é uma biblioteca Python para gerenciamento de
+workflows configuráveis. Permite definir estados, ações e transições
+por meio de arquivos YAML, separando o controle do fluxo das regras
+de negócio das aplicações consumidoras.
+
+Esta documentação apresenta os conceitos, a configuração, a integração
+e a referência técnica da API do SDK.
+
 .. toctree::
    :maxdepth: 2
-   :caption: Conteúdo:
+   :caption: Conteúdo
 
-   configuracao
+   primeiros_passos
+   configurando_workflow
+   integrando_aplicacao
+   tratamento_excecoes
+   arquitetura
+   api/index
 
 Índices e tabelas
 -----------------

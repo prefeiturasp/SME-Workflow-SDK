@@ -83,25 +83,23 @@ class ConfiguradorWorkflow:
 
         Args:
             configuracao (dict[str, Any]): Configuração do workflow,
-            normalmente obtida por meio de :meth:`carregar`.
+                normalmente obtida por meio de :meth:`carregar`.
 
         Raises:
-            EstadoInvalidoError:
-                - Se a configuração não for um dicionário.
-                - Se o campo ``estados`` estiver ausente, não for um
-                  dicionário ou estiver vazio.
-                - Se algum estado tiver nome ou dados inválidos.
-                - Se alguma ação referenciar um estado inexistente.
-            AcaoInvalidaError:
-                - Se algum estado não possuir o campo ``acoes``.
-                - Se ``acoes`` não for um dicionário válido, nem ``None``,
-                    ou se for um dicionário vazio.
-                - Se alguma ação possuir nome ou estrutura inválida.
-                - Se houver campos obrigatórios ausentes ou chaves extras.
-                - Se os campos ``proximo_estado`` ou ``terminal``
-                    possuírem valores inválidos.
-                - Se o valor de ``terminal`` for incompatível com a existência
-                    de ações no estado de destino.
+            EstadoInvalidoError:Lançada quando a configuração apresenta
+                problemas relacionados aos estados, como ausência da seção
+                ``estados``, ausência de estados definidos, nomes ou definições
+                inválidas de estados, ou quando alguma ação referencia um
+                estado inexistente.
+
+            AcaoInvalidaError:Lançada quando a configuração apresenta problemas
+                relacionados às ações, como ausência do campo ``acoes`` em
+                algum estado, definição inválida ou vazia de ações, nomes ou
+                estruturas de ações inválidos, ausência de campos obrigatórios,
+                presença de propriedades não permitidas ou valores inválidos
+                para ``proximo_estado`` e ``terminal``. Também é lançada quando
+                o valor de ``terminal`` é incompatível com a existência de
+                ações no estado de destino.
 
         Examples:
             >>> configurador = ConfiguradorWorkflow()
