@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Primeiros passos &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/primeiros_passos.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2346ddef"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=71a39b36"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Buscar" href="search.html" />
+    <link rel="next" title="Configurando workflows" href="configurando_workflow.html" />
+    <link rel="prev" title="SME Workflow SDK" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Primeiros passos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#instalacao">Instalação</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pre-requisitos">Pré-requisitos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#instalar-o-sdk">Instalar o SDK</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#criar-o-arquivo-de-workflow">Criar o arquivo de workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#entendendo-o-workflow">Entendendo o workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#estrutura-da-configuracao">Estrutura da configuração</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#inicializar-o-sdk">Inicializar o SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validar-uma-acao">Validar uma ação</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#produzir-o-resultado-da-execucao">Produzir o resultado da execução</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#encerrar-o-runtime">Encerrar o runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#proximos-passos">Próximos passos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Primeiros passos</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/primeiros_passos.md.txt" rel="nofollow"> Ver código-fonte da página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="primeiros-passos">
+<h1>Primeiros passos<a class="headerlink" href="#primeiros-passos" title="Link para este cabeçalho"></a></h1>
+<p>Este guia apresenta o processo inicial para instalar o SME Workflow SDK, configurar um workflow e realizar a primeira integração em uma aplicação Python.</p>
+<section id="instalacao">
+<h2>Instalação<a class="headerlink" href="#instalacao" title="Link para este cabeçalho"></a></h2>
+<section id="pre-requisitos">
+<h3>Pré-requisitos<a class="headerlink" href="#pre-requisitos" title="Link para este cabeçalho"></a></h3>
+<ul class="simple">
+<li><p>Python 3.12 ou superior.</p></li>
+<li><p>Git.</p></li>
+<li><p>Acesso ao repositório do projeto.</p></li>
+</ul>
+</section>
+<section id="instalar-o-sdk">
+<h3>Instalar o SDK<a class="headerlink" href="#instalar-o-sdk" title="Link para este cabeçalho"></a></h3>
+<p>Atualmente, a instalação do SDK deve ser realizada informando explicitamente a branch <code class="docutils literal notranslate"><span class="pre">homolog</span></code>, que é a branch padrão disponibilizada para instalação.</p>
+<p>Execute o comando:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/prefeiturasp/SME-Workflow-SDK.git@homolog
+</pre></div>
+</div>
+<p>Caso seja necessário instalar uma versão de outra branch, substitua <code class="docutils literal notranslate"><span class="pre">homolog</span></code> pelo nome da branch desejada:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/prefeiturasp/SME-Workflow-SDK.git@NOME_DA_BRANCH
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Futuramente, a instalação poderá ser realizada sem informar a branch, utilizando diretamente o repositório.</p>
+</div>
+</section>
+</section>
+<section id="criar-o-arquivo-de-workflow">
+<h2>Criar o arquivo de workflow<a class="headerlink" href="#criar-o-arquivo-de-workflow" title="Link para este cabeçalho"></a></h2>
+<p>O SDK utiliza arquivos YAML para declarar os estados, as ações disponíveis e as transições permitidas.</p>
+<p>Crie um arquivo chamado <code class="docutils literal notranslate"><span class="pre">workflow.yaml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">estados</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rascunho</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enviar_para_analise</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aguardando_analise</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">aguardando_analise</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">aprovar</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aprovado</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">      </span><span class="nt">reprovar</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reprovado</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">      </span><span class="nt">solicitar_ajustes</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">em_ajuste</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">em_ajuste</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reenviar_para_analise</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aguardando_analise</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">aprovado</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="w">  </span><span class="nt">reprovado</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<section id="entendendo-o-workflow">
+<h3>Entendendo o workflow<a class="headerlink" href="#entendendo-o-workflow" title="Link para este cabeçalho"></a></h3>
+<p>O exemplo representa o fluxo de uma solicitação que precisa passar por análise antes de receber uma decisão.</p>
+<p>Os estados representam as etapas do processo:</p>
+<ul class="simple">
+<li><p><strong>rascunho:</strong> solicitação ainda não enviada para análise.</p></li>
+<li><p><strong>aguardando_analise:</strong> solicitação disponível para análise.</p></li>
+<li><p><strong>em_ajuste:</strong> solicitação devolvida para correções.</p></li>
+<li><p><strong>aprovado:</strong> solicitação aprovada, encerrando o workflow.</p></li>
+<li><p><strong>reprovado:</strong> solicitação reprovada, encerrando o workflow.</p></li>
+</ul>
+<p>As ações definem as transições permitidas:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Estado atual</p></th>
+<th class="head"><p>Ação</p></th>
+<th class="head"><p>Próximo estado</p></th>
+<th class="head"><p>Terminal</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rascunho</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">enviar_para_analise</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">aguardando_analise</span></code></p></td>
+<td><p>Não</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aguardando_analise</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">aprovar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">aprovado</span></code></p></td>
+<td><p>Sim</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aguardando_analise</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reprovar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reprovado</span></code></p></td>
+<td><p>Sim</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aguardando_analise</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">solicitar_ajustes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">em_ajuste</span></code></p></td>
+<td><p>Não</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">em_ajuste</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reenviar_para_analise</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">aguardando_analise</span></code></p></td>
+<td><p>Não</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="estrutura-da-configuracao">
+<h3>Estrutura da configuração<a class="headerlink" href="#estrutura-da-configuracao" title="Link para este cabeçalho"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Campo</p></th>
+<th class="head"><p>Descrição</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">estados</span></code></p></td>
+<td><p>Define os estados disponíveis no workflow.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acoes</span></code></p></td>
+<td><p>Define as ações permitidas para cada estado.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code></p></td>
+<td><p>Identifica o estado de destino da ação.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">terminal</span></code></p></td>
+<td><p>Indica se a transição conduz a um estado terminal.</p></td>
+</tr>
+</tbody>
+</table>
+<p>O campo <code class="docutils literal notranslate"><span class="pre">terminal</span></code> deve receber um valor booleano (<code class="docutils literal notranslate"><span class="pre">true</span></code> ou <code class="docutils literal notranslate"><span class="pre">false</span></code>).</p>
+<p>Um estado terminal deve possuir <code class="docutils literal notranslate"><span class="pre">acoes:</span> <span class="pre">null</span></code>, indicando que não existem novas ações disponíveis.</p>
+</section>
+</section>
+<section id="inicializar-o-sdk">
+<h2>Inicializar o SDK<a class="headerlink" href="#inicializar-o-sdk" title="Link para este cabeçalho"></a></h2>
+<p>O SDK disponibiliza um runtime para gerenciar a inicialização e o acesso à instância compartilhada do motor de workflow.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure</span><span class="p">,</span> <span class="n">get_workflow</span>
+
+<span class="n">configure</span><span class="p">(</span><span class="s2">"workflow.yaml"</span><span class="p">)</span>
+
+<span class="n">workflow</span> <span class="o">=</span> <span class="n">get_workflow</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A função <code class="docutils literal notranslate"><span class="pre">configure()</span></code> carrega e valida a configuração YAML antes de inicializar o workflow.</p>
+<p>A inicialização não gera efeitos adicionais quando realizada novamente com o mesmo caminho de configuração. Caso o runtime já esteja inicializado com outro caminho, uma exceção será lançada.</p>
+</section>
+<section id="validar-uma-acao">
+<h2>Validar uma ação<a class="headerlink" href="#validar-uma-acao" title="Link para este cabeçalho"></a></h2>
+<p>Com o workflow inicializado, a aplicação pode verificar se uma ação está disponível para o estado atual.</p>
+<p>Por exemplo, para enviar uma solicitação que está em rascunho para análise:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execucao</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">validar</span><span class="p">(</span>
+    <span class="n">estado_atual</span><span class="o">=</span><span class="s2">"rascunho"</span><span class="p">,</span>
+    <span class="n">acao</span><span class="o">=</span><span class="s2">"enviar_para_analise"</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>O método <code class="docutils literal notranslate"><span class="pre">validar()</span></code> verifica:</p>
+<ul class="simple">
+<li><p>Se o estado informado existe na configuração.</p></li>
+<li><p>Se a ação está disponível para o estado atual.</p></li>
+<li><p>Se a transição configurada respeita as regras de consistência do workflow.</p></li>
+</ul>
+<p>Se a validação for bem-sucedida, o método retorna uma instância de <code class="docutils literal notranslate"><span class="pre">ExecucaoValidada</span></code>, que contém os dados necessários para produzir o resultado da transição.</p>
+</section>
+<section id="produzir-o-resultado-da-execucao">
+<h2>Produzir o resultado da execução<a class="headerlink" href="#produzir-o-resultado-da-execucao" title="Link para este cabeçalho"></a></h2>
+<p>Após validar a ação, a aplicação consumidora deve executar sua própria regra de negócio.</p>
+<p>Quando a regra de negócio for concluída com sucesso, o resultado da transição pode ser produzido pelo SDK:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextoExecucao</span>
+
+<span class="n">contexto</span> <span class="o">=</span> <span class="n">ContextoExecucao</span><span class="p">(</span>
+    <span class="n">autor</span><span class="o">=</span><span class="s2">"usuario_sistema"</span><span class="p">,</span>
+    <span class="n">dados</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"origem"</span><span class="p">:</span> <span class="s2">"aplicacao_consumidora"</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">resultado</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">executar</span><span class="p">(</span><span class="n">execucao</span><span class="p">,</span> <span class="n">contexto</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">resultado</span><span class="p">[</span><span class="s2">"sucesso"</span><span class="p">]:</span>
+    <span class="n">novo_estado</span> <span class="o">=</span> <span class="n">resultado</span><span class="p">[</span><span class="s2">"proximo_estado"</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>O método <code class="docutils literal notranslate"><span class="pre">executar()</span></code> recebe os dados da transição previamente validados e o contexto da execução.</p>
+<p>O resultado é um dicionário Python com informações como:</p>
+<ul class="simple">
+<li><p>Estado anterior.</p></li>
+<li><p>Ação executada.</p></li>
+<li><p>Próximo estado.</p></li>
+<li><p>Indicador de terminalidade.</p></li>
+<li><p>Indicador de sucesso.</p></li>
+<li><p>Identificador da execução.</p></li>
+<li><p>Autor e contexto.</p></li>
+<li><p>Horários de início e término.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>O SDK não executa regras de negócio específicas da aplicação, não altera o estado persistido da entidade e não realiza operações de persistência.</p>
+</div>
+<p>A aplicação consumidora é responsável por persistir o novo estado e o histórico do processo após a conclusão bem-sucedida da operação.</p>
+</section>
+<section id="encerrar-o-runtime">
+<h2>Encerrar o runtime<a class="headerlink" href="#encerrar-o-runtime" title="Link para este cabeçalho"></a></h2>
+<p>Quando necessário, a aplicação pode encerrar o runtime:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">shutdown</span>
+
+<span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Após o encerramento, uma nova chamada a <code class="docutils literal notranslate"><span class="pre">get_workflow()</span></code> lançará <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> até que o runtime seja inicializado novamente.</p>
+</section>
+<section id="proximos-passos">
+<h2>Próximos passos<a class="headerlink" href="#proximos-passos" title="Link para este cabeçalho"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="configurando_workflow.html"><span class="doc std std-doc">Configuração de workflows</span></a></p></li>
+<li><p><a class="reference internal" href="integrando_aplicacao.html"><span class="doc std std-doc">Integração com a aplicação</span></a></p></li>
+<li><p><a class="reference internal" href="tratamento_excecoes.html"><span class="doc std std-doc">Tratamento de exceções</span></a></p></li>
+<li><p><a class="reference internal" href="api/index.html"><span class="doc std std-doc">Referência da API</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Rodapé">
+        <a href="index.html" class="btn btn-neutral float-left" title="SME Workflow SDK" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="configurando_workflow.html" class="btn btn-neutral float-right" title="Configurando workflows" accesskey="n" rel="next">Próximo <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

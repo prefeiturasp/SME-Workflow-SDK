@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configurando workflows &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/configurando_workflow.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2346ddef"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=71a39b36"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Buscar" href="search.html" />
+    <link rel="next" title="Integração com a aplicação" href="integrando_aplicacao.html" />
+    <link rel="prev" title="Primeiros passos" href="primeiros_passos.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configurando workflows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#estrutura-do-arquivo">Estrutura do arquivo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#definindo-estados">Definindo estados</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#definindo-acoes">Definindo ações</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transicoes-e-estados-de-destino">Transições e estados de destino</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#estados-terminais">Estados terminais</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#estados-nao-terminais">Estados não terminais</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exemplo-completo">Exemplo completo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regras-de-validacao">Regras de validação</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#estrutura-geral">Estrutura geral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#estados-e-acoes">Estados e ações</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transicoes">Transições</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#validando-a-configuracao">Validando a configuração</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#proximos-passos">Próximos passos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Configurando workflows</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/configurando_workflow.md.txt" rel="nofollow"> Ver código-fonte da página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configurando-workflows">
+<h1>Configurando workflows<a class="headerlink" href="#configurando-workflows" title="Link para este cabeçalho"></a></h1>
+<p>O SME Workflow SDK utiliza arquivos YAML para definir a estrutura e as regras de transição de um workflow.</p>
+<p>A configuração descreve os estados disponíveis, as ações permitidas em cada estado e os respectivos estados de destino. A partir dessas informações, o SDK consegue validar se uma transição é permitida e produzir o resultado da execução.</p>
+<section id="estrutura-do-arquivo">
+<h2>Estrutura do arquivo<a class="headerlink" href="#estrutura-do-arquivo" title="Link para este cabeçalho"></a></h2>
+<p>A configuração deve possuir o campo <code class="docutils literal notranslate"><span class="pre">estados</span></code> na raiz do arquivo YAML.</p>
+<p>Cada estado define suas ações e, para cada ação, o estado de destino e a indicação de terminalidade.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">estados</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nome_do_estado</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">nome_da_acao</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nome_do_proximo_estado</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>A estrutura possui três elementos principais:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Elemento</p></th>
+<th class="head"><p>Descrição</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">estados</span></code></p></td>
+<td><p>Agrupa todos os estados definidos no workflow.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acoes</span></code></p></td>
+<td><p>Define as ações disponíveis em determinado estado.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code></p></td>
+<td><p>Identifica o estado para o qual a transição será direcionada.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">terminal</span></code></p></td>
+<td><p>Indica se o estado de destino é terminal.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p><strong>Regras para nomes de estados e ações</strong></p>
+<p>Os nomes dos estados e das ações devem conter apenas letras ASCII, sem números, espaços ou caracteres especiais.
+São permitidas letras maiúsculas e minúsculas (A–Z e a–z), além do caractere sublinhado (<strong>_</strong>).</p>
+<p>Exemplos válidos:</p>
+<ul class="simple">
+<li><p>aguardando_analise</p></li>
+<li><p>em_execucao</p></li>
+<li><p>aprovar</p></li>
+<li><p>encaminhar_para_dre</p></li>
+</ul>
+<p>Exemplos inválidos:</p>
+<ul class="simple">
+<li><p>estado1 (contém número)</p></li>
+<li><p>em análise (contém espaço e acento)</p></li>
+<li><p>aprovar! (contém caractere especial)</p></li>
+<li><p>aguardando-analise (contém hífen)</p></li>
+</ul>
+</div>
+</section>
+<section id="definindo-estados">
+<h2>Definindo estados<a class="headerlink" href="#definindo-estados" title="Link para este cabeçalho"></a></h2>
+<p>Os estados representam as etapas pelas quais uma entidade pode passar durante seu ciclo de vida.</p>
+<p>Cada estado deve possuir um nome válido e uma configuração de ações.</p>
+<p>Exemplo:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">estados</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rascunho</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enviar_para_analise</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aguardando_analise</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">aguardando_analise</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">aprovar</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aprovado</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">aprovado</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>Nesse exemplo, o workflow possui três estados:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">rascunho</span></code>: permite enviar a solicitação para análise.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aguardando_analise</span></code>: permite aprovar a solicitação.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aprovado</span></code>: representa o encerramento do workflow.</p></li>
+</ul>
+</section>
+<section id="definindo-acoes">
+<h2>Definindo ações<a class="headerlink" href="#definindo-acoes" title="Link para este cabeçalho"></a></h2>
+<p>As ações representam as operações permitidas a partir de determinado estado.</p>
+<p>Cada ação deve possuir obrigatoriamente dois campos:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code>: nome do estado de destino.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">terminal</span></code>: valor booleano que indica se o destino é terminal.</p></li>
+</ul>
+<p>Exemplo:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">aguardando_analise</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">aprovar</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aprovado</span>
+<span class="w">      </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">    </span><span class="nt">reprovar</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reprovado</span>
+<span class="w">      </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">    </span><span class="nt">solicitar_ajustes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">em_ajuste</span>
+<span class="w">      </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>Nesse exemplo, o estado <code class="docutils literal notranslate"><span class="pre">aguardando_analise</span></code> disponibiliza três ações diferentes, cada uma direcionando o workflow para um estado específico.</p>
+</section>
+<section id="transicoes-e-estados-de-destino">
+<h2>Transições e estados de destino<a class="headerlink" href="#transicoes-e-estados-de-destino" title="Link para este cabeçalho"></a></h2>
+<p>Uma transição representa a passagem de um estado atual para outro por meio de uma ação.</p>
+<p>O campo <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code> deve referenciar um estado existente na configuração.</p>
+<p>Exemplo:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">estados</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pendente</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">iniciar</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">em_andamento</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">em_andamento</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">concluir</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">concluido</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">concluido</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>Nesse fluxo:</p>
+<ol class="arabic simple">
+<li><p>O workflow inicia em <code class="docutils literal notranslate"><span class="pre">pendente</span></code>.</p></li>
+<li><p>A ação <code class="docutils literal notranslate"><span class="pre">iniciar</span></code> direciona para <code class="docutils literal notranslate"><span class="pre">em_andamento</span></code>.</p></li>
+<li><p>A ação <code class="docutils literal notranslate"><span class="pre">concluir</span></code> direciona para <code class="docutils literal notranslate"><span class="pre">concluido</span></code>.</p></li>
+<li><p>O estado <code class="docutils literal notranslate"><span class="pre">concluido</span></code> encerra o workflow.</p></li>
+</ol>
+<p>O SDK verifica se o estado de destino existe e se a transição respeita as regras de consistência da configuração.</p>
+</section>
+<section id="estados-terminais">
+<h2>Estados terminais<a class="headerlink" href="#estados-terminais" title="Link para este cabeçalho"></a></h2>
+<p>Um estado terminal representa o encerramento do workflow. Ele não disponibiliza novas ações.</p>
+<p>Para definir um estado terminal, a ação que direciona para ele deve possuir <code class="docutils literal notranslate"><span class="pre">terminal:</span> <span class="pre">true</span></code>.</p>
+<p>O estado de destino deve possuir <code class="docutils literal notranslate"><span class="pre">acoes:</span> <span class="pre">null</span></code>.</p>
+<p>Exemplo:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">estados</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">aguardando_aprovacao</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">aprovar</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aprovado</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">aprovado</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>Nesse caso, <code class="docutils literal notranslate"><span class="pre">aprovado</span></code> é um estado terminal e não permite novas transições.</p>
+</section>
+<section id="estados-nao-terminais">
+<h2>Estados não terminais<a class="headerlink" href="#estados-nao-terminais" title="Link para este cabeçalho"></a></h2>
+<p>Um estado não terminal permite a continuidade do workflow e, portanto, deve possuir pelo menos uma ação disponível.</p>
+<p>As ações que direcionam para estados não terminais devem possuir <code class="docutils literal notranslate"><span class="pre">terminal:</span> <span class="pre">false</span></code>.</p>
+<p>Exemplo:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">estados</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">aguardando_analise</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">solicitar_ajustes</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">em_ajuste</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">em_ajuste</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reenviar</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aguardando_analise</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>Nesse exemplo, o workflow permite retornar para análise após a realização dos ajustes.</p>
+</section>
+<section id="exemplo-completo">
+<h2>Exemplo completo<a class="headerlink" href="#exemplo-completo" title="Link para este cabeçalho"></a></h2>
+<p>A seguir, um exemplo de workflow que representa o processo de análise de uma solicitação.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">estados</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rascunho</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enviar_para_analise</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aguardando_analise</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">aguardando_analise</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">aprovar</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aprovado</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">      </span><span class="nt">reprovar</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reprovado</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">      </span><span class="nt">solicitar_ajustes</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">em_ajuste</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">em_ajuste</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reenviar_para_analise</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proximo_estado</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aguardando_analise</span>
+<span class="w">        </span><span class="nt">terminal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">aprovado</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="w">  </span><span class="nt">reprovado</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">acoes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>O fluxo permite que uma solicitação seja enviada para análise, aprovada, reprovada ou devolvida para ajustes.</p>
+<p>Após a realização dos ajustes, a solicitação pode retornar para análise.</p>
+</section>
+<section id="regras-de-validacao">
+<h2>Regras de validação<a class="headerlink" href="#regras-de-validacao" title="Link para este cabeçalho"></a></h2>
+<p>O SDK realiza verificações estruturais e de consistência na configuração do workflow definida no arquivo YAML.</p>
+<p>As principais regras são:</p>
+<section id="estrutura-geral">
+<h3>Estrutura geral<a class="headerlink" href="#estrutura-geral" title="Link para este cabeçalho"></a></h3>
+<ul class="simple">
+<li><p>A configuração deve possuir a seção <code class="docutils literal notranslate"><span class="pre">estados</span></code>.</p></li>
+<li><p>A seção <code class="docutils literal notranslate"><span class="pre">estados</span></code> deve conter pelo menos um estado.</p></li>
+<li><p>Os nomes dos estados devem ser válidos.</p></li>
+</ul>
+</section>
+<section id="estados-e-acoes">
+<h3>Estados e ações<a class="headerlink" href="#estados-e-acoes" title="Link para este cabeçalho"></a></h3>
+<ul class="simple">
+<li><p>Cada estado deve possuir a propriedade <code class="docutils literal notranslate"><span class="pre">acoes</span></code>.</p></li>
+<li><p>A propriedade <code class="docutils literal notranslate"><span class="pre">acoes</span></code> deve conter uma ou mais ações ou receber o valor <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p></li>
+<li><p>Quando informadas, as ações não podem estar vazias.</p></li>
+<li><p>Os nomes das ações devem ser válidos.</p></li>
+<li><p>Cada ação deve possuir as propriedades <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code> e <code class="docutils literal notranslate"><span class="pre">terminal</span></code>.</p></li>
+<li><p>Não são permitidas propriedades adicionais na definição de uma ação.</p></li>
+</ul>
+</section>
+<section id="transicoes">
+<h3>Transições<a class="headerlink" href="#transicoes" title="Link para este cabeçalho"></a></h3>
+<ul class="simple">
+<li><p>A propriedade <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code> deve possuir um valor válido.</p></li>
+<li><p>O estado de destino deve existir na configuração.</p></li>
+<li><p>A propriedade <code class="docutils literal notranslate"><span class="pre">terminal</span></code> deve receber um valor booleano (<code class="docutils literal notranslate"><span class="pre">true</span></code> ou <code class="docutils literal notranslate"><span class="pre">false</span></code>).</p></li>
+<li><p>Uma transição não terminal não pode apontar para o próprio estado.</p></li>
+<li><p>Um estado terminal deve possuir <code class="docutils literal notranslate"><span class="pre">acoes:</span> <span class="pre">null</span></code>.</p></li>
+<li><p>Um estado não terminal deve possuir ações disponíveis.</p></li>
+</ul>
+<p>Caso alguma dessas regras não seja atendida, o SDK lança a exceção correspondente à validação que falhou.</p>
+</section>
+</section>
+<section id="validando-a-configuracao">
+<h2>Validando a configuração<a class="headerlink" href="#validando-a-configuracao" title="Link para este cabeçalho"></a></h2>
+<p>A leitura e a validação do arquivo YAML devem ser realizadas por meio da função <code class="docutils literal notranslate"><span class="pre">configure()</span></code>, disponibilizada pelo SDK.</p>
+<p>Para inicializar o SDK, basta informar o caminho do arquivo de configuração:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure</span>
+
+<span class="n">configure</span><span class="p">(</span><span class="s2">"workflow.yaml"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Ao executar <code class="docutils literal notranslate"><span class="pre">configure()</span></code>, o SDK realiza internamente as seguintes operações:</p>
+<ol class="arabic simple">
+<li><p><strong>Carregamento:</strong> lê o arquivo YAML informado e converte seu conteúdo para a estrutura interna utilizada pela biblioteca.</p></li>
+<li><p><strong>Validação:</strong> verifica a estrutura e a consistência da configuração, incluindo estados, ações e transições.</p></li>
+<li><p><strong>Inicialização:</strong> disponibiliza o runtime com o motor de workflow configurado para utilização pela aplicação.</p></li>
+</ol>
+<p>Caso o arquivo não seja encontrado ou alguma regra de validação não seja atendida, o SDK lança a exceção correspondente.</p>
+<p>Não é necessário instanciar diretamente <code class="docutils literal notranslate"><span class="pre">ConfiguradorWorkflow</span></code> nem chamar seus métodos <code class="docutils literal notranslate"><span class="pre">carregar()</span></code> e <code class="docutils literal notranslate"><span class="pre">validar()</span></code>, pois essas operações são executadas internamente por <code class="docutils literal notranslate"><span class="pre">configure()</span></code>.</p>
+</section>
+<section id="proximos-passos">
+<h2>Próximos passos<a class="headerlink" href="#proximos-passos" title="Link para este cabeçalho"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="primeiros_passos.html"><span class="doc std std-doc">Primeiros passos</span></a></p></li>
+<li><p><a class="reference internal" href="integrando_aplicacao.html"><span class="doc std std-doc">Integração com a aplicação</span></a></p></li>
+<li><p><a class="reference internal" href="tratamento_excecoes.html"><span class="doc std std-doc">Tratamento de exceções</span></a></p></li>
+<li><p><a class="reference internal" href="api/index.html"><span class="doc std std-doc">Referência da API</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Rodapé">
+        <a href="primeiros_passos.html" class="btn btn-neutral float-left" title="Primeiros passos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="integrando_aplicacao.html" class="btn btn-neutral float-right" title="Integração com a aplicação" accesskey="n" rel="next">Próximo <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

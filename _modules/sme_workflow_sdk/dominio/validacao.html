@@ -1,0 +1,285 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.dominio.validacao &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/dominio/validacao.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.dominio.validacao</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.dominio.validacao</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Disponibiliza funções genéricas para validação de dados do domínio.</span>
+
+<span class="sd">Este módulo reúne funções reutilizáveis para validar tipos, strings,</span>
+<span class="sd">valores booleanos, mapeamentos e identificadores utilizados pelas</span>
+<span class="sd">entidades do workflow.</span>
+
+<span class="sd">As funções centralizam as regras básicas de validação e lançam</span>
+<span class="sd">:class:`ValidacaoDominioError</span>
+<span class="sd">&lt;sme_workflow_sdk.excecoes.base.ValidacaoDominioError&gt;` quando os valores</span>
+<span class="sd">informados não atendem aos critérios estabelecidos.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.excecoes</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidacaoDominioError</span>
+
+
+<div class="viewcode-block" id="validar_tipo">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.validacao.validar_tipo">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validar_tipo</span><span class="p">(</span>
+    <span class="n">valor</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">tipo_esperado</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">nome_campo</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Valida se um valor corresponde a um dos tipos esperados.</span>
+
+<span class="sd">    Utiliza :py:func:`isinstance` para verificar se o valor pertence ao tipo</span>
+<span class="sd">    informado ou a uma tupla de tipos aceitos</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        valor (Any): Valor que será validado.</span>
+<span class="sd">        tipo_esperado (type | tuple[type, ...]): Tipo ou tupla de tipos</span>
+<span class="sd">            aceitos.</span>
+<span class="sd">        nome_campo (str): Nome do campo usado na mensagem de erro.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidacaoDominioError: Se o valor não corresponder a nenhum</span>
+<span class="sd">            dos tipos esperados.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="n">tipo_esperado</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tipo_esperado</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">nome_tipo</span> <span class="o">=</span> <span class="s2">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tipo</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">tipo_esperado</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nome_tipo</span> <span class="o">=</span> <span class="n">tipo_esperado</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nome_campo</span><span class="si">}</span><span class="s2"> deve ser </span><span class="si">{</span><span class="n">nome_tipo</span><span class="si">}</span><span class="s2">, recebido "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">valor</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validar_string_nao_vazia">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.validacao.validar_string_nao_vazia">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validar_string_nao_vazia</span><span class="p">(</span><span class="n">valor</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">nome_campo</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Valida se um valor é uma string não vazia.</span>
+
+<span class="sd">    Considera inválidas strings vazias ou compostas exclusivamente</span>
+<span class="sd">    por espaços em branco. A função não remove os espaços do valor</span>
+<span class="sd">    original.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        valor (Any): Valor que será validado.</span>
+<span class="sd">        nome_campo (str): Nome do campo usado na mensagem de erro.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidacaoDominioError: Se o valor não for uma string ou estiver vazio</span>
+<span class="sd">            após a remoção de espaços.</span>
+<span class="sd">    """</span>
+    <span class="n">validar_tipo</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nome_campo</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valor</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nome_campo</span><span class="si">}</span><span class="s2"> não pode ser vazio"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validar_booleano">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.validacao.validar_booleano">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validar_booleano</span><span class="p">(</span><span class="n">valor</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">nome_campo</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Valida se um valor é estritamente do tipo bool.</span>
+
+<span class="sd">    Não aceita valores de outros tipos, incluindo inteiros como 0 e 1,</span>
+<span class="sd">    mesmo que possam ser utilizados como booleanos em expressões Python.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        valor (Any): Valor que será validado.</span>
+<span class="sd">        nome_campo (str): Nome do campo usado na mensagem de erro.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidacaoDominioError: Se o valor não for bool.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nome_campo</span><span class="si">}</span><span class="s2"> deve ser bool, recebido </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">valor</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validar_mapping">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.validacao.validar_mapping">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validar_mapping</span><span class="p">(</span>
+    <span class="n">valor</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">nome_campo</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">permitir_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Valida se um valor implementa a interface Mapping.</span>
+
+<span class="sd">    Verifica se o valor implementa :py:class:`collections.abc.Mapping`.</span>
+<span class="sd">    Quando ``permitir_none`` é ``True``, o valor ``None`` também é aceito.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        valor (Any): Valor que será validado.</span>
+<span class="sd">        nome_campo (str): Nome do campo usado na mensagem de erro.</span>
+<span class="sd">        permitir_none (bool, optional): Define se None também é aceito. O</span>
+<span class="sd">            padrão é False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidacaoDominioError: Se o valor não implementar Mapping</span>
+<span class="sd">            e None não for permitido.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">valor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">permitir_none</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">valor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nome_campo</span><span class="si">}</span><span class="s2"> não pode ser None; use '</span><span class="se">{{}}</span><span class="s2">' para vazio"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="n">esperado</span> <span class="o">=</span> <span class="s2">"Mapping | None"</span> <span class="k">if</span> <span class="n">permitir_none</span> <span class="k">else</span> <span class="s2">"Mapping"</span>
+        <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nome_campo</span><span class="si">}</span><span class="s2"> deve ser </span><span class="si">{</span><span class="n">esperado</span><span class="si">}</span><span class="s2">, recebido "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">valor</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validar_identificador">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.validacao.validar_identificador">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validar_identificador</span><span class="p">(</span><span class="n">valor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nome_campo</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Valida o formato de um identificador de estado ou ação.</span>
+
+<span class="sd">    Aceita somente letras `ASCII &lt;https://www.asciitable.com/&gt;`_ , com</span>
+<span class="sd">    palavras separadas por sublinhados. Cada palavra deve conter pelo menos</span>
+<span class="sd">    uma letra.</span>
+
+<span class="sd">    Não são permitidos números, espaços, hífens, caracteres acentuados,</span>
+<span class="sd">    sublinhados no início ou no fim, nem sublinhados consecutivos.</span>
+
+<span class="sd">    Exemplos de identificadores válidos:</span>
+<span class="sd">        - ``pendente``</span>
+<span class="sd">        - ``em_execucao``</span>
+<span class="sd">        - ``aguardando_aprovacao``</span>
+
+<span class="sd">    Exemplos de identificadores inválidos:</span>
+<span class="sd">        - ``em-execucao``: contém hífen.</span>
+<span class="sd">        - ``estado2``: contém número.</span>
+<span class="sd">        - ``em execução``: contém espaço.</span>
+<span class="sd">        - ``em_execução``: contém caractere acentuado.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        valor (str): Nome do estado ou da ação a ser validado.</span>
+<span class="sd">        nome_campo (str): Nome do campo usado na mensagem de erro.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidacaoDominioError: Se o identificador não respeitar</span>
+<span class="sd">            o padrão definido pelo domínio.</span>
+<span class="sd">    """</span>
+    <span class="n">identificador</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-Za-z]+(?:_[A-Za-z]+)*"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">identificador</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">valor</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nome_campo</span><span class="si">}</span><span class="s2"> inválido ('</span><span class="si">{</span><span class="n">valor</span><span class="si">}</span><span class="s2">'). O valor deve conter apenas "</span>
+            <span class="s2">"letras e sublinhados ('_') entre palavras (ex.: 'em_execucao'). "</span>
+            <span class="s2">"Não são permitidos sublinhados no início, no fim ou duplicados."</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

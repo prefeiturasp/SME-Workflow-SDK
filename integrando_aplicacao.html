@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integração com a aplicação &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/integrando_aplicacao.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2346ddef"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=71a39b36"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Buscar" href="search.html" />
+    <link rel="next" title="Tratamento de exceções" href="tratamento_excecoes.html" />
+    <link rel="prev" title="Configurando workflows" href="configurando_workflow.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Integração com a aplicação</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#inicializacao-do-sdk">1. Inicialização do SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#obtendo-o-motor-de-workflow">2. Obtendo o motor de workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validando-uma-acao">3. Validando uma ação</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#executando-as-regras-de-negocio">4. Executando as regras de negócio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#criando-o-contexto-da-execucao">5. Criando o contexto da execução</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gerando-o-resultado-da-transicao">6. Gerando o resultado da transição</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#atualizando-o-estado-da-entidade">7. Atualizando o estado da entidade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exemplo-completo-de-integracao">8. Exemplo completo de integração</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#encerrando-o-runtime">9. Encerrando o runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#responsabilidades-da-integracao">10. Responsabilidades da integração</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Integração com a aplicação</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/integrando_aplicacao.md.txt" rel="nofollow"> Ver código-fonte da página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="integracao-com-a-aplicacao">
+<h1>Integração com a aplicação<a class="headerlink" href="#integracao-com-a-aplicacao" title="Link para este cabeçalho"></a></h1>
+<p>Este guia apresenta como integrar o SME Workflow SDK a uma aplicação consumidora, utilizando o runtime e o motor de workflow para validar ações e produzir os resultados das transições.</p>
+<p>O SDK é responsável por validar as transições configuradas e gerar o resultado da execução. As regras de negócio específicas, a atualização do estado da entidade e a persistência dos dados continuam sob responsabilidade da aplicação consumidora.</p>
+<section id="inicializacao-do-sdk">
+<h2>1. Inicialização do SDK<a class="headerlink" href="#inicializacao-do-sdk" title="Link para este cabeçalho"></a></h2>
+<p>A inicialização deve ocorrer durante a inicialização da aplicação, antes de qualquer operação que utilize o workflow.</p>
+<p>Utilize a função <code class="docutils literal notranslate"><span class="pre">configure()</span></code> para carregar e validar o arquivo YAML e inicializar o motor de workflow.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure</span>
+
+<span class="n">configure</span><span class="p">(</span><span class="s2">"workflow.yaml"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A inicialização é idempotente para o mesmo caminho de configuração. Caso o runtime já esteja inicializado com outro arquivo, será lançada uma exceção.</p>
+</section>
+<section id="obtendo-o-motor-de-workflow">
+<h2>2. Obtendo o motor de workflow<a class="headerlink" href="#obtendo-o-motor-de-workflow" title="Link para este cabeçalho"></a></h2>
+<p>Após a inicialização, utilize <code class="docutils literal notranslate"><span class="pre">get_workflow()</span></code> para obter a instância configurada do motor.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_workflow</span>
+
+<span class="n">workflow</span> <span class="o">=</span> <span class="n">get_workflow</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Caso o runtime ainda não tenha sido inicializado, a chamada lançará uma exceção <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>.</p>
+</section>
+<section id="validando-uma-acao">
+<h2>3. Validando uma ação<a class="headerlink" href="#validando-uma-acao" title="Link para este cabeçalho"></a></h2>
+<p>Antes de executar as regras de negócio associadas à operação, a aplicação deve validar se a ação solicitada está disponível para o estado atual da entidade.</p>
+<p>Para isso, utilize o método <code class="docutils literal notranslate"><span class="pre">validar()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execucao</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">validar</span><span class="p">(</span>
+    <span class="n">estado_atual</span><span class="o">=</span><span class="s2">"aguardando_analise"</span><span class="p">,</span>
+    <span class="n">acao</span><span class="o">=</span><span class="s2">"aprovar"</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>O método verifica:</p>
+<ul class="simple">
+<li><p>Se o estado informado está definido no workflow.</p></li>
+<li><p>Se a ação está disponível para o estado atual.</p></li>
+<li><p>Se a transição configurada respeita as regras de consistência do workflow.</p></li>
+</ul>
+<p>Em caso de sucesso, retorna uma instância de <code class="docutils literal notranslate"><span class="pre">ExecucaoValidada</span></code>, contendo o estado atual, a ação validada e o horário de início da transição.</p>
+<p>Se houver inconsistências, poderão ser lançadas exceções específicas, como <code class="docutils literal notranslate"><span class="pre">EstadoInvalidoError</span></code>, <code class="docutils literal notranslate"><span class="pre">AcaoInvalidaError</span></code> e <code class="docutils literal notranslate"><span class="pre">TransicaoInvalidaError</span></code>.</p>
+</section>
+<section id="executando-as-regras-de-negocio">
+<h2>4. Executando as regras de negócio<a class="headerlink" href="#executando-as-regras-de-negocio" title="Link para este cabeçalho"></a></h2>
+<p>Após a validação da ação, a aplicação consumidora deve executar suas próprias regras de negócio.</p>
+<p>Por exemplo, ao aprovar uma solicitação, a aplicação pode precisar verificar informações adicionais, registrar a aprovação e atualizar outros dados relacionados.</p>
+<p>Essas operações não são executadas pelo SDK.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">aprovar_solicitacao</span><span class="p">(</span><span class="n">solicitacao</span><span class="p">):</span>
+    <span class="c1"># Regras de negócio da aplicação.</span>
+    <span class="c1"># Exemplo: verificar condições para aprovação.</span>
+    <span class="c1"># Registrar informações da aprovação.</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>A aplicação deve garantir que as regras de negócio sejam executadas com sucesso antes de chamar <code class="docutils literal notranslate"><span class="pre">workflow.executar()</span></code>.</p>
+</section>
+<section id="criando-o-contexto-da-execucao">
+<h2>5. Criando o contexto da execução<a class="headerlink" href="#criando-o-contexto-da-execucao" title="Link para este cabeçalho"></a></h2>
+<p>O <code class="docutils literal notranslate"><span class="pre">ContextoExecucao</span></code> reúne informações complementares da operação, como o autor responsável e dados adicionais fornecidos pela aplicação.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextoExecucao</span>
+
+<span class="n">contexto</span> <span class="o">=</span> <span class="n">ContextoExecucao</span><span class="p">(</span>
+    <span class="n">autor</span><span class="o">=</span><span class="s2">"usuario_sistema"</span><span class="p">,</span>
+    <span class="n">dados</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"origem"</span><span class="p">:</span> <span class="s2">"portal"</span><span class="p">,</span>
+        <span class="s2">"entidade"</span><span class="p">:</span> <span class="s2">"solicitacao"</span><span class="p">,</span>
+        <span class="s2">"id_solicitacao"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>O atributo <code class="docutils literal notranslate"><span class="pre">identificador</span></code> é gerado automaticamente quando não informado. A aplicação também pode fornecer seu próprio identificador.</p>
+<p>O atributo <code class="docutils literal notranslate"><span class="pre">dados</span></code> recebe um mapeamento com informações adicionais e é protegido contra alterações diretas no mapeamento armazenado.</p>
+</section>
+<section id="gerando-o-resultado-da-transicao">
+<h2>6. Gerando o resultado da transição<a class="headerlink" href="#gerando-o-resultado-da-transicao" title="Link para este cabeçalho"></a></h2>
+<p>Depois que as regras de negócio forem executadas com sucesso, utilize <code class="docutils literal notranslate"><span class="pre">motor.executar()</span></code> para produzir o resultado da transição.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resultado</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">executar</span><span class="p">(</span>
+    <span class="n">dados_transicao</span><span class="o">=</span><span class="n">execucao</span><span class="p">,</span>
+    <span class="n">contexto</span><span class="o">=</span><span class="n">contexto</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>O método retorna um dicionário com informações da execução, incluindo:</p>
+<ul class="simple">
+<li><p>Identificador da execução.</p></li>
+<li><p>Estado anterior.</p></li>
+<li><p>Ação executada.</p></li>
+<li><p>Próximo estado.</p></li>
+<li><p>Indicador de terminalidade.</p></li>
+<li><p>Indicador de sucesso.</p></li>
+<li><p>Mensagem do resultado.</p></li>
+<li><p>Data e hora de início e término.</p></li>
+<li><p>Autor responsável.</p></li>
+<li><p>Contexto associado.</p></li>
+</ul>
+<p>Os valores de data e hora permanecem como objetos <code class="docutils literal notranslate"><span class="pre">datetime</span></code>, não sendo convertidos automaticamente para strings.</p>
+</section>
+<section id="atualizando-o-estado-da-entidade">
+<h2>7. Atualizando o estado da entidade<a class="headerlink" href="#atualizando-o-estado-da-entidade" title="Link para este cabeçalho"></a></h2>
+<p>O SDK não altera o estado persistido da entidade e não realiza operações de banco de dados.</p>
+<p>A aplicação consumidora deve utilizar o resultado retornado para atualizar o estado da entidade e realizar a persistência conforme suas próprias regras.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">resultado</span><span class="p">[</span><span class="s2">"sucesso"</span><span class="p">]:</span>
+    <span class="n">solicitacao</span><span class="o">.</span><span class="n">situacao</span> <span class="o">=</span> <span class="n">resultado</span><span class="p">[</span><span class="s2">"proximo_estado"</span><span class="p">]</span>
+    <span class="n">solicitacao</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A aplicação também é responsável por decidir como tratar falhas de negócio e garantir a consistência das operações de persistência.</p>
+</section>
+<section id="exemplo-completo-de-integracao">
+<h2>8. Exemplo completo de integração<a class="headerlink" href="#exemplo-completo-de-integracao" title="Link para este cabeçalho"></a></h2>
+<p>O exemplo abaixo reúne as etapas de validação, execução das regras de negócio, criação do contexto e geração do resultado.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ContextoExecucao</span><span class="p">,</span>
+    <span class="n">get_workflow</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">aprovar_solicitacao</span><span class="p">(</span><span class="n">solicitacao</span><span class="p">,</span> <span class="n">usuario</span><span class="p">):</span>
+    <span class="n">workflow</span> <span class="o">=</span> <span class="n">get_workflow</span><span class="p">()</span>
+
+    <span class="c1"># 1. Validar a ação no estado atual.</span>
+    <span class="n">execucao</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">validar</span><span class="p">(</span>
+        <span class="n">estado_atual</span><span class="o">=</span><span class="n">solicitacao</span><span class="o">.</span><span class="n">situacao</span><span class="p">,</span>
+        <span class="n">acao</span><span class="o">=</span><span class="s2">"aprovar"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 2. Executar as regras de negócio da aplicação.</span>
+    <span class="c1"># A operação deve ser concluída com sucesso antes</span>
+    <span class="c1"># da geração do resultado do workflow.</span>
+    <span class="n">registrar_aprovacao</span><span class="p">(</span><span class="n">solicitacao</span><span class="p">,</span> <span class="n">usuario</span><span class="p">)</span>
+
+    <span class="c1"># 3. Criar o contexto da execução.</span>
+    <span class="n">contexto</span> <span class="o">=</span> <span class="n">ContextoExecucao</span><span class="p">(</span>
+        <span class="n">autor</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">usuario</span><span class="o">.</span><span class="n">id</span><span class="p">),</span>
+        <span class="n">dados</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"id_solicitacao"</span><span class="p">:</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 4. Gerar o resultado da transição.</span>
+    <span class="n">resultado</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">executar</span><span class="p">(</span>
+        <span class="n">dados_transicao</span><span class="o">=</span><span class="n">execucao</span><span class="p">,</span>
+        <span class="n">contexto</span><span class="o">=</span><span class="n">contexto</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 5. Atualizar o estado da entidade na aplicação.</span>
+    <span class="k">if</span> <span class="n">resultado</span><span class="p">[</span><span class="s2">"sucesso"</span><span class="p">]:</span>
+        <span class="n">solicitacao</span><span class="o">.</span><span class="n">situacao</span> <span class="o">=</span> <span class="n">resultado</span><span class="p">[</span><span class="s2">"proximo_estado"</span><span class="p">]</span>
+        <span class="n">solicitacao</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">resultado</span>
+</pre></div>
+</div>
+<p>No exemplo, <code class="docutils literal notranslate"><span class="pre">registrar_aprovacao()</span></code> representa uma operação de negócio pertencente à aplicação consumidora. Ela não faz parte do SDK.</p>
+</section>
+<section id="encerrando-o-runtime">
+<h2>9. Encerrando o runtime<a class="headerlink" href="#encerrando-o-runtime" title="Link para este cabeçalho"></a></h2>
+<p>Quando necessário, utilize <code class="docutils literal notranslate"><span class="pre">shutdown()</span></code> para encerrar o runtime e remover a referência global ao motor.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">shutdown</span>
+
+<span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Após o encerramento, chamadas a <code class="docutils literal notranslate"><span class="pre">get_workflow()</span></code> lançarão <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> até que o runtime seja inicializado novamente.</p>
+<p>Referências ao motor que tenham sido armazenadas externamente não são invalidadas automaticamente.</p>
+</section>
+<section id="responsabilidades-da-integracao">
+<h2>10. Responsabilidades da integração<a class="headerlink" href="#responsabilidades-da-integracao" title="Link para este cabeçalho"></a></h2>
+<p>A integração deve respeitar a separação de responsabilidades entre o SDK e a aplicação consumidora.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Responsabilidade</p></th>
+<th class="head"><p>Responsável</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Carregar e validar a configuração YAML</p></td>
+<td><p>SDK</p></td>
+</tr>
+<tr class="row-odd"><td><p>Verificar se a ação é permitida no estado atual</p></td>
+<td><p>SDK</p></td>
+</tr>
+<tr class="row-even"><td><p>Validar a consistência da transição</p></td>
+<td><p>SDK</p></td>
+</tr>
+<tr class="row-odd"><td><p>Executar regras de negócio específicas</p></td>
+<td><p>Aplicação consumidora</p></td>
+</tr>
+<tr class="row-even"><td><p>Criar o contexto da execução</p></td>
+<td><p>Aplicação consumidora</p></td>
+</tr>
+<tr class="row-odd"><td><p>Produzir o resultado da transição</p></td>
+<td><p>SDK</p></td>
+</tr>
+<tr class="row-even"><td><p>Atualizar o estado da entidade</p></td>
+<td><p>Aplicação consumidora</p></td>
+</tr>
+<tr class="row-odd"><td><p>Persistir as alterações</p></td>
+<td><p>Aplicação consumidora</p></td>
+</tr>
+</tbody>
+</table>
+<p>Para conhecer os detalhes das classes e métodos utilizados neste guia, consulte a <a class="reference internal" href="api/index.html"><span class="std std-doc">Referência da API</span></a>.</p>
+<p>Consulte também <a class="reference internal" href="configurando_workflow.html"><span class="std std-doc">Configurando o workflow</span></a> e <a class="reference internal" href="tratamento_excecoes.html"><span class="std std-doc">Tratamento de exceções</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Rodapé">
+        <a href="configurando_workflow.html" class="btn btn-neutral float-left" title="Configurando workflows" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="tratamento_excecoes.html" class="btn btn-neutral float-right" title="Tratamento de exceções" accesskey="n" rel="next">Próximo <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

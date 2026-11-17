@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.configuracao.configurador &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/configuracao/configurador.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.configuracao.configurador</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.configuracao.configurador</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Coordenação da leitura e validação da configuração do workflow.</span>
+
+<span class="sd">Este módulo expõe :class:`ConfiguradorWorkflow`, o ponto de entrada de alto</span>
+<span class="sd">nível do pacote de configuração. Ele encapsula a construção de</span>
+<span class="sd">:class:`~sme_workflow_sdk.configuracao.leitor.LeitorWorkflow` e de</span>
+<span class="sd">:class:`~sme_workflow_sdk.configuracao.validador.ValidadorWorkflow`, delegando</span>
+<span class="sd">a eles a leitura do arquivo e a validação da estrutura.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.configuracao.leitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeitorWorkflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.configuracao.validador</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidadorWorkflow</span>
+
+
+<div class="viewcode-block" id="ConfiguradorWorkflow">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfiguradorWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Coordena a leitura e a validação da configuração do workflow.</span>
+
+<span class="sd">    Centraliza o acesso aos componentes responsáveis por carregar</span>
+<span class="sd">    arquivos YAML e validar a configuração resultante.</span>
+
+<span class="sd">    A leitura verifica aspectos estruturais do arquivo, enquanto</span>
+<span class="sd">    a validação verifica as regras de estrutura e consistência</span>
+<span class="sd">    dos estados, ações e transições do workflow.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; configurador = ConfiguradorWorkflow()</span>
+<span class="sd">        &gt;&gt;&gt; config = configurador.carregar("workflow.yaml")</span>
+<span class="sd">        &gt;&gt;&gt; configurador.validar(config)</span>
+
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Inicializa os componentes de leitura e validação.</span>
+
+<span class="sd">        Cria uma instância de ``LeitorWorkflow`` e uma de</span>
+<span class="sd">        ``ValidadorWorkflow``, armazenando ambas para reutilização durante as</span>
+<span class="sd">        operações de carregamento e validação.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leitor</span> <span class="o">=</span> <span class="n">LeitorWorkflow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validador</span> <span class="o">=</span> <span class="n">ValidadorWorkflow</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ConfiguradorWorkflow.carregar">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.carregar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">carregar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caminho</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Carrega a configuração de um arquivo YAML.</span>
+
+<span class="sd">        Delega ao ``LeitorWorkflow`` a validação do caminho, a leitura</span>
+<span class="sd">        do arquivo e a verificação estrutural do conteúdo YAML.</span>
+
+<span class="sd">        A validação das regras específicas do workflow deve ser</span>
+<span class="sd">        realizada separadamente por meio do método :meth:`validar`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            caminho (str): Caminho para o arquivo ``.yaml`` ou</span>
+<span class="sd">                ``.yml`` a ser carregado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, Any]: Configuração carregada como dicionário,</span>
+<span class="sd">            com a estrutura de alto nível validada.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FormatoInvalidoError: Se a extensão não for suportada,</span>
+<span class="sd">                se o YAML possuir sintaxe inválida, encoding diferente</span>
+<span class="sd">                de UTF-8 ou mais de um documento.</span>
+<span class="sd">            ArquivoNaoEncontradoError: Se o caminho não existir ou</span>
+<span class="sd">                não apontar para um arquivo regular.</span>
+<span class="sd">            ConfiguracaoInvalidaError: Se o arquivo estiver vazio, contiver</span>
+<span class="sd">                apenas comentários ou se a raiz do YAML não for um mapeamento.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; configurador = ConfiguradorWorkflow()</span>
+<span class="sd">            &gt;&gt;&gt; config = configurador.carregar("workflow.yaml")</span>
+<span class="sd">            &gt;&gt;&gt; "estados" in config</span>
+<span class="sd">            True</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leitor</span><span class="o">.</span><span class="n">carregar</span><span class="p">(</span><span class="n">caminho</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConfiguradorWorkflow.validar">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.validar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuracao</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida a estrutura e a consistência da configuração do workflow.</span>
+
+<span class="sd">        Delega ao ``ValidadorWorkflow`` a verificação dos estados,</span>
+<span class="sd">        das ações e das transições configuradas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            configuracao (dict[str, Any]): Configuração do workflow,</span>
+<span class="sd">                normalmente obtida por meio de :meth:`carregar`.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EstadoInvalidoError:Lançada quando a configuração apresenta</span>
+<span class="sd">                problemas relacionados aos estados, como ausência da seção</span>
+<span class="sd">                ``estados``, ausência de estados definidos, nomes ou definições</span>
+<span class="sd">                inválidas de estados, ou quando alguma ação referencia um</span>
+<span class="sd">                estado inexistente.</span>
+
+<span class="sd">            AcaoInvalidaError:Lançada quando a configuração apresenta problemas</span>
+<span class="sd">                relacionados às ações, como ausência do campo ``acoes`` em</span>
+<span class="sd">                algum estado, definição inválida ou vazia de ações, nomes ou</span>
+<span class="sd">                estruturas de ações inválidos, ausência de campos obrigatórios,</span>
+<span class="sd">                presença de propriedades não permitidas ou valores inválidos</span>
+<span class="sd">                para ``proximo_estado`` e ``terminal``. Também é lançada quando</span>
+<span class="sd">                o valor de ``terminal`` é incompatível com a existência de</span>
+<span class="sd">                ações no estado de destino.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; configurador = ConfiguradorWorkflow()</span>
+<span class="sd">            &gt;&gt;&gt; config = configurador.carregar("workflow.yaml")</span>
+<span class="sd">            &gt;&gt;&gt; configurador.validar(config)  # levanta erro se inválido</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validador</span><span class="o">.</span><span class="n">validar</span><span class="p">(</span><span class="n">configuracao</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

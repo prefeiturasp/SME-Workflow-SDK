@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arquitetura &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/arquitetura.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2346ddef"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=71a39b36"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Buscar" href="search.html" />
+    <link rel="next" title="Referência da API" href="api/index.html" />
+    <link rel="prev" title="Tratamento de exceções" href="tratamento_excecoes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Arquitetura</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#visao-geral">1. Visão geral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#principios-arquiteturais">2. Princípios arquiteturais</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#estrutura-de-diretorios">3. Estrutura de diretórios</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#organizacao-dos-modulos">3.1 Organização dos módulos</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#componentes-arquiteturais">4. Componentes arquiteturais</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#runtime">4.1 Runtime</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuracao">4.2 Configuração</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#aplicacao">4.3 Aplicação</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dominio">4.4 Domínio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#excecoes">4.5 Exceções</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fluxo-arquitetural">5. Fluxo arquitetural</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inicializacao">5.1 Inicialização</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validacao-e-resolucao-da-transicao">5.2 Validação e resolução da transição</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#operacoes-da-aplicacao-consumidora">5.3 Operações da aplicação consumidora</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#responsabilidades-do-sdk-e-da-aplicacao-consumidora">6. Responsabilidades do SDK e da aplicação consumidora</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#limites-arquiteturais">7. Limites arquiteturais</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#referencias">8. Referências</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Arquitetura</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/arquitetura.md.txt" rel="nofollow"> Ver código-fonte da página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="arquitetura">
+<h1>Arquitetura<a class="headerlink" href="#arquitetura" title="Link para este cabeçalho"></a></h1>
+<section id="visao-geral">
+<h2>1. Visão geral<a class="headerlink" href="#visao-geral" title="Link para este cabeçalho"></a></h2>
+<p>O SME Workflow SDK é uma biblioteca Python reutilizável, projetada para centralizar o controle de estados e transições de processos de negócio por meio de configurações declarativas em YAML.</p>
+<p>Seu principal objetivo é desacoplar as regras de fluxo operacional do código das aplicações consumidoras, permitindo que diferentes sistemas utilizem uma estrutura padronizada para validar ações e resolver transições.</p>
+<p>A arquitetura foi concebida para ser independente de domínio, framework e banco de dados, possibilitando sua utilização em aplicações monolíticas, microsserviços e APIs REST.</p>
+</section>
+<section id="principios-arquiteturais">
+<h2>2. Princípios arquiteturais<a class="headerlink" href="#principios-arquiteturais" title="Link para este cabeçalho"></a></h2>
+<p>A arquitetura do SDK considera os seguintes princípios:</p>
+<ul class="simple">
+<li><p><strong>Separação de responsabilidades:</strong> o SDK controla o fluxo, enquanto a aplicação consumidora mantém suas regras de negócio.</p></li>
+<li><p><strong>Baixo acoplamento:</strong> o motor não depende de modelos, entidades ou estruturas específicas de uma aplicação.</p></li>
+<li><p><strong>Configuração declarativa:</strong> estados e transições são definidos externamente em arquivos YAML.</p></li>
+<li><p><strong>Reutilização:</strong> uma mesma implementação pode atender diferentes sistemas e domínios.</p></li>
+<li><p><strong>Testabilidade:</strong> as regras de transição podem ser validadas independentemente da aplicação consumidora.</p></li>
+</ul>
+</section>
+<section id="estrutura-de-diretorios">
+<h2>3. Estrutura de diretórios<a class="headerlink" href="#estrutura-de-diretorios" title="Link para este cabeçalho"></a></h2>
+<p>O pacote <code class="docutils literal notranslate"><span class="pre">sme_workflow_sdk</span></code> está organizado em módulos que separam as responsabilidades de configuração, aplicação, domínio, exceções e gerenciamento do runtime.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sme_workflow_sdk/
+│
+├── __init__.py
+├── runtime.py
+│
+├── aplicacao/
+│   ├── __init__.py
+│   ├── motor_workflow.py
+│   ├── decisao_resolver.py
+│   └── transicao_resolver.py
+│
+├── configuracao/
+│   ├── __init__.py
+│   ├── configurador.py
+│   ├── leitor.py
+│   └── validador.py
+│
+├── dominio/
+│   ├── __init__.py
+│   ├── contexto.py
+│   ├── entidades.py
+│   ├── execucao_validada.py
+│   ├── resultado.py
+│   └── validacao.py
+│
+└── excecoes/
+    ├── __init__.py
+    ├── base.py
+    ├── configuracao.py
+    └── workflow.py
+</pre></div>
+</div>
+<section id="organizacao-dos-modulos">
+<h3>3.1 Organização dos módulos<a class="headerlink" href="#organizacao-dos-modulos" title="Link para este cabeçalho"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Diretório/arquivo</p></th>
+<th class="head"><p>Responsabilidade</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__init__.py</span></code></p></td>
+<td><p>Disponibilizar os principais componentes e funções públicas do SDK.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">runtime.py</span></code></p></td>
+<td><p>Gerenciar a inicialização, recuperação e encerramento do motor de workflow.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aplicacao/</span></code></p></td>
+<td><p>Concentrar o motor e os componentes responsáveis pela resolução das transições.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">configuracao/</span></code></p></td>
+<td><p>Realizar a leitura, configuração e validação dos arquivos YAML.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dominio/</span></code></p></td>
+<td><p>Reunir as entidades, o contexto, os resultados e as regras do domínio.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">excecoes/</span></code></p></td>
+<td><p>Organizar as exceções específicas do SDK.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Essa organização mantém as responsabilidades separadas e facilita a manutenção, a evolução e a reutilização do SDK.</p>
+</section>
+</section>
+<section id="componentes-arquiteturais">
+<h2>4. Componentes arquiteturais<a class="headerlink" href="#componentes-arquiteturais" title="Link para este cabeçalho"></a></h2>
+<p>A estrutura do SDK está organizada em módulos que separam configuração, aplicação, domínio, exceções e gerenciamento do runtime.</p>
+<section id="runtime">
+<h3>4.1 Runtime<a class="headerlink" href="#runtime" title="Link para este cabeçalho"></a></h3>
+<p>O módulo <code class="docutils literal notranslate"><span class="pre">runtime</span></code> gerencia o ciclo de vida da instância do motor de workflow.</p>
+<p>Suas principais responsabilidades são:</p>
+<ul class="simple">
+<li><p>Inicializar o SDK a partir de um arquivo YAML.</p></li>
+<li><p>Recuperar a instância configurada do motor.</p></li>
+<li><p>Encerrar o runtime quando necessário.</p></li>
+</ul>
+<p>As funções disponibilizadas são:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">configure()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_workflow()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shutdown()</span></code></p></li>
+</ul>
+<p>O runtime funciona como ponto de entrada para as aplicações consumidoras que utilizam a instância compartilhada do motor.</p>
+</section>
+<section id="configuracao">
+<h3>4.2 Configuração<a class="headerlink" href="#configuracao" title="Link para este cabeçalho"></a></h3>
+<p>O pacote <code class="docutils literal notranslate"><span class="pre">configuracao</span></code> é responsável por carregar e validar a configuração declarativa do workflow.</p>
+<p>É composto pelas seguintes classes:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Classe</p></th>
+<th class="head"><p>Responsabilidade</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LeitorWorkflow</span></code></p></td>
+<td><p>Realizar a leitura do arquivo YAML.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ValidadorWorkflow</span></code></p></td>
+<td><p>Verificar a estrutura e a consistência da configuração.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ConfiguradorWorkflow</span></code></p></td>
+<td><p>Coordenar o carregamento e a validação da configuração.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A configuração define os estados disponíveis, as ações permitidas e os respectivos estados de destino.</p>
+</section>
+<section id="aplicacao">
+<h3>4.3 Aplicação<a class="headerlink" href="#aplicacao" title="Link para este cabeçalho"></a></h3>
+<p>O pacote <code class="docutils literal notranslate"><span class="pre">aplicacao</span></code> concentra a lógica de execução do motor de workflow.</p>
+<p>Seus componentes são:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Classe</p></th>
+<th class="head"><p>Responsabilidade</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MotorWorkflow</span></code></p></td>
+<td><p>Coordenar a validação e a execução das transições.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DecisaoResolver</span></code></p></td>
+<td><p>Resolver a decisão configurada para uma ação.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TransicaoResolver</span></code></p></td>
+<td><p>Resolver as informações da transição entre estados.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Essa camada utiliza as informações carregadas e validadas na configuração para determinar o resultado de uma operação.</p>
+</section>
+<section id="dominio">
+<h3>4.4 Domínio<a class="headerlink" href="#dominio" title="Link para este cabeçalho"></a></h3>
+<p>O pacote <code class="docutils literal notranslate"><span class="pre">dominio</span></code> reúne as estruturas e regras fundamentais do workflow, sem depender de elementos específicos da aplicação consumidora.</p>
+<p>Entre suas principais estruturas estão:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Classe ou módulo</p></th>
+<th class="head"><p>Responsabilidade</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ContextoExecucao</span></code></p></td>
+<td><p>Representar informações complementares da execução.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ExecucaoValidada</span></code></p></td>
+<td><p>Representar uma transição que passou pela validação.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ResultadoWorkflow</span></code></p></td>
+<td><p>Representar o resultado produzido pelo motor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">validacao</span></code></p></td>
+<td><p>Reunir regras de validação utilizadas pelo domínio.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">entidades</span></code></p></td>
+<td><p>Reunir estruturas de domínio utilizadas pelo SDK.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="excecoes">
+<h3>4.5 Exceções<a class="headerlink" href="#excecoes" title="Link para este cabeçalho"></a></h3>
+<p>O pacote <code class="docutils literal notranslate"><span class="pre">excecoes</span></code> organiza as exceções específicas do SDK, permitindo identificar falhas relacionadas à configuração e às operações do workflow.</p>
+<p>A separação das exceções facilita o tratamento dos erros pelas aplicações consumidoras.</p>
+</section>
+</section>
+<section id="fluxo-arquitetural">
+<h2>5. Fluxo arquitetural<a class="headerlink" href="#fluxo-arquitetural" title="Link para este cabeçalho"></a></h2>
+<p>Esta seção apresenta a comunicação entre a aplicação consumidora e os componentes internos do SDK, desde a inicialização até a utilização do resultado da transição.</p>
+<section id="inicializacao">
+<h3>5.1 Inicialização<a class="headerlink" href="#inicializacao" title="Link para este cabeçalho"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Aplicação consumidora
+        |
+        v
+     Runtime
+        |
+        v
+   LeitorWorkflow
+        |
+        v
+  ValidadorWorkflow
+        |
+        v
+   MotorWorkflow
+</pre></div>
+</div>
+<p>O runtime coordena a inicialização, enquanto os componentes de configuração realizam a leitura e a validação do arquivo YAML.</p>
+</section>
+<section id="validacao-e-resolucao-da-transicao">
+<h3>5.2 Validação e resolução da transição<a class="headerlink" href="#validacao-e-resolucao-da-transicao" title="Link para este cabeçalho"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Aplicação consumidora
+        |
+        | Estado atual + ação
+        v
+   MotorWorkflow
+        |
+        v
+  DecisaoResolver
+        |
+        v
+  TransicaoResolver
+        |
+        v
+  ResultadoWorkflow
+        |
+        v
+Aplicação consumidora
+</pre></div>
+</div>
+<p>A aplicação informa o estado atual e a ação solicitada. O motor valida a operação, resolve a transição configurada e produz o resultado para a aplicação consumidora.</p>
+</section>
+<section id="operacoes-da-aplicacao-consumidora">
+<h3>5.3 Operações da aplicação consumidora<a class="headerlink" href="#operacoes-da-aplicacao-consumidora" title="Link para este cabeçalho"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>      Aplicação consumidora
+                |
+                v
+        Regras de negócio
+                |
+         +------+------+
+         |             |
+         v             v
+    Persistência   Auditoria e
+                   notificações
+</pre></div>
+</div>
+<p>Após receber o resultado do SDK, a aplicação executa as operações de sua responsabilidade, incluindo atualização de estado, persistência e eventuais operações complementares.</p>
+<p>Os diagramas representam uma visão conceitual da integração e não necessariamente a sequência exata de todas as chamadas internas do código.</p>
+</section>
+</section>
+<section id="responsabilidades-do-sdk-e-da-aplicacao-consumidora">
+<h2>6. Responsabilidades do SDK e da aplicação consumidora<a class="headerlink" href="#responsabilidades-do-sdk-e-da-aplicacao-consumidora" title="Link para este cabeçalho"></a></h2>
+<p>A separação de responsabilidades é um dos principais objetivos arquiteturais do projeto.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Responsabilidade</p></th>
+<th class="head text-center"><p>SDK</p></th>
+<th class="head text-center"><p>Aplicação consumidora</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Carregar configuração YAML</p></td>
+<td class="text-center"><p>Sim</p></td>
+<td class="text-center"><p>Não</p></td>
+</tr>
+<tr class="row-odd"><td><p>Validar estrutura do workflow</p></td>
+<td class="text-center"><p>Sim</p></td>
+<td class="text-center"><p>Não</p></td>
+</tr>
+<tr class="row-even"><td><p>Controlar estados e transições</p></td>
+<td class="text-center"><p>Sim</p></td>
+<td class="text-center"><p>Não</p></td>
+</tr>
+<tr class="row-odd"><td><p>Validar ações disponíveis</p></td>
+<td class="text-center"><p>Sim</p></td>
+<td class="text-center"><p>Não</p></td>
+</tr>
+<tr class="row-even"><td><p>Resolver o próximo estado</p></td>
+<td class="text-center"><p>Sim</p></td>
+<td class="text-center"><p>Não</p></td>
+</tr>
+<tr class="row-odd"><td><p>Produzir o resultado da transição</p></td>
+<td class="text-center"><p>Sim</p></td>
+<td class="text-center"><p>Não</p></td>
+</tr>
+<tr class="row-even"><td><p>Executar regras de negócio específicas</p></td>
+<td class="text-center"><p>Não</p></td>
+<td class="text-center"><p>Sim</p></td>
+</tr>
+<tr class="row-odd"><td><p>Persistir alterações no banco de dados</p></td>
+<td class="text-center"><p>Não</p></td>
+<td class="text-center"><p>Sim</p></td>
+</tr>
+<tr class="row-even"><td><p>Registrar auditoria e histórico persistido</p></td>
+<td class="text-center"><p>Não</p></td>
+<td class="text-center"><p>Sim</p></td>
+</tr>
+<tr class="row-odd"><td><p>Enviar notificações</p></td>
+<td class="text-center"><p>Não</p></td>
+<td class="text-center"><p>Sim</p></td>
+</tr>
+<tr class="row-even"><td><p>Executar integrações externas</p></td>
+<td class="text-center"><p>Não</p></td>
+<td class="text-center"><p>Sim</p></td>
+</tr>
+</tbody>
+</table>
+<p>O SDK não deve conhecer modelos de banco de dados, serviços, repositórios ou regras específicas dos sistemas que o utilizam.</p>
+<p>A aplicação consumidora utiliza as informações produzidas pelo SDK para executar suas próprias operações, mantendo o controle sobre os efeitos de negócio e a persistência dos dados.</p>
+</section>
+<section id="limites-arquiteturais">
+<h2>7. Limites arquiteturais<a class="headerlink" href="#limites-arquiteturais" title="Link para este cabeçalho"></a></h2>
+<p>O SDK não tem como objetivo substituir uma plataforma corporativa de BPM ou uma engine completa de gerenciamento de processos.</p>
+<p>Não fazem parte de suas responsabilidades atuais:</p>
+<ul class="simple">
+<li><p>Orquestração distribuída de processos.</p></li>
+<li><p>Modelagem de processos BPMN.</p></li>
+<li><p>Gerenciamento humano de tarefas.</p></li>
+<li><p>Agendamento de atividades.</p></li>
+<li><p>Mensageria nativa.</p></li>
+<li><p>Interface gráfica para desenho de workflows.</p></li>
+<li><p>Persistência de entidades da aplicação consumidora.</p></li>
+<li><p>Execução de regras de negócio específicas do domínio.</p></li>
+</ul>
+<p>Essas funcionalidades podem ser implementadas pelas aplicações consumidoras ou por componentes externos, conforme as necessidades de cada sistema.</p>
+</section>
+<section id="referencias">
+<h2>8. Referências<a class="headerlink" href="#referencias" title="Link para este cabeçalho"></a></h2>
+<p>Para aprofundar o entendimento da implementação e da utilização do SDK, consulte:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="primeiros_passos.html"><span class="std std-doc">Primeiros passos</span></a></p></li>
+<li><p><a class="reference internal" href="configurando_workflow.html"><span class="std std-doc">Configurando o workflow</span></a></p></li>
+<li><p><a class="reference internal" href="integrando_aplicacao.html"><span class="std std-doc">Integrando com a aplicação</span></a></p></li>
+<li><p><a class="reference internal" href="tratamento_excecoes.html"><span class="std std-doc">Tratamento de exceções</span></a></p></li>
+<li><p><a class="reference internal" href="api/index.html"><span class="std std-doc">Referência da API</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Rodapé">
+        <a href="tratamento_excecoes.html" class="btn btn-neutral float-left" title="Tratamento de exceções" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="api/index.html" class="btn btn-neutral float-right" title="Referência da API" accesskey="n" rel="next">Próximo <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

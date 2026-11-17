@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Runtime &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/api/runtime.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/translations.js?v=71a39b36"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Buscar" href="../search.html" />
+    <link rel="next" title="Configuração" href="configuracao.html" />
+    <link rel="prev" title="Referência da API" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Referência da API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Runtime</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sme_workflow_sdk.runtime.RuntimeContext"><code class="docutils literal notranslate"><span class="pre">RuntimeContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.runtime.RuntimeContext.caminho"><code class="docutils literal notranslate"><span class="pre">RuntimeContext.caminho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.runtime.RuntimeContext.workflow"><code class="docutils literal notranslate"><span class="pre">RuntimeContext.workflow</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sme_workflow_sdk.runtime.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sme_workflow_sdk.runtime.get_workflow"><code class="docutils literal notranslate"><span class="pre">get_workflow()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sme_workflow_sdk.runtime.shutdown"><code class="docutils literal notranslate"><span class="pre">shutdown()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuracao.html">Configuração</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aplicacao.html">Camada de Aplicação</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dominio.html">Domínio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="excecoes.html">Exceções</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Referência da API</a></li>
+      <li class="breadcrumb-item active">Runtime</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/runtime.rst.txt" rel="nofollow"> Ver código-fonte da página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="runtime">
+<h1>Runtime<a class="headerlink" href="#runtime" title="Link para este cabeçalho"></a></h1>
+<p>O módulo <code class="docutils literal notranslate"><span class="pre">runtime</span></code> é responsável por gerenciar o ciclo de vida do SDK de workflow na aplicação consumidora.</p>
+<p>Por meio dele, a aplicação pode inicializar o SDK a partir de um arquivo YAML, obter acesso à instância compartilhada do motor de workflow e encerrar sua utilização quando necessário.</p>
+<p>Para isso, o módulo disponibiliza funções que centralizam o carregamento, a validação e a inicialização da configuração, garantindo que o motor esteja pronto para ser utilizado pela aplicação.</p>
+<p>A seguir, são apresentadas as responsabilidades do módulo e as funções disponibilizadas para integração com a aplicação consumidora.</p>
+<p id="module-sme_workflow_sdk.runtime">Gerencia o ciclo de vida do runtime do SDK de workflow.</p>
+<p>Este módulo implementa o gerenciamento da instância compartilhada do motor de
+workflow, permitindo que a aplicação consumidora inicialize, acesse e encerre
+o runtime por meio de funções públicas.</p>
+<p>A instância do motor é mantida durante o ciclo de vida do runtime, evitando
+inicializações desnecessárias e garantindo que a aplicação utilize a
+configuração carregada.</p>
+<dl class="simple">
+<dt>Principais responsabilidades:</dt><dd><ul class="simple">
+<li><p>Carregar e validar o arquivo YAML de configuração.</p></li>
+<li><p>Inicializar o motor de workflow.</p></li>
+<li><p>Garantir a inicialização única do runtime.</p></li>
+<li><p>Disponibilizar a instância configurada do motor.</p></li>
+<li><p>Permitir o encerramento do runtime.</p></li>
+<li><p>Registrar logs das operações de inicialização e encerramento.</p></li>
+</ul>
+</dd>
+<dt>Funções públicas:</dt><dd><ul class="simple">
+<li><p><strong>configure</strong>: Carrega, valida e inicializa o runtime.</p></li>
+<li><p><strong>get_workflow</strong>: Retorna a instância configurada do motor.</p></li>
+<li><p><strong>shutdown</strong>: Encerra o runtime removendo a referência global ao motor.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.runtime.RuntimeContext">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.runtime.</span></span><span class="sig-name descname"><span class="pre">RuntimeContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">caminho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/runtime.html#RuntimeContext"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.runtime.RuntimeContext" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Armazena o estado da instância do SDK.</p>
+<p>Mantém as informações necessárias para identificar a configuração
+utilizada e disponibilizar o motor de workflow inicializado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variáveis<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>caminho</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Caminho absoluto do arquivo YAML utilizado na inicialização
+do runtime.</p></li>
+<li><p><strong>workflow</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="aplicacao.html#sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow" title="sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">MotorWorkflow</span></code></a></span>) – Instância do motor de workflow criada a partir
+da configuração carregada e validada.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>caminho</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><em>Path</em></a>)</p></li>
+<li><p><strong>workflow</strong> (<a class="reference internal" href="aplicacao.html#sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow" title="sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow"><em>MotorWorkflow</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.runtime.RuntimeContext.caminho">
+<span class="sig-name descname"><span class="pre">caminho</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><span class="pre">Path</span></a></span><a class="headerlink" href="#sme_workflow_sdk.runtime.RuntimeContext.caminho" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.runtime.RuntimeContext.workflow">
+<span class="sig-name descname"><span class="pre">workflow</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="aplicacao.html#sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow" title="sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow"><span class="pre">MotorWorkflow</span></a></span><a class="headerlink" href="#sme_workflow_sdk.runtime.RuntimeContext.workflow" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_workflow_sdk.runtime.configure">
+<span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.runtime.</span></span><span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">caminho</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/runtime.html#configure"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.runtime.configure" title="Link para esta definição"></a></dt>
+<dd><p>Inicializa o runtime do SDK com um arquivo de configuração.</p>
+<p>Carrega e valida a configuração do workflow antes de criar o motor.
+A instância criada é armazenada no contexto global do runtime.</p>
+<p>A inicialização é idempotente para o mesmo caminho. Caso o runtime
+já esteja inicializado com outro caminho, uma exceção será lançada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>caminho</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Caminho do arquivo YAML de configuração.</p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(em Python v3.15)"><strong>RuntimeError</strong></a> – Se o runtime já estiver configurado com outro caminho.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.ArquivoNaoEncontradoError" title="sme_workflow_sdk.excecoes.configuracao.ArquivoNaoEncontradoError"><strong>ArquivoNaoEncontradoError</strong></a> – Se o arquivo não existir ou não for válido.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError"><strong>FormatoInvalidoError</strong></a> – Se a extensão ou o conteúdo YAML for inválido.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.ConfiguracaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.ConfiguracaoInvalidaError"><strong>ConfiguracaoInvalidaError</strong></a> – Se o conteúdo carregado não possuir
+    uma estrutura YAML válida.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError"><strong>EstadoInvalidoError</strong></a> – Se houver estados ou referências inválidas.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError"><strong>AcaoInvalidaError</strong></a> – Se houver ações ou transições inconsistentes.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_workflow_sdk.runtime.get_workflow">
+<span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.runtime.</span></span><span class="sig-name descname"><span class="pre">get_workflow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/runtime.html#get_workflow"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.runtime.get_workflow" title="Link para esta definição"></a></dt>
+<dd><p>Retorna a instância global do motor de workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(em Python v3.15)"><strong>RuntimeError</strong></a> – Se o runtime ainda não foi inicializado.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="aplicacao.html#sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow" title="sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">MotorWorkflow</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_workflow_sdk.runtime.shutdown">
+<span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.runtime.</span></span><span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/runtime.html#shutdown"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.runtime.shutdown" title="Link para esta definição"></a></dt>
+<dd><p>Encerra o runtime removendo a referência global ao motor.</p>
+<p>Após o encerramento, chamadas a get_workflow() lançarão RuntimeError
+até que o runtime seja inicializado novamente.</p>
+<p>Referências ao motor mantidas externamente não são invalidadas
+automaticamente.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Rodapé">
+        <a href="index.html" class="btn btn-neutral float-left" title="Referência da API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="configuracao.html" class="btn btn-neutral float-right" title="Configuração" accesskey="n" rel="next">Próximo <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

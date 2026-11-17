@@ -1,0 +1,270 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.runtime &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/runtime.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.runtime</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.runtime</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Gerencia o ciclo de vida do runtime do SDK de workflow.</span>
+
+<span class="sd">Este módulo implementa o gerenciamento da instância compartilhada do motor de</span>
+<span class="sd">workflow, permitindo que a aplicação consumidora inicialize, acesse e encerre</span>
+<span class="sd">o runtime por meio de funções públicas.</span>
+
+<span class="sd">A instância do motor é mantida durante o ciclo de vida do runtime, evitando</span>
+<span class="sd">inicializações desnecessárias e garantindo que a aplicação utilize a</span>
+<span class="sd">configuração carregada.</span>
+
+<span class="sd">Principais responsabilidades:</span>
+<span class="sd">    - Carregar e validar o arquivo YAML de configuração.</span>
+<span class="sd">    - Inicializar o motor de workflow.</span>
+<span class="sd">    - Garantir a inicialização única do runtime.</span>
+<span class="sd">    - Disponibilizar a instância configurada do motor.</span>
+<span class="sd">    - Permitir o encerramento do runtime.</span>
+<span class="sd">    - Registrar logs das operações de inicialização e encerramento.</span>
+
+<span class="sd">Funções públicas:</span>
+<span class="sd">    - **configure**: Carrega, valida e inicializa o runtime.</span>
+<span class="sd">    - **get_workflow**: Retorna a instância configurada do motor.</span>
+<span class="sd">    - **shutdown**: Encerra o runtime removendo a referência global ao motor.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.aplicacao.motor_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MotorWorkflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.configuracao.configurador</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfiguradorWorkflow</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RuntimeContext">
+<a class="viewcode-back" href="../../api/runtime.html#sme_workflow_sdk.runtime.RuntimeContext">[documentos]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RuntimeContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Armazena o estado da instância do SDK.</span>
+
+<span class="sd">    Mantém as informações necessárias para identificar a configuração</span>
+<span class="sd">    utilizada e disponibilizar o motor de workflow inicializado.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        caminho: Caminho absoluto do arquivo YAML utilizado na inicialização</span>
+<span class="sd">            do runtime.</span>
+<span class="sd">        workflow: Instância do motor de workflow criada a partir</span>
+<span class="sd">            da configuração carregada e validada.</span>
+<span class="sd">    """</span>
+
+    <span class="n">caminho</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">workflow</span><span class="p">:</span> <span class="n">MotorWorkflow</span></div>
+
+
+
+<span class="n">_RUNTIME_CONTEXT</span><span class="p">:</span> <span class="n">RuntimeContext</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="configure">
+<a class="viewcode-back" href="../../api/runtime.html#sme_workflow_sdk.runtime.configure">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="n">caminho</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Inicializa o runtime do SDK com um arquivo de configuração.</span>
+
+<span class="sd">    Carrega e valida a configuração do workflow antes de criar o motor.</span>
+<span class="sd">    A instância criada é armazenada no contexto global do runtime.</span>
+
+<span class="sd">    A inicialização é idempotente para o mesmo caminho. Caso o runtime</span>
+<span class="sd">    já esteja inicializado com outro caminho, uma exceção será lançada.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        caminho: Caminho do arquivo YAML de configuração.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: Se o runtime já estiver configurado com outro caminho.</span>
+<span class="sd">        ArquivoNaoEncontradoError: Se o arquivo não existir ou não for válido.</span>
+<span class="sd">        FormatoInvalidoError: Se a extensão ou o conteúdo YAML for inválido.</span>
+<span class="sd">        ConfiguracaoInvalidaError: Se o conteúdo carregado não possuir</span>
+<span class="sd">            uma estrutura YAML válida.</span>
+<span class="sd">        EstadoInvalidoError: Se houver estados ou referências inválidas.</span>
+<span class="sd">        AcaoInvalidaError: Se houver ações ou transições inconsistentes.</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">_RUNTIME_CONTEXT</span>
+
+    <span class="n">caminho</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">caminho</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">_RUNTIME_CONTEXT</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_RUNTIME_CONTEXT</span><span class="o">.</span><span class="n">caminho</span> <span class="o">==</span> <span class="n">caminho</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">"Workflow já inicializado com a configuração: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">caminho</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">"Tentativa de inicializar o workflow com outra configuração: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">caminho</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">"O runtime do workflow já está inicializado com outra "</span>
+            <span class="s2">"configuração."</span>
+        <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Inicializando SDK de workflow. Configuração: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">caminho</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">configurador</span> <span class="o">=</span> <span class="n">ConfiguradorWorkflow</span><span class="p">()</span>
+        <span class="n">configuracao</span> <span class="o">=</span> <span class="n">configurador</span><span class="o">.</span><span class="n">carregar</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">caminho</span><span class="p">))</span>
+        <span class="n">configurador</span><span class="o">.</span><span class="n">validar</span><span class="p">(</span><span class="n">configuracao</span><span class="p">)</span>
+        <span class="n">workflow</span> <span class="o">=</span> <span class="n">MotorWorkflow</span><span class="p">(</span><span class="n">configuracao</span><span class="p">)</span>
+
+        <span class="n">_RUNTIME_CONTEXT</span> <span class="o">=</span> <span class="n">RuntimeContext</span><span class="p">(</span>
+            <span class="n">caminho</span><span class="o">=</span><span class="n">caminho</span><span class="p">,</span>
+            <span class="n">workflow</span><span class="o">=</span><span class="n">workflow</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"SDK de workflow inicializado com sucesso."</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+            <span class="s2">"Falha ao inicializar o SDK de workflow. Configuração: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">caminho</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+
+<div class="viewcode-block" id="get_workflow">
+<a class="viewcode-back" href="../../api/runtime.html#sme_workflow_sdk.runtime.get_workflow">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_workflow</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">MotorWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Retorna a instância global do motor de workflow.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: Se o runtime ainda não foi inicializado.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">_RUNTIME_CONTEXT</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"O runtime do workflow ainda não foi inicializado."</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_RUNTIME_CONTEXT</span><span class="o">.</span><span class="n">workflow</span></div>
+
+
+
+<div class="viewcode-block" id="shutdown">
+<a class="viewcode-back" href="../../api/runtime.html#sme_workflow_sdk.runtime.shutdown">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">shutdown</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Encerra o runtime removendo a referência global ao motor.</span>
+
+<span class="sd">    Após o encerramento, chamadas a get_workflow() lançarão RuntimeError</span>
+<span class="sd">    até que o runtime seja inicializado novamente.</span>
+
+<span class="sd">    Referências ao motor mantidas externamente não são invalidadas</span>
+<span class="sd">    automaticamente.</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">_RUNTIME_CONTEXT</span>
+
+    <span class="k">if</span> <span class="n">_RUNTIME_CONTEXT</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Solicitação de encerramento ignorada: runtime inativo."</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Encerrando SDK de workflow."</span><span class="p">)</span>
+
+    <span class="n">_RUNTIME_CONTEXT</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"SDK de workflow encerrado."</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

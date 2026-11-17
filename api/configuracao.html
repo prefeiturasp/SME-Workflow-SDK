@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuração &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/api/configuracao.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/translations.js?v=71a39b36"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Buscar" href="../search.html" />
+    <link rel="next" title="Camada de Aplicação" href="aplicacao.html" />
+    <link rel="prev" title="Runtime" href="runtime.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="runtime.html">Runtime</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Configuração</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuradorworkflow">ConfiguradorWorkflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow"><code class="docutils literal notranslate"><span class="pre">ConfiguradorWorkflow</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#leitorworkflow">LeitorWorkflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow"><code class="docutils literal notranslate"><span class="pre">LeitorWorkflow</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#validadorworkflow">ValidadorWorkflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow"><code class="docutils literal notranslate"><span class="pre">ValidadorWorkflow</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="aplicacao.html">Camada de Aplicação</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dominio.html">Domínio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="excecoes.html">Exceções</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Referência da API</a></li>
+      <li class="breadcrumb-item active">Configuração</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/configuracao.rst.txt" rel="nofollow"> Ver código-fonte da página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuracao">
+<span id="module-sme_workflow_sdk.configuracao"></span><h1>Configuração<a class="headerlink" href="#configuracao" title="Link para este cabeçalho"></a></h1>
+<p>O pacote <code class="docutils literal notranslate"><span class="pre">configuracao</span></code> reúne os componentes responsáveis por carregar
+e validar os arquivos YAML utilizados na definição dos workflows.</p>
+<p>O processo de configuração é dividido em três responsabilidades:</p>
+<ul class="simple">
+<li><p><strong>ConfiguradorWorkflow:</strong> coordena o carregamento e a validação.</p></li>
+<li><p><strong>LeitorWorkflow:</strong> realiza a leitura do arquivo YAML e verifica sua
+estrutura básica.</p></li>
+<li><p><strong>ValidadorWorkflow:</strong> verifica a estrutura e a consistência dos estados,
+ações e transições configurados.</p></li>
+</ul>
+<section id="configuradorworkflow">
+<h2>ConfiguradorWorkflow<a class="headerlink" href="#configuradorworkflow" title="Link para este cabeçalho"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.configuracao.configurador.</span></span><span class="sig-name descname"><span class="pre">ConfiguradorWorkflow</span></span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/configurador.html#ConfiguradorWorkflow"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Coordena a leitura e a validação da configuração do workflow.</p>
+<p>Centraliza o acesso aos componentes responsáveis por carregar
+arquivos YAML e validar a configuração resultante.</p>
+<p>A leitura verifica aspectos estruturais do arquivo, enquanto
+a validação verifica as regras de estrutura e consistência
+dos estados, ações e transições do workflow.</p>
+<p class="rubric">Exemplos</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">configurador</span> <span class="o">=</span> <span class="n">ConfiguradorWorkflow</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">configurador</span><span class="o">.</span><span class="n">carregar</span><span class="p">(</span><span class="s2">"workflow.yaml"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">configurador</span><span class="o">.</span><span class="n">validar</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.carregar">
+<span class="sig-name descname"><span class="pre">carregar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">caminho</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/configurador.html#ConfiguradorWorkflow.carregar"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.carregar" title="Link para esta definição"></a></dt>
+<dd><p>Carrega a configuração de um arquivo YAML.</p>
+<p>Delega ao <code class="docutils literal notranslate"><span class="pre">LeitorWorkflow</span></code> a validação do caminho, a leitura
+do arquivo e a verificação estrutural do conteúdo YAML.</p>
+<p>A validação das regras específicas do workflow deve ser
+realizada separadamente por meio do método <a class="reference internal" href="#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.validar" title="sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.validar"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validar()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>caminho</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Caminho para o arquivo <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> ou
+<code class="docutils literal notranslate"><span class="pre">.yml</span></code> a ser carregado.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configuração carregada como dicionário,
+com a estrutura de alto nível validada.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError"><strong>FormatoInvalidoError</strong></a> – Se a extensão não for suportada,
+    se o YAML possuir sintaxe inválida, encoding diferente
+    de UTF-8 ou mais de um documento.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.ArquivoNaoEncontradoError" title="sme_workflow_sdk.excecoes.configuracao.ArquivoNaoEncontradoError"><strong>ArquivoNaoEncontradoError</strong></a> – Se o caminho não existir ou
+    não apontar para um arquivo regular.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.ConfiguracaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.ConfiguracaoInvalidaError"><strong>ConfiguracaoInvalidaError</strong></a> – Se o arquivo estiver vazio, contiver
+    apenas comentários ou se a raiz do YAML não for um mapeamento.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Exemplos</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">configurador</span> <span class="o">=</span> <span class="n">ConfiguradorWorkflow</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">configurador</span><span class="o">.</span><span class="n">carregar</span><span class="p">(</span><span class="s2">"workflow.yaml"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">"estados"</span> <span class="ow">in</span> <span class="n">config</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.validar">
+<span class="sig-name descname"><span class="pre">validar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuracao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/configurador.html#ConfiguradorWorkflow.validar"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.validar" title="Link para esta definição"></a></dt>
+<dd><p>Valida a estrutura e a consistência da configuração do workflow.</p>
+<p>Delega ao <code class="docutils literal notranslate"><span class="pre">ValidadorWorkflow</span></code> a verificação dos estados,
+das ações e das transições configuradas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>configuracao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span>) – Configuração do workflow,
+normalmente obtida por meio de <a class="reference internal" href="#sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.carregar" title="sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow.carregar"><code class="xref py py-meth docutils literal notranslate"><span class="pre">carregar()</span></code></a>.</p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError"><strong>EstadoInvalidoError</strong></a> – Lançada quando a configuração apresenta
+    problemas relacionados aos estados, como ausência da seção
+    <code class="docutils literal notranslate"><span class="pre">estados</span></code>, ausência de estados definidos, nomes ou definições
+    inválidas de estados, ou quando alguma ação referencia um
+    estado inexistente.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError"><strong>AcaoInvalidaError</strong></a> – Lançada quando a configuração apresenta problemas
+    relacionados às ações, como ausência do campo <code class="docutils literal notranslate"><span class="pre">acoes</span></code> em
+    algum estado, definição inválida ou vazia de ações, nomes ou
+    estruturas de ações inválidos, ausência de campos obrigatórios,
+    presença de propriedades não permitidas ou valores inválidos
+    para <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code> e <code class="docutils literal notranslate"><span class="pre">terminal</span></code>. Também é lançada quando
+    o valor de <code class="docutils literal notranslate"><span class="pre">terminal</span></code> é incompatível com a existência de
+    ações no estado de destino.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+<p class="rubric">Exemplos</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">configurador</span> <span class="o">=</span> <span class="n">ConfiguradorWorkflow</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">configurador</span><span class="o">.</span><span class="n">carregar</span><span class="p">(</span><span class="s2">"workflow.yaml"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">configurador</span><span class="o">.</span><span class="n">validar</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>  <span class="c1"># levanta erro se inválido</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="leitorworkflow">
+<h2>LeitorWorkflow<a class="headerlink" href="#leitorworkflow" title="Link para este cabeçalho"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.configuracao.leitor.</span></span><span class="sig-name descname"><span class="pre">LeitorWorkflow</span></span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/leitor.html#LeitorWorkflow"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Carrega e valida a estrutura de alto nível de um workflow YAML.</p>
+<p>A classe concentra toda a lógica de I/O e de checagem estrutural,
+delegando a validação semântica (chaves obrigatórias, tipos de
+ação, etc.) para etapas posteriores do SDK.</p>
+<p class="rubric">Exemplos</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">leitor</span> <span class="o">=</span> <span class="n">LeitorWorkflow</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">configuracao</span> <span class="o">=</span> <span class="n">leitor</span><span class="o">.</span><span class="n">carregar</span><span class="p">(</span><span class="s2">"workflows/pedido.yaml"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">configuracao</span><span class="p">[</span><span class="s2">"estados"</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Variáveis<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>EXTENSOES_VALIDAS</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(em Python v3.15)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a><em>]</em>) – Extensões aceitas pelo leitor.
+Atualmente <code class="docutils literal notranslate"><span class="pre">[&quot;.yaml&quot;,</span> <span class="pre">&quot;.yml&quot;]</span></code>.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow.EXTENSOES_VALIDAS">
+<span class="sig-name descname"><span class="pre">EXTENSOES_VALIDAS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['.yaml',</span> <span class="pre">'.yml']</span></span><a class="headerlink" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow.EXTENSOES_VALIDAS" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow.carregar">
+<span class="sig-name descname"><span class="pre">carregar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">caminho</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/leitor.html#LeitorWorkflow.carregar"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow.carregar" title="Link para esta definição"></a></dt>
+<dd><p>Carrega e valida a configuração de um arquivo YAML.</p>
+<p>Executa, em ordem, as três etapas internas de validação:
+<a class="reference internal" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_caminho" title="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_caminho"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_validar_caminho()</span></code></a>, <a class="reference internal" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._ler_yaml" title="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._ler_yaml"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_ler_yaml()</span></code></a> e
+<a class="reference internal" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_conteudo" title="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_conteudo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_validar_conteudo()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>caminho</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Caminho para o arquivo <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> ou <code class="docutils literal notranslate"><span class="pre">.yml</span></code>.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dicionário Python correspondente ao único</dt><dd><p>documento YAML presente no arquivo.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError"><strong>FormatoInvalidoError</strong></a> – Se a extensão do arquivo não estiver
+    em <a class="reference internal" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow.EXTENSOES_VALIDAS" title="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow.EXTENSOES_VALIDAS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">EXTENSOES_VALIDAS</span></code></a>, se o YAML tiver sintaxe
+    inválida, se o <em>encoding</em> não for UTF-8, ou se houver
+    mais de um documento no arquivo.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.ArquivoNaoEncontradoError" title="sme_workflow_sdk.excecoes.configuracao.ArquivoNaoEncontradoError"><strong>ArquivoNaoEncontradoError</strong></a> – Se o caminho não existir ou não
+    apontar para um arquivo regular (ex.: diretório).</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.ConfiguracaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.ConfiguracaoInvalidaError"><strong>ConfiguracaoInvalidaError</strong></a> – Se o arquivo estiver vazio, só
+    contiver comentários, ou se a raiz do YAML não for um
+    mapeamento.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Exemplos</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">leitor</span> <span class="o">=</span> <span class="n">LeitorWorkflow</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">leitor</span><span class="o">.</span><span class="n">carregar</span><span class="p">(</span><span class="s2">"workflow.yaml"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">"estados"</span> <span class="ow">in</span> <span class="n">config</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_caminho">
+<span class="sig-name descname"><span class="pre">_validar_caminho</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">caminho</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/leitor.html#LeitorWorkflow._validar_caminho"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_caminho" title="Link para esta definição"></a></dt>
+<dd><p>Valida extensão, existência e tipo do caminho informado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>caminho</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Caminho a ser validado.</p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError"><strong>FormatoInvalidoError</strong></a> – Se a extensão do arquivo não estiver
+    entre as suportadas.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.ArquivoNaoEncontradoError" title="sme_workflow_sdk.excecoes.configuracao.ArquivoNaoEncontradoError"><strong>ArquivoNaoEncontradoError</strong></a> – Lançada quando o caminho informado não
+    existe no sistema de arquivos ou quando, apesar de existir,
+    não corresponde a um arquivo regular, como no caso de um
+    diretório.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Retorna<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Objeto <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pathlib.Path</span></code></a> correspondente ao
+caminho validado.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._ler_yaml">
+<span class="sig-name descname"><span class="pre">_ler_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">caminho_arquivo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/leitor.html#LeitorWorkflow._ler_yaml"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._ler_yaml" title="Link para esta definição"></a></dt>
+<dd><p>Lê o arquivo YAML e valida o número de documentos.</p>
+<p>Arquivos vazios ou que só contêm comentários são sinalizados
+retornando <code class="docutils literal notranslate"><span class="pre">None</span></code>; cabe a <a class="reference internal" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_conteudo" title="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_conteudo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_validar_conteudo()</span></code></a> decidir
+se isso é um erro de negócio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>caminho_arquivo</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Caminho já validado do arquivo.</p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.FormatoInvalidoError"><strong>FormatoInvalidoError</strong></a> – Lançada quando o arquivo não está codificado
+    em UTF-8, apresenta erros de sintaxe YAML ou contém mais de um
+    documento YAML.</p>
+</dd>
+<dt class="field-odd">Retorna<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Conteúdo carregado do YAML, ainda sujeito à validação
+estrutural e semântica.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_conteudo">
+<span class="sig-name descname"><span class="pre">_validar_conteudo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuracao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caminho_arquivo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/leitor.html#LeitorWorkflow._validar_conteudo"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_conteudo" title="Link para esta definição"></a></dt>
+<dd><p>Valida se o conteúdo carregado possui um mapeamento na raiz.</p>
+<p>Verifica se o conteúdo YAML foi carregado corretamente e se sua
+estrutura de alto nível é um dicionário.</p>
+<p>Não verifica se o dicionário possui estados ou se atende ao
+esquema semântico do workflow. Essas validações são realizadas
+posteriormente pelo ValidadorWorkflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configuracao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Objeto retornado por <a class="reference internal" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._ler_yaml" title="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._ler_yaml"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_ler_yaml()</span></code></a>. Pode
+ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (arquivo vazio), um <code class="docutils literal notranslate"><span class="pre">dict</span></code> (caso esperado) ou
+qualquer outro tipo (ex.: <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>).</p></li>
+<li><p><strong>caminho_arquivo</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Caminho do arquivo, usado apenas para
+compor mensagens de erro.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.ConfiguracaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.ConfiguracaoInvalidaError"><strong>ConfiguracaoInvalidaError</strong></a> – Se o conteúdo for <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+    indicando arquivo vazio ou contendo apenas comentários,
+    ou se a raiz do YAML não for um dicionário.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="validadorworkflow">
+<h2>ValidadorWorkflow<a class="headerlink" href="#validadorworkflow" title="Link para este cabeçalho"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.validador.ValidadorWorkflow">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.configuracao.validador.</span></span><span class="sig-name descname"><span class="pre">ValidadorWorkflow</span></span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/validador.html#ValidadorWorkflow"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Responsável por validar a configuração do workflow.</p>
+<p>A classe percorre a configuração em três níveis — estados, ações e
+transições — e lança exceções específicas quando encontra problemas.
+Use-a depois de obter o dicionário do workflow, seja via
+<a class="reference internal" href="#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow" title="sme_workflow_sdk.configuracao.leitor.LeitorWorkflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeitorWorkflow</span></code></a>
+ou de outra fonte.</p>
+<p class="rubric">Exemplos</p>
+<p>validador = ValidadorWorkflow()
+validador.validar(configuracao)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.validador.ValidadorWorkflow.validar">
+<span class="sig-name descname"><span class="pre">validar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuracao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/validador.html#ValidadorWorkflow.validar"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow.validar" title="Link para esta definição"></a></dt>
+<dd><p>Valida a configuração completa do workflow.</p>
+<p>Verifica, em ordem, se a raiz é um dicionário, se o campo
+<code class="docutils literal notranslate"><span class="pre">estados</span></code> é um dicionário não vazio, se cada estado está
+bem formado e, por fim, se as transições entre eles são
+coerentes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>configuracao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span>) – Configuração carregada do arquivo
+YAML.</p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError"><strong>EstadoInvalidoError</strong></a> – Lançada quando a configuração apresenta uma
+    estrutura inválida, como ausência do campo estados, definição
+    inválida ou inexistente de estados, ou quando alguma ação
+    referencia um estado que não está definido na configuração.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError"><strong>AcaoInvalidaError</strong></a> – Lançada quando algum estado não possui o campo
+    acoes, quando esse campo apresenta uma definição inválida ou
+    está vazio, ou quando alguma ação possui nome ou estrutura
+    incorretos, campos obrigatórios ausentes ou propriedades
+    adicionais não permitidas. Também é lançada quando há
+    incompatibilidade entre o valor do campo terminal de uma ação
+    e a existência de ações no estado de destino.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_estado">
+<span class="sig-name descname"><span class="pre">_validar_estado</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nome_estado</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dados_estado</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/validador.html#ValidadorWorkflow._validar_estado"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_estado" title="Link para esta definição"></a></dt>
+<dd><p>Valida a estrutura de um estado.</p>
+<p>Confere se o nome é uma string não vazia, se os dados são um
+dicionário, se o campo <code class="docutils literal notranslate"><span class="pre">acoes</span></code> está presente e, quando
+aplicável, delega a validação de cada ação a
+<a class="reference internal" href="#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_acao" title="sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_acao"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_validar_acao()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nome_estado</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do estado na configuração.</p></li>
+<li><p><strong>dados_estado</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Dados associados ao estado.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError"><strong>EstadoInvalidoError</strong></a> – Lançada quando o nome do estado não é uma
+    string não vazia ou quando sua definição apresenta uma
+    estrutura inválida.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError"><strong>AcaoInvalidaError</strong></a> – Lançada quando o estado não possui o campo
+    acoes, quando esse campo não contém uma definição válida ou
+    quando apresenta uma definição vazia.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_acao">
+<span class="sig-name descname"><span class="pre">_validar_acao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nome_estado</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_acao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dados_acao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/validador.html#ValidadorWorkflow._validar_acao"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_acao" title="Link para esta definição"></a></dt>
+<dd><p>Valida a estrutura de uma ação de um estado.</p>
+<p>Confere o nome e o formato dos dados, rejeita chaves que não
+sejam <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code> e <code class="docutils literal notranslate"><span class="pre">terminal</span></code>, e garante que ambos
+os campos estão presentes e com os tipos esperados.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nome_estado</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do estado ao qual a ação pertence.</p></li>
+<li><p><strong>nome_acao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome da ação na configuração.</p></li>
+<li><p><strong>dados_acao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Dados associados à ação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError"><strong>AcaoInvalidaError</strong></a> – Lançada quando o nome da ação não é uma string
+    não vazia, quando sua definição apresenta uma estrutura
+    inválida ou contém propriedades adicionais além de
+    proximo_estado e terminal. Também é lançada quando algum
+    desses campos obrigatórios está ausente ou quando
+    proximo_estado não é uma string não vazia ou terminal não
+    possui um valor booleano.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_transicoes">
+<span class="sig-name descname"><span class="pre">_validar_transicoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estados</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/validador.html#ValidadorWorkflow._validar_transicoes"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_transicoes" title="Link para esta definição"></a></dt>
+<dd><p>Percorre todos os estados e valida cada transição.</p>
+<p>Estados cujo campo <code class="docutils literal notranslate"><span class="pre">acoes</span></code> é <code class="docutils literal notranslate"><span class="pre">None</span></code> são ignorados, pois
+não possuem transições a validar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>estados</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span>) – Dicionário de estados da configuração.</p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError"><strong>EstadoInvalidoError</strong></a> – Se alguma ação referenciar um estado
+    inexistente.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError"><strong>AcaoInvalidaError</strong></a> – Se houver incoerência entre o campo
+    <code class="docutils literal notranslate"><span class="pre">terminal</span></code> de alguma ação e as ações do estado de
+    destino.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_transicao_acao">
+<span class="sig-name descname"><span class="pre">_validar_transicao_acao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estados</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_estado</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_acao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dados_acao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/configuracao/validador.html#ValidadorWorkflow._validar_transicao_acao"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_transicao_acao" title="Link para esta definição"></a></dt>
+<dd><p>Valida uma única transição de ação.</p>
+<p>Confere se o estado de destino existe e se o campo
+<code class="docutils literal notranslate"><span class="pre">terminal</span></code> é coerente com a configuração de ações do destino.</p>
+<p>Quando <code class="docutils literal notranslate"><span class="pre">terminal</span></code> é <code class="docutils literal notranslate"><span class="pre">True</span></code>, o destino deve possuir
+<code class="docutils literal notranslate"><span class="pre">acoes=None</span></code>. Quando é <code class="docutils literal notranslate"><span class="pre">False</span></code>, o destino deve possuir
+um dicionário de ações não vazio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estados</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span>) – Dicionário completo de estados,
+usado para resolver a referência.</p></li>
+<li><p><strong>nome_estado</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Estado de origem da ação.</p></li>
+<li><p><strong>nome_acao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome da ação que define a transição.</p></li>
+<li><p><strong>dados_acao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span>) – Dados da ação, já validados
+estruturalmente, contendo <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code> e
+<code class="docutils literal notranslate"><span class="pre">terminal</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError" title="sme_workflow_sdk.excecoes.configuracao.EstadoInvalidoError"><strong>EstadoInvalidoError</strong></a> – Se o <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code> não existir na
+    configuração.</p></li>
+<li><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError" title="sme_workflow_sdk.excecoes.configuracao.AcaoInvalidaError"><strong>AcaoInvalidaError</strong></a> – Lançada quando uma ação está definida como
+    terminal, mas o estado de destino possui ações disponíveis,
+    ou quando uma ação não terminal direciona para um estado que
+    não possui ações.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Rodapé">
+        <a href="runtime.html" class="btn btn-neutral float-left" title="Runtime" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="aplicacao.html" class="btn btn-neutral float-right" title="Camada de Aplicação" accesskey="n" rel="next">Próximo <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

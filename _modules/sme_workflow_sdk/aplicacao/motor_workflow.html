@@ -1,0 +1,404 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.aplicacao.motor_workflow &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/aplicacao/motor_workflow.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.aplicacao.motor_workflow</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.aplicacao.motor_workflow</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Motor responsável por coordenar a execução do workflow."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">UTC</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.aplicacao.decisao_resolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisaoResolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.aplicacao.transicao_resolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransicaoResolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.contexto</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextoExecucao</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.entidades</span><span class="w"> </span><span class="kn">import</span> <span class="n">Acao</span><span class="p">,</span> <span class="n">Estado</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.execucao_validada</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecucaoValidada</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.resultado</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResultadoWorkflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.excecoes.workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransicaoInvalidaError</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MotorWorkflow">
+<a class="viewcode-back" href="../../../api/aplicacao.html#sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotorWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Coordena a validação e a execução das transições do workflow.</span>
+
+<span class="sd">    Recebe uma configuração previamente carregada e validada pelo</span>
+<span class="sd">    :class:`ConfiguradorWorkflow</span>
+<span class="sd">    &lt;sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow&gt;`,</span>
+<span class="sd">    converte seus estados e ações em entidades de domínio e utiliza os</span>
+<span class="sd">    resolvedores para validar as decisões e as transições permitidas.</span>
+
+<span class="sd">    O método :meth:`validar()` verifica se o estado e a ação informados são</span>
+<span class="sd">    permitidos e se a transição correspondente respeita as regras</span>
+<span class="sd">    de consistência do workflow.</span>
+
+<span class="sd">    O método :meth:`executar()` produz o resultado da transição validada,</span>
+<span class="sd">    contendo os estados envolvidos, a ação, os horários, o autor</span>
+<span class="sd">    e o contexto da execução.</span>
+
+<span class="sd">    O motor não executa regras de negócio específicas da aplicação</span>
+<span class="sd">    consumidora, não altera o estado persistido da entidade e não</span>
+<span class="sd">    realiza operações de persistência.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _configuracao: Configuração carregada e validada do workflow.</span>
+<span class="sd">        _estados: Estados e ações convertidos em entidades de domínio.</span>
+<span class="sd">        _decisao_resolver: Responsável por validar estados e ações.</span>
+<span class="sd">        _transicao_resolver: Responsável por validar a consistência</span>
+<span class="sd">            das transições.</span>
+
+
+<span class="sd">    Exemples:</span>
+<span class="sd">        &gt;&gt;&gt; configurador = ConfiguradorWorkflow()</span>
+<span class="sd">        &gt;&gt;&gt; configuracao = configurador.carregar("workflow.yaml")</span>
+<span class="sd">        &gt;&gt;&gt; configurador.validar(configuracao)</span>
+<span class="sd">        &gt;&gt;&gt; motor = MotorWorkflow(configuracao)</span>
+<span class="sd">        &gt;&gt;&gt; execucao = motor.validar("pendente", "aprovar")</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuracao</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Inicializa o motor com uma configuração previamente validada.</span>
+
+<span class="sd">        Converte os estados e as ações da configuração em entidades de</span>
+<span class="sd">        domínio e inicializa os resolvedores responsáveis pela validação</span>
+<span class="sd">        das decisões e das transições.</span>
+
+<span class="sd">        A configuração é mantida em memória e não é relida do arquivo YAML.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            configuracao (dict[str, Any]): Configuração do workflow carregada</span>
+<span class="sd">            e validada pelo :class:`ConfiguradorWorkflow</span>
+<span class="sd">            &lt;sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow&gt;`.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configuracao</span> <span class="o">=</span> <span class="n">configuracao</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_estados</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converter_estados</span><span class="p">(</span><span class="n">configuracao</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decisao_resolver</span> <span class="o">=</span> <span class="n">DecisaoResolver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_estados</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transicao_resolver</span> <span class="o">=</span> <span class="n">TransicaoResolver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_estados</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MotorWorkflow._converter_estados">
+<a class="viewcode-back" href="../../../api/aplicacao.html#sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow._converter_estados">[documentos]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_converter_estados</span><span class="p">(</span>
+        <span class="n">configuracao</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Estado</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Converte os estados e suas ações em entidades de domínio.</span>
+
+<span class="sd">        Percorre os estados definidos na configuração e cria instâncias</span>
+<span class="sd">        de  :class:`Estado &lt;sme_workflow_sdk.dominio.entidades.Estado&gt;` e</span>
+<span class="sd">        :class:`Acao &lt;sme_workflow_sdk.dominio.entidades.Acao&gt;` para</span>
+<span class="sd">        representar as regras do workflow.</span>
+
+<span class="sd">        Estados com ``acoes: null`` são representados com ``acoes=None``,</span>
+<span class="sd">        indicando que não possuem ações disponíveis.</span>
+
+<span class="sd">        Este método pressupõe que a configuração já passou pelas validações</span>
+<span class="sd">        estruturais e semânticas do :class:`ConfiguradorWorkflow</span>
+<span class="sd">        &lt;sme_workflow_sdk.configuracao.configurador.ConfiguradorWorkflow&gt;`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            configuracao (dict[str, Any]): Configuração validada contendo os</span>
+<span class="sd">                estados e suas respectivas ações.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, Estado]: Estados indexados por seus nomes.</span>
+<span class="sd">        """</span>
+        <span class="n">estados</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Estado</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">nome_estado</span><span class="p">,</span> <span class="n">dados_estado</span> <span class="ow">in</span> <span class="n">configuracao</span><span class="p">[</span><span class="s2">"estados"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dados_acoes</span> <span class="o">=</span> <span class="n">dados_estado</span><span class="p">[</span><span class="s2">"acoes"</span><span class="p">]</span>
+            <span class="n">acoes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Acao</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">dados_acoes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">acoes</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">nome_acao</span><span class="p">:</span> <span class="n">Acao</span><span class="p">(</span>
+                        <span class="n">nome</span><span class="o">=</span><span class="n">nome_acao</span><span class="p">,</span>
+                        <span class="n">proximo_estado</span><span class="o">=</span><span class="n">dados_acao</span><span class="p">[</span><span class="s2">"proximo_estado"</span><span class="p">],</span>
+                        <span class="n">terminal</span><span class="o">=</span><span class="n">dados_acao</span><span class="p">[</span><span class="s2">"terminal"</span><span class="p">],</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">nome_acao</span><span class="p">,</span> <span class="n">dados_acao</span> <span class="ow">in</span> <span class="n">dados_acoes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="p">}</span>
+            <span class="n">estados</span><span class="p">[</span><span class="n">nome_estado</span><span class="p">]</span> <span class="o">=</span> <span class="n">Estado</span><span class="p">(</span>
+                <span class="n">nome</span><span class="o">=</span><span class="n">nome_estado</span><span class="p">,</span>
+                <span class="n">acoes</span><span class="o">=</span><span class="n">acoes</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">estados</span></div>
+
+
+<div class="viewcode-block" id="MotorWorkflow.validar">
+<a class="viewcode-back" href="../../../api/aplicacao.html#sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow.validar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estado_atual</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">acao</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExecucaoValidada</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida a ação solicitada e a transição correspondente.</span>
+
+<span class="sd">        Verifica se o estado informado existe, se a ação está disponível</span>
+<span class="sd">        para esse estado e se a transição configurada respeita as regras</span>
+<span class="sd">        de consistência do workflow.</span>
+
+<span class="sd">        A validação deve ocorrer antes de a aplicação consumidora executar</span>
+<span class="sd">        as regras de negócio associadas à ação.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estado_atual (str): Nome do estado atual do workflow.</span>
+<span class="sd">            acao (str): Nome da ação solicitada.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EstadoInvalidoError: Se o estado não estiver configurado.</span>
+<span class="sd">            AcaoInvalidaError: Se a ação não estiver disponível para o</span>
+<span class="sd">                estado ou se os dados da transição forem inválidos.</span>
+<span class="sd">            TransicaoInvalidaError: Se a transição configurada for inválida.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ExecucaoValidada: Dados da execução com o estado atual, a ação</span>
+<span class="sd">            configurada e o horário de início da transição.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; execucao = motor.validar("pendente", "aprovar")</span>
+<span class="sd">            &gt;&gt;&gt; execucao.estado_atual</span>
+<span class="sd">            'pendente'</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">"Validando ação do workflow. Estado atual: </span><span class="si">%s</span><span class="s2"> | Ação: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">estado_atual</span><span class="p">,</span>
+            <span class="n">acao</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">execucao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decisao_resolver</span><span class="o">.</span><span class="n">validar</span><span class="p">(</span><span class="n">estado_atual</span><span class="p">,</span> <span class="n">acao</span><span class="p">)</span>
+            <span class="n">transicao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transicao_resolver</span><span class="o">.</span><span class="n">resolver</span><span class="p">(</span><span class="n">execucao</span><span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">"Ação validada com sucesso. Estado atual: </span><span class="si">%s</span><span class="s2"> | "</span>
+                <span class="s2">"Ação: </span><span class="si">%s</span><span class="s2"> | Próximo estado: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">execucao</span><span class="o">.</span><span class="n">estado_atual</span><span class="p">,</span>
+                <span class="n">execucao</span><span class="o">.</span><span class="n">acao</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                <span class="n">execucao</span><span class="o">.</span><span class="n">acao</span><span class="o">.</span><span class="n">proximo_estado</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">transicao</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="s2">"Falha ao validar ação do workflow. "</span>
+                <span class="s2">"Estado atual: </span><span class="si">%s</span><span class="s2"> | Ação: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">estado_atual</span><span class="p">,</span>
+                <span class="n">acao</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="MotorWorkflow.executar">
+<a class="viewcode-back" href="../../../api/aplicacao.html#sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow.executar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">executar</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dados_transicao</span><span class="p">:</span> <span class="n">ExecucaoValidada</span><span class="p">,</span>
+        <span class="n">contexto</span><span class="p">:</span> <span class="n">ContextoExecucao</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Produz o resultado de uma execução do workflow.</span>
+
+<span class="sd">        Recebe os dados previamente validados e o contexto da execução para</span>
+<span class="sd">        montar o resultado da transição, incluindo os estados envolvidos, a</span>
+<span class="sd">        ação, os horários, o autor e os dados de contexto.</span>
+
+<span class="sd">        Deve ser chamado após a aplicação consumidora executar com sucesso as</span>
+<span class="sd">        regras de negócio associadas à ação.</span>
+
+<span class="sd">        Este método não executa regras de negócio, não altera o estado</span>
+<span class="sd">        persistido da entidade e não realiza operações de persistência.</span>
+
+<span class="sd">        Se ocorrer uma :class:`TransicaoInvalidaError</span>
+<span class="sd">        &lt;sme_workflow_sdk.excecoes.workflow.TransicaoInvalidaError&gt;` durante a</span>
+<span class="sd">        resolução da transição, o método captura a exceção e retorna um</span>
+<span class="sd">        resultado indicando que a execução não foi bem-sucedida.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dados_transicao (ExecucaoValidada): Dados da transição</span>
+<span class="sd">                previamente validados  método validar().</span>
+<span class="sd">            contexto (ContextoExecucao): Contexto da execução, incluindo</span>
+<span class="sd">                identificador, autor e dados adicionais.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, Any]: Dicionário contendo os dados do resultado da</span>
+<span class="sd">            execução, incluindo identificador, estado anterior, ação,</span>
+<span class="sd">            próximo estado, terminalidade, indicador de sucesso, mensagem,</span>
+<span class="sd">            horários, autor e contexto.</span>
+
+<span class="sd">            Os valores de data e hora permanecem como objetos datetime,</span>
+<span class="sd">            conforme o comportamento de :meth:`ResultadoWorkflow.para_dict()</span>
+<span class="sd">            &lt;sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.para_dict&gt;`</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; execucao = motor.validar("pendente", "aprovar")</span>
+<span class="sd">            &gt;&gt;&gt; resultado = motor.executar(execucao, contexto)</span>
+<span class="sd">            &gt;&gt;&gt; resultado["sucesso"]</span>
+<span class="sd">            True</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">"Iniciando execução do workflow. Identificador: </span><span class="si">%s</span><span class="s2"> | "</span>
+            <span class="s2">"Estado atual: </span><span class="si">%s</span><span class="s2"> | Ação: </span><span class="si">%s</span><span class="s2"> | Autor: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">contexto</span><span class="o">.</span><span class="n">identificador</span><span class="p">,</span>
+            <span class="n">dados_transicao</span><span class="o">.</span><span class="n">estado_atual</span><span class="p">,</span>
+            <span class="n">dados_transicao</span><span class="o">.</span><span class="n">acao</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="n">contexto</span><span class="o">.</span><span class="n">autor</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">execucao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transicao_resolver</span><span class="o">.</span><span class="n">resolver</span><span class="p">(</span><span class="n">dados_transicao</span><span class="p">)</span>
+            <span class="n">sucesso</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">mensagem</span> <span class="o">=</span> <span class="s2">"Transição executada com sucesso!"</span>
+            <span class="n">acao</span> <span class="o">=</span> <span class="n">execucao</span><span class="o">.</span><span class="n">acao</span>
+            <span class="n">resultado</span> <span class="o">=</span> <span class="n">ResultadoWorkflow</span><span class="p">(</span>
+                <span class="n">identificador</span><span class="o">=</span><span class="n">contexto</span><span class="o">.</span><span class="n">identificador</span><span class="p">,</span>
+                <span class="n">estado_anterior</span><span class="o">=</span><span class="n">execucao</span><span class="o">.</span><span class="n">estado_atual</span><span class="p">,</span>
+                <span class="n">acao</span><span class="o">=</span><span class="n">acao</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                <span class="n">proximo_estado</span><span class="o">=</span><span class="n">acao</span><span class="o">.</span><span class="n">proximo_estado</span><span class="p">,</span>
+                <span class="n">terminal</span><span class="o">=</span><span class="n">acao</span><span class="o">.</span><span class="n">terminal</span><span class="p">,</span>
+                <span class="n">sucesso</span><span class="o">=</span><span class="n">sucesso</span><span class="p">,</span>
+                <span class="n">inicio</span><span class="o">=</span><span class="n">execucao</span><span class="o">.</span><span class="n">inicio_transicao</span><span class="p">,</span>
+                <span class="n">fim</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">),</span>
+                <span class="n">autor</span><span class="o">=</span><span class="n">contexto</span><span class="o">.</span><span class="n">autor</span><span class="p">,</span>
+                <span class="n">contexto</span><span class="o">=</span><span class="n">contexto</span><span class="p">,</span>
+                <span class="n">mensagem</span><span class="o">=</span><span class="n">mensagem</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">"Workflow executado com sucesso. Identificador: </span><span class="si">%s</span><span class="s2"> | "</span>
+                <span class="s2">"Estado anterior: </span><span class="si">%s</span><span class="s2"> | Ação: </span><span class="si">%s</span><span class="s2"> | Próximo estado: </span><span class="si">%s</span><span class="s2"> | "</span>
+                <span class="s2">"Terminal: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">resultado</span><span class="o">.</span><span class="n">identificador</span><span class="p">,</span>
+                <span class="n">resultado</span><span class="o">.</span><span class="n">estado_anterior</span><span class="p">,</span>
+                <span class="n">resultado</span><span class="o">.</span><span class="n">acao</span><span class="p">,</span>
+                <span class="n">resultado</span><span class="o">.</span><span class="n">proximo_estado</span><span class="p">,</span>
+                <span class="n">resultado</span><span class="o">.</span><span class="n">terminal</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">TransicaoInvalidaError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">estado_atual</span> <span class="o">=</span> <span class="n">dados_transicao</span><span class="o">.</span><span class="n">estado_atual</span>
+            <span class="n">resultado</span> <span class="o">=</span> <span class="n">ResultadoWorkflow</span><span class="p">(</span>
+                <span class="n">identificador</span><span class="o">=</span><span class="n">contexto</span><span class="o">.</span><span class="n">identificador</span><span class="p">,</span>
+                <span class="n">estado_anterior</span><span class="o">=</span><span class="n">estado_atual</span><span class="p">,</span>
+                <span class="n">acao</span><span class="o">=</span><span class="n">dados_transicao</span><span class="o">.</span><span class="n">acao</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                <span class="n">proximo_estado</span><span class="o">=</span><span class="n">estado_atual</span><span class="p">,</span>
+                <span class="n">terminal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">sucesso</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">inicio</span><span class="o">=</span><span class="n">dados_transicao</span><span class="o">.</span><span class="n">inicio_transicao</span><span class="p">,</span>
+                <span class="n">fim</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">),</span>
+                <span class="n">autor</span><span class="o">=</span><span class="n">contexto</span><span class="o">.</span><span class="n">autor</span><span class="p">,</span>
+                <span class="n">contexto</span><span class="o">=</span><span class="n">contexto</span><span class="p">,</span>
+                <span class="n">mensagem</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Transição não executada! </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"Falha na execução do workflow. Identificador: </span><span class="si">%s</span><span class="s2"> | "</span>
+                <span class="s2">"Estado atual: </span><span class="si">%s</span><span class="s2"> | Ação: </span><span class="si">%s</span><span class="s2"> | Motivo: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">contexto</span><span class="o">.</span><span class="n">identificador</span><span class="p">,</span>
+                <span class="n">estado_atual</span><span class="p">,</span>
+                <span class="n">dados_transicao</span><span class="o">.</span><span class="n">acao</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                <span class="n">exc</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resultado</span><span class="o">.</span><span class="n">para_dict</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

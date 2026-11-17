@@ -1,0 +1,834 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Domínio &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/api/dominio.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/translations.js?v=71a39b36"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Buscar" href="../search.html" />
+    <link rel="next" title="Exceções" href="excecoes.html" />
+    <link rel="prev" title="Camada de Aplicação" href="aplicacao.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="runtime.html">Runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuracao.html">Configuração</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aplicacao.html">Camada de Aplicação</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Domínio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-sme_workflow_sdk.dominio.entidades">Entidades</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao"><code class="docutils literal notranslate"><span class="pre">Acao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Estado"><code class="docutils literal notranslate"><span class="pre">Estado</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Transicao"><code class="docutils literal notranslate"><span class="pre">Transicao</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#contexto-de-execucao">Contexto de execução</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao"><code class="docutils literal notranslate"><span class="pre">ContextoExecucao</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#execucao-validada">Execução validada</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada"><code class="docutils literal notranslate"><span class="pre">ExecucaoValidada</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#resultado-do-workflow">Resultado do workflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow"><code class="docutils literal notranslate"><span class="pre">ResultadoWorkflow</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-sme_workflow_sdk.dominio.validacao">Validações</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.validacao.validar_tipo"><code class="docutils literal notranslate"><span class="pre">validar_tipo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.validacao.validar_string_nao_vazia"><code class="docutils literal notranslate"><span class="pre">validar_string_nao_vazia()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.validacao.validar_booleano"><code class="docutils literal notranslate"><span class="pre">validar_booleano()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.validacao.validar_mapping"><code class="docutils literal notranslate"><span class="pre">validar_mapping()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sme_workflow_sdk.dominio.validacao.validar_identificador"><code class="docutils literal notranslate"><span class="pre">validar_identificador()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="excecoes.html">Exceções</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Referência da API</a></li>
+      <li class="breadcrumb-item active">Domínio</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/dominio.rst.txt" rel="nofollow"> Ver código-fonte da página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dominio">
+<h1>Domínio<a class="headerlink" href="#dominio" title="Link para este cabeçalho"></a></h1>
+<p>O pacote <code class="docutils literal notranslate"><span class="pre">dominio</span></code> reúne as entidades e os objetos que representam os
+dados e contratos fundamentais do workflow.</p>
+<section id="module-sme_workflow_sdk.dominio.entidades">
+<span id="entidades"></span><h2>Entidades<a class="headerlink" href="#module-sme_workflow_sdk.dominio.entidades" title="Link para este cabeçalho"></a></h2>
+<p>Define as entidades de domínio do workflow.</p>
+<p>Este módulo disponibiliza as entidades <a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao" title="sme_workflow_sdk.dominio.entidades.Acao"><code class="xref py py-class docutils literal notranslate"><span class="pre">Acao</span></code></a>, <a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Estado" title="sme_workflow_sdk.dominio.entidades.Estado"><code class="xref py py-class docutils literal notranslate"><span class="pre">Estado</span></code></a> e
+<a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Transicao" title="sme_workflow_sdk.dominio.entidades.Transicao"><code class="xref py py-class docutils literal notranslate"><span class="pre">Transicao</span></code></a>, responsáveis por representar as regras e os elementos que
+compõem um workflow.</p>
+<p>As entidades validam seus atributos durante a inicialização, garantindo a
+consistência dos dados e a utilização de identificadores válidos para estados
+e ações.</p>
+<p>As classes utilizam dataclasses imutáveis. Quando aplicável, os mapeamentos
+são protegidos por <a class="reference external" href="https://docs.python.org/3/library/types.html#types.MappingProxyType" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">types.MappingProxyType</span></code></a> para impedir alterações
+diretas após a criação das entidades.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Acao">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.entidades.</span></span><span class="sig-name descname"><span class="pre">Acao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proximo_estado</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/entidades.html#Acao"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Acao" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Representa uma ação configurada para um estado do workflow.</p>
+<p>Uma ação define uma operação disponível em determinado estado,
+especificando seu nome, o estado de destino após sua execução
+e se a transição representa o encerramento do workflow.</p>
+<p>Os nomes da ação e do estado de destino devem seguir o padrão
+de identificadores do domínio, contendo letras
+<a class="reference external" href="https://www.asciitable.com/">ASCII</a> e palavras separadas por
+sublinhados.</p>
+<p>A entidade é imutável após sua criação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variáveis<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nome</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome da ação disponibilizada no estado atual.</p></li>
+<li><p><strong>proximo_estado</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do estado para o qual a execução deve avançar.</p></li>
+<li><p><strong>terminal</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Indica se a transição representa o encerramento
+do workflow.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>nome</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>proximo_estado</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>terminal</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Acao.nome">
+<span class="sig-name descname"><span class="pre">nome</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Acao.nome" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Acao.proximo_estado">
+<span class="sig-name descname"><span class="pre">proximo_estado</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Acao.proximo_estado" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Acao.terminal">
+<span class="sig-name descname"><span class="pre">terminal</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><span class="pre">bool</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Acao.terminal" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Acao.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/entidades.html#Acao.__post_init__"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Acao.__post_init__" title="Link para esta definição"></a></dt>
+<dd><p>Valida os atributos da ação após sua inicialização.</p>
+<p>Verifica se <code class="docutils literal notranslate"><span class="pre">nome</span></code> e <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code> são strings não vazias
+e se seguem o padrão de identificadores definido pelo domínio.</p>
+<p>Também verifica se <code class="docutils literal notranslate"><span class="pre">terminal</span></code> é estritamente do tipo booleano,
+não aceitando valores inteiros como 0 e 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se algum atributo não atender às regras
+    de validação definidas para a ação.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Estado">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.entidades.</span></span><span class="sig-name descname"><span class="pre">Estado</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acoes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/entidades.html#Estado"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Estado" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Representa um estado do workflow.</p>
+<p>Um estado identifica uma etapa do processo e define as ações
+disponíveis para avançar a execução.</p>
+<p>O atributo <code class="docutils literal notranslate"><span class="pre">acoes</span></code> pode receber um mapeamento entre os nomes
+das ações e suas respectivas entidades Acao, ou <code class="docutils literal notranslate"><span class="pre">None</span></code> quando
+não houver ações associadas ao estado.</p>
+<p>O mapeamento informado é copiado e convertido em
+<a class="reference external" href="https://docs.python.org/3/library/types.html#types.MappingProxyType" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">types.MappingProxyType</span></code></a>, impedindo alterações diretas nas
+chaves e nos valores armazenados. Essa proteção é superficial e não
+garante a imutabilidade profunda dos objetos internos.</p>
+<p>A entidade é imutável após sua criação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variáveis<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nome</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Identificador do estado do workflow.</p></li>
+<li><p><strong>acoes</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao" title="sme_workflow_sdk.dominio.entidades.Acao"><code class="xref py py-class docutils literal notranslate"><span class="pre">Acao</span></code></a>] | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – Mapeamento entre os nomes das ações e suas respectivas
+entidades Acao. Pode ser None quando não houver ações.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>nome</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>acoes</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(em Python v3.15)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a><em>, </em><a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao" title="sme_workflow_sdk.dominio.entidades.Acao"><em>Acao</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Estado.nome">
+<span class="sig-name descname"><span class="pre">nome</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Estado.nome" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Estado.acoes">
+<span class="sig-name descname"><span class="pre">acoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(em Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao" title="sme_workflow_sdk.dominio.entidades.Acao"><span class="pre">Acao</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><span class="pre">None</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Estado.acoes" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Estado.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/entidades.html#Estado.__post_init__"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Estado.__post_init__" title="Link para esta definição"></a></dt>
+<dd><p>Valida os atributos do estado e protege suas ações.</p>
+<p>Verifica se <code class="docutils literal notranslate"><span class="pre">nome</span></code> é uma string não vazia e segue o padrão
+de identificadores definido pelo domínio.</p>
+<p>Verifica se <code class="docutils literal notranslate"><span class="pre">acoes</span></code> implementa <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Mapping</span></code></a>
+ou é None.</p>
+<p>Quando o mapeamento está presente, valida os nomes das ações,
+verifica se cada valor é uma instância de Acao e cria uma cópia
+protegida por <a class="reference external" href="https://docs.python.org/3/library/types.html#types.MappingProxyType" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">types.MappingProxyType</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se o nome do estado, o mapeamento,
+    algum nome de ação ou alguma entidade de ação for inválido.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Transicao">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.entidades.</span></span><span class="sig-name descname"><span class="pre">Transicao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estado_anterior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proximo_estado</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/entidades.html#Transicao"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Transicao" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Representa uma transição entre dois estados do workflow.</p>
+<p>Registra a relação entre o estado de origem, a ação executada
+e o estado de destino, indicando também se a transição encerra
+o workflow.</p>
+<p>Os nomes dos estados e da ação devem seguir o padrão de
+identificadores definido pelo domínio.</p>
+<p>A entidade é imutável após sua criação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variáveis<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estado_anterior</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Identificador do estado em que a ação
+está disponível.</p></li>
+<li><p><strong>acao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Identificador da ação responsável pela transição.</p></li>
+<li><p><strong>proximo_estado</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Identificador do estado de destino.</p></li>
+<li><p><strong>terminal</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Indica se a transição leva ao encerramento
+do workflow.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>estado_anterior</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>acao</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>proximo_estado</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>terminal</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Transicao.estado_anterior">
+<span class="sig-name descname"><span class="pre">estado_anterior</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Transicao.estado_anterior" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Transicao.acao">
+<span class="sig-name descname"><span class="pre">acao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Transicao.acao" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Transicao.proximo_estado">
+<span class="sig-name descname"><span class="pre">proximo_estado</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Transicao.proximo_estado" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Transicao.terminal">
+<span class="sig-name descname"><span class="pre">terminal</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><span class="pre">bool</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Transicao.terminal" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.entidades.Transicao.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/entidades.html#Transicao.__post_init__"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.entidades.Transicao.__post_init__" title="Link para esta definição"></a></dt>
+<dd><p>Valida os atributos da transição.</p>
+<p>Verifica se <code class="docutils literal notranslate"><span class="pre">estado_anterior</span></code>, <code class="docutils literal notranslate"><span class="pre">acao</span></code> e <code class="docutils literal notranslate"><span class="pre">proximo_estado</span></code>
+são strings não vazias e seguem o padrão de identificadores
+definido pelo domínio.</p>
+<p>Também verifica se <code class="docutils literal notranslate"><span class="pre">terminal</span></code> é estritamente do tipo booleano.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se algum atributo não atender às regras
+    de validação definidas para a transição.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="contexto-de-execucao">
+<h2>Contexto de execução<a class="headerlink" href="#contexto-de-execucao" title="Link para este cabeçalho"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.contexto.ContextoExecucao">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.contexto.</span></span><span class="sig-name descname"><span class="pre">ContextoExecucao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">autor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identificador</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dados</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">dict()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/contexto.html#ContextoExecucao"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Representa o contexto associado a uma execução do workflow.</p>
+<p>Armazena a identificação do autor, um identificador único da execução
+e dados adicionais fornecidos pela aplicação consumidora.</p>
+<p>Quando não informado, o identificador é gerado automaticamente
+utilizando <a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.uuid4" title="(em Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code></a>. A aplicação consumidora também pode
+fornecer seu próprio identificador, desde que seja uma string não vazia.</p>
+<p>A instância é imutável após sua criação. O atributo <code class="docutils literal notranslate"><span class="pre">dados</span></code> é
+copiado e convertido em  <a class="reference external" href="https://docs.python.org/3/library/types.html#types.MappingProxyType" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">types.MappingProxyType</span></code></a>, impedindo
+alterações diretas no mapeamento armazenado.</p>
+<p>A cópia dos dados é superficial: objetos mutáveis armazenados como
+valores não são copiados recursivamente e podem continuar sendo
+modificados por referências externas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variáveis<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>autor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Identificação do autor responsável pela execução. Deve ser uma
+string não vazia.</p></li>
+<li><p><strong>identificador</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Identificador único da execução. Caso não seja
+informado, um <a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.uuid4" title="(em Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code></a> é gerado automaticamente.</p></li>
+<li><p><strong>dados</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span>) – Mapeamento com informações adicionais da execução.
+Por padrão, é inicializado com um dicionário vazio.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>autor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>identificador</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>dados</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(em Python v3.15)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><em>Any</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.contexto.ContextoExecucao.autor">
+<span class="sig-name descname"><span class="pre">autor</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao.autor" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.contexto.ContextoExecucao.identificador">
+<span class="sig-name descname"><span class="pre">identificador</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao.identificador" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.contexto.ContextoExecucao.dados">
+<span class="sig-name descname"><span class="pre">dados</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(em Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao.dados" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.contexto.ContextoExecucao.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/contexto.html#ContextoExecucao.__post_init__"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao.__post_init__" title="Link para esta definição"></a></dt>
+<dd><p>Valida os atributos e protege o mapeamento de dados.</p>
+<p>Valida se <code class="docutils literal notranslate"><span class="pre">autor</span></code> e <code class="docutils literal notranslate"><span class="pre">identificador</span></code> são strings não vazias
+e se <code class="docutils literal notranslate"><span class="pre">dados</span></code> implementa a interface <code class="docutils literal notranslate"><span class="pre">Mapping</span></code>.</p>
+<p>Após as validações, cria uma cópia superficial do mapeamento
+informado e o converte em  <a class="reference external" href="https://docs.python.org/3/library/types.html#types.MappingProxyType" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">types.MappingProxyType</span></code></a>,
+impedindo alterações diretas nas chaves e nos valores do mapeamento
+armazenado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se algum atributo não atender às regras
+    de validação ou se os dados não puderem ser convertidos
+    em um dicionário.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="execucao-validada">
+<h2>Execução validada<a class="headerlink" href="#execucao-validada" title="Link para este cabeçalho"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.execucao_validada.</span></span><span class="sig-name descname"><span class="pre">ExecucaoValidada</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estado_atual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inicio_transicao</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/execucao_validada.html#ExecucaoValidada"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Representa uma transição de workflow previamente validada.</p>
+<p>Armazena os dados necessários para identificar uma transição
+autorizada pela configuração do workflow, incluindo o estado atual,
+a ação correspondente e o horário de início.</p>
+<p>A instância é imutável após sua criação. Quando o horário de início
+não é informado, ele é gerado automaticamente utilizando UTC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variáveis<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estado_atual</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do estado em que a transição será executada.
+Deve ser um identificador válido.</p></li>
+<li><p><strong>acao</strong> – Instância de <a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao" title="sme_workflow_sdk.dominio.entidades.Acao"><code class="xref py py-class docutils literal notranslate"><span class="pre">Acao</span></code></a> contendo as informações
+da ação validada e seu próximo estado.</p></li>
+<li><p><strong>inicio_transicao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a></span>) – Data e hora de início da transição, com fuso
+horário definido. Por padrão, utiliza o horário atual em UTC.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>estado_atual</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>acao</strong> (<a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao" title="sme_workflow_sdk.dominio.entidades.Acao"><em>Acao</em></a>)</p></li>
+<li><p><strong>inicio_transicao</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><em>datetime</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.estado_atual">
+<span class="sig-name descname"><span class="pre">estado_atual</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.estado_atual" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.acao">
+<span class="sig-name descname"><span class="pre">acao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao" title="sme_workflow_sdk.dominio.entidades.Acao"><span class="pre">Acao</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.acao" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.inicio_transicao">
+<span class="sig-name descname"><span class="pre">inicio_transicao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><span class="pre">datetime</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.inicio_transicao" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/execucao_validada.html#ExecucaoValidada.__post_init__"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.__post_init__" title="Link para esta definição"></a></dt>
+<dd><p>Valida os atributos da execução.</p>
+<p>Verifica se o estado atual é uma string não vazia e corresponde
+ao padrão de identificadores aceito pelo domínio.</p>
+<p>Também verifica se a ação é uma instância de <a class="reference internal" href="#sme_workflow_sdk.dominio.entidades.Acao" title="sme_workflow_sdk.dominio.entidades.Acao"><code class="xref py py-class docutils literal notranslate"><span class="pre">Acao</span></code></a> e se o horário de início é
+um objeto datetime com fuso horário definido.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se algum atributo não respeitar
+    o contrato da execução validada.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="resultado-do-workflow">
+<h2>Resultado do workflow<a class="headerlink" href="#resultado-do-workflow" title="Link para este cabeçalho"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.resultado.</span></span><span class="sig-name descname"><span class="pre">ResultadoWorkflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identificador</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estado_anterior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proximo_estado</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sucesso</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mensagem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inicio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contexto</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/resultado.html#ResultadoWorkflow"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow" title="Link para esta definição"></a></dt>
+<dd><p>Base: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Representa o resultado de uma execução do workflow.</p>
+<p>Reúne as informações necessárias para identificar uma execução,
+descrever a transição solicitada e registrar seu resultado.</p>
+<p>A entidade é imutável após sua inicialização. Suas validações
+verificam os tipos e valores dos atributos, a compatibilidade
+dos horários e a consistência da transição.</p>
+<p>Uma execução bem-sucedida e não terminal deve indicar um estado
+de destino diferente do estado anterior. Execuções malsucedidas
+podem manter o estado anterior como próximo estado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variáveis<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identificador</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Identificador único da execução.</p></li>
+<li><p><strong>estado_anterior</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do estado em que a ação foi executada.</p></li>
+<li><p><strong>acao</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome da ação executada.</p></li>
+<li><p><strong>proximo_estado</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do estado resultante da execução.</p></li>
+<li><p><strong>terminal</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Indica se a transição encerra o workflow.</p></li>
+<li><p><strong>sucesso</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Indica se a execução foi concluída com sucesso.</p></li>
+<li><p><strong>mensagem</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Mensagem complementar sobre o resultado.</p></li>
+<li><p><strong>inicio</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a></span>) – Data e hora de início da execução.</p></li>
+<li><p><strong>fim</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a></span>) – Data e hora de término da execução.</p></li>
+<li><p><strong>autor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Identificação do autor responsável pela execução.</p></li>
+<li><p><strong>contexto</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao" title="sme_workflow_sdk.dominio.contexto.ContextoExecucao"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextoExecucao</span></code></a></span>) – Contexto associado à execução, representado por
+uma instância de <a class="reference internal" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao" title="sme_workflow_sdk.dominio.contexto.ContextoExecucao"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextoExecucao</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>identificador</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>estado_anterior</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>acao</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>proximo_estado</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>terminal</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><em>bool</em></a>)</p></li>
+<li><p><strong>sucesso</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><em>bool</em></a>)</p></li>
+<li><p><strong>mensagem</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>inicio</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><em>datetime</em></a>)</p></li>
+<li><p><strong>fim</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><em>datetime</em></a>)</p></li>
+<li><p><strong>autor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>contexto</strong> (<a class="reference internal" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao" title="sme_workflow_sdk.dominio.contexto.ContextoExecucao"><em>ContextoExecucao</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.identificador">
+<span class="sig-name descname"><span class="pre">identificador</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.identificador" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.estado_anterior">
+<span class="sig-name descname"><span class="pre">estado_anterior</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.estado_anterior" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.acao">
+<span class="sig-name descname"><span class="pre">acao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.acao" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.proximo_estado">
+<span class="sig-name descname"><span class="pre">proximo_estado</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.proximo_estado" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.terminal">
+<span class="sig-name descname"><span class="pre">terminal</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><span class="pre">bool</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.terminal" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.sucesso">
+<span class="sig-name descname"><span class="pre">sucesso</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><span class="pre">bool</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.sucesso" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.mensagem">
+<span class="sig-name descname"><span class="pre">mensagem</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.mensagem" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.inicio">
+<span class="sig-name descname"><span class="pre">inicio</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><span class="pre">datetime</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.inicio" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.fim">
+<span class="sig-name descname"><span class="pre">fim</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(em Python v3.15)"><span class="pre">datetime</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.fim" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.autor">
+<span class="sig-name descname"><span class="pre">autor</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.autor" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.contexto">
+<span class="sig-name descname"><span class="pre">contexto</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#sme_workflow_sdk.dominio.contexto.ContextoExecucao" title="sme_workflow_sdk.dominio.contexto.ContextoExecucao"><span class="pre">ContextoExecucao</span></a></span><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.contexto" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/resultado.html#ResultadoWorkflow.__post_init__"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.__post_init__" title="Link para esta definição"></a></dt>
+<dd><p>Valida os atributos e a consistência do resultado.</p>
+<p>Verifica os tipos e valores dos atributos obrigatórios,
+a validade dos identificadores e a consistência dos horários.</p>
+<p>Também verifica se o horário de término não é anterior ao
+horário de início e se uma execução bem-sucedida e não terminal
+aponta para um estado diferente do estado anterior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se algum atributo for inválido,
+    se os horários forem incompatíveis ou se a transição
+    não respeitar as regras de consistência do resultado.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow._converter_para_dict">
+<span class="sig-name descname"><span class="pre">_converter_para_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/resultado.html#ResultadoWorkflow._converter_para_dict"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow._converter_para_dict" title="Link para esta definição"></a></dt>
+<dd><p>Converte recursivamente estruturas de dados em valores simples.</p>
+<p>Converte dataclasses em dicionários, mapeamentos em dicionários
+comuns, listas e tuplas em listas e enums em seus respectivos
+valores.</p>
+<p>A conversão é recursiva, permitindo tratar estruturas aninhadas.
+Tipos não contemplados pelas conversões são preservados,
+incluindo objetos datetime.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>valor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Valor a ser convertido.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Valor convertido conforme seu tipo, preservando os objetos
+que não possuem uma regra específica de conversão.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.para_dict">
+<span class="sig-name descname"><span class="pre">para_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/resultado.html#ResultadoWorkflow.para_dict"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.para_dict" title="Link para esta definição"></a></dt>
+<dd><p>Converte o resultado do workflow em um dicionário.</p>
+<p>Percorre recursivamente os atributos do resultado, convertendo
+dataclasses, mapeamentos, listas, tuplas e enums para estruturas
+equivalentes em tipos básicos.</p>
+<p>Os objetos datetime são preservados, não sendo convertidos
+automaticamente para strings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Retorna<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dicionário contendo os atributos do resultado,
+incluindo os objetos datetime originais e o contexto convertido
+recursivamente.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sme_workflow_sdk.dominio.validacao">
+<span id="validacoes"></span><h2>Validações<a class="headerlink" href="#module-sme_workflow_sdk.dominio.validacao" title="Link para este cabeçalho"></a></h2>
+<p>Disponibiliza funções genéricas para validação de dados do domínio.</p>
+<p>Este módulo reúne funções reutilizáveis para validar tipos, strings,
+valores booleanos, mapeamentos e identificadores utilizados pelas
+entidades do workflow.</p>
+<p>As funções centralizam as regras básicas de validação e lançam
+<a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidacaoDominioError</span></code></a> quando os valores
+informados não atendem aos critérios estabelecidos.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.validacao.validar_tipo">
+<span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.validacao.</span></span><span class="sig-name descname"><span class="pre">validar_tipo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_esperado</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_campo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/validacao.html#validar_tipo"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.validacao.validar_tipo" title="Link para esta definição"></a></dt>
+<dd><p>Valida se um valor corresponde a um dos tipos esperados.</p>
+<p>Utiliza <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#isinstance" title="(em Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">isinstance()</span></code></a> para verificar se o valor pertence ao tipo
+informado ou a uma tupla de tipos aceitos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>valor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Valor que será validado.</p></li>
+<li><p><strong>tipo_esperado</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#type" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#type" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#Ellipsis" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]</span>) – Tipo ou tupla de tipos
+aceitos.</p></li>
+<li><p><strong>nome_campo</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do campo usado na mensagem de erro.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se o valor não corresponder a nenhum
+    dos tipos esperados.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.validacao.validar_string_nao_vazia">
+<span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.validacao.</span></span><span class="sig-name descname"><span class="pre">validar_string_nao_vazia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_campo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/validacao.html#validar_string_nao_vazia"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.validacao.validar_string_nao_vazia" title="Link para esta definição"></a></dt>
+<dd><p>Valida se um valor é uma string não vazia.</p>
+<p>Considera inválidas strings vazias ou compostas exclusivamente
+por espaços em branco. A função não remove os espaços do valor
+original.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>valor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Valor que será validado.</p></li>
+<li><p><strong>nome_campo</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do campo usado na mensagem de erro.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se o valor não for uma string ou estiver vazio
+    após a remoção de espaços.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.validacao.validar_booleano">
+<span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.validacao.</span></span><span class="sig-name descname"><span class="pre">validar_booleano</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_campo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/validacao.html#validar_booleano"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.validacao.validar_booleano" title="Link para esta definição"></a></dt>
+<dd><p>Valida se um valor é estritamente do tipo bool.</p>
+<p>Não aceita valores de outros tipos, incluindo inteiros como 0 e 1,
+mesmo que possam ser utilizados como booleanos em expressões Python.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>valor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Valor que será validado.</p></li>
+<li><p><strong>nome_campo</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do campo usado na mensagem de erro.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se o valor não for bool.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.validacao.validar_mapping">
+<span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.validacao.</span></span><span class="sig-name descname"><span class="pre">validar_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_campo</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Separador de parâmetros somente-nomeados (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">permitir_none</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/validacao.html#validar_mapping"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.validacao.validar_mapping" title="Link para esta definição"></a></dt>
+<dd><p>Valida se um valor implementa a interface Mapping.</p>
+<p>Verifica se o valor implementa <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Mapping</span></code></a>.
+Quando <code class="docutils literal notranslate"><span class="pre">permitir_none</span></code> é <code class="docutils literal notranslate"><span class="pre">True</span></code>, o valor <code class="docutils literal notranslate"><span class="pre">None</span></code> também é aceito.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>valor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(em Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Valor que será validado.</p></li>
+<li><p><strong>nome_campo</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do campo usado na mensagem de erro.</p></li>
+<li><p><strong>permitir_none</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Define se None também é aceito. O
+padrão é False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se o valor não implementar Mapping
+    e None não for permitido.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_workflow_sdk.dominio.validacao.validar_identificador">
+<span class="sig-prename descclassname"><span class="pre">sme_workflow_sdk.dominio.validacao.</span></span><span class="sig-name descname"><span class="pre">validar_identificador</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_campo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_workflow_sdk/dominio/validacao.html#validar_identificador"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#sme_workflow_sdk.dominio.validacao.validar_identificador" title="Link para esta definição"></a></dt>
+<dd><p>Valida o formato de um identificador de estado ou ação.</p>
+<p>Aceita somente letras <a class="reference external" href="https://www.asciitable.com/">ASCII</a> , com
+palavras separadas por sublinhados. Cada palavra deve conter pelo menos
+uma letra.</p>
+<p>Não são permitidos números, espaços, hífens, caracteres acentuados,
+sublinhados no início ou no fim, nem sublinhados consecutivos.</p>
+<dl class="simple">
+<dt>Exemplos de identificadores válidos:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pendente</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">em_execucao</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aguardando_aprovacao</span></code></p></li>
+</ul>
+</dd>
+<dt>Exemplos de identificadores inválidos:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">em-execucao</span></code>: contém hífen.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">estado2</span></code>: contém número.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">em</span> <span class="pre">execução</span></code>: contém espaço.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">em_execução</span></code>: contém caractere acentuado.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>valor</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do estado ou da ação a ser validado.</p></li>
+<li><p><strong>nome_campo</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(em Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Nome do campo usado na mensagem de erro.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="excecoes.html#sme_workflow_sdk.excecoes.base.ValidacaoDominioError" title="sme_workflow_sdk.excecoes.base.ValidacaoDominioError"><strong>ValidacaoDominioError</strong></a> – Se o identificador não respeitar
+    o padrão definido pelo domínio.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(em Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Rodapé">
+        <a href="aplicacao.html" class="btn btn-neutral float-left" title="Camada de Aplicação" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="excecoes.html" class="btn btn-neutral float-right" title="Exceções" accesskey="n" rel="next">Próximo <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

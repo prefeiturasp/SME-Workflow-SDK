@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.dominio.contexto &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/dominio/contexto.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.dominio.contexto</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.dominio.contexto</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Define o contexto associado à execução de um workflow.</span>
+
+<span class="sd">Este módulo disponibiliza a entidade ContextoExecucao, responsável por</span>
+<span class="sd">armazenar informações complementares de uma execução, como o autor,</span>
+<span class="sd">o identificador e os dados adicionais fornecidos pela aplicação consumidora.</span>
+
+<span class="sd">O contexto utiliza uma dataclass imutável e protege o mapeamento de dados</span>
+<span class="sd">por meio de :py:class:`types.MappingProxyType`. A proteção impede alterações</span>
+<span class="sd">diretas nas chaves e nos valores do mapeamento, mas não garante a imutabilidade</span>
+<span class="sd">profunda dos objetos armazenados nele.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingProxyType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">uuid4</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.validacao</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">validar_mapping</span><span class="p">,</span>
+    <span class="n">validar_string_nao_vazia</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.excecoes.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidacaoDominioError</span>
+
+
+<div class="viewcode-block" id="ContextoExecucao">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.contexto.ContextoExecucao">[documentos]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ContextoExecucao</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Representa o contexto associado a uma execução do workflow.</span>
+
+<span class="sd">    Armazena a identificação do autor, um identificador único da execução</span>
+<span class="sd">    e dados adicionais fornecidos pela aplicação consumidora.</span>
+
+<span class="sd">    Quando não informado, o identificador é gerado automaticamente</span>
+<span class="sd">    utilizando :py:func:`uuid.uuid4`. A aplicação consumidora também pode</span>
+<span class="sd">    fornecer seu próprio identificador, desde que seja uma string não vazia.</span>
+
+<span class="sd">    A instância é imutável após sua criação. O atributo ``dados`` é</span>
+<span class="sd">    copiado e convertido em  :py:class:`types.MappingProxyType`, impedindo</span>
+<span class="sd">    alterações diretas no mapeamento armazenado.</span>
+
+<span class="sd">    A cópia dos dados é superficial: objetos mutáveis armazenados como</span>
+<span class="sd">    valores não são copiados recursivamente e podem continuar sendo</span>
+<span class="sd">    modificados por referências externas.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        autor: Identificação do autor responsável pela execução. Deve ser uma</span>
+<span class="sd">            string não vazia.</span>
+<span class="sd">        identificador: Identificador único da execução. Caso não seja</span>
+<span class="sd">            informado, um :py:func:`uuid.uuid4` é gerado automaticamente.</span>
+<span class="sd">        dados: Mapeamento com informações adicionais da execução.</span>
+<span class="sd">            Por padrão, é inicializado com um dicionário vazio.</span>
+<span class="sd">    """</span>
+
+    <span class="n">autor</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">identificador</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()))</span>
+    <span class="n">dados</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ContextoExecucao.__post_init__">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.contexto.ContextoExecucao.__post_init__">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida os atributos e protege o mapeamento de dados.</span>
+
+<span class="sd">        Valida se ``autor`` e ``identificador`` são strings não vazias</span>
+<span class="sd">        e se ``dados`` implementa a interface ``Mapping``.</span>
+
+<span class="sd">        Após as validações, cria uma cópia superficial do mapeamento</span>
+<span class="sd">        informado e o converte em  :py:class:`types.MappingProxyType`,</span>
+<span class="sd">        impedindo alterações diretas nas chaves e nos valores do mapeamento</span>
+<span class="sd">        armazenado.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValidacaoDominioError: Se algum atributo não atender às regras</span>
+<span class="sd">                de validação ou se os dados não puderem ser convertidos</span>
+<span class="sd">                em um dicionário.</span>
+<span class="sd">        """</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">autor</span><span class="p">,</span> <span class="s2">"ContextoExecucao.autor"</span><span class="p">)</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identificador</span><span class="p">,</span> <span class="s2">"ContextoExecucao.identificador"</span>
+        <span class="p">)</span>
+        <span class="n">validar_mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dados</span><span class="p">,</span> <span class="s2">"ContextoExecucao.dados"</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dados_copiados</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dados</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"ContextoExecucao.dados não pôde ser convertido: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"dados"</span><span class="p">,</span> <span class="n">MappingProxyType</span><span class="p">(</span><span class="n">dados_copiados</span><span class="p">))</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

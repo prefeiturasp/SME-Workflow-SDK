@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.configuracao.validador &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/configuracao/validador.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.configuracao.validador</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.configuracao.validador</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Validação da configuração de workflow.</span>
+
+<span class="sd">Este módulo expõe :class:`ValidadorWorkflow`, responsável por:</span>
+
+<span class="sd">1. Verificar a estrutura da configuração carregada do YAML, garantindo que</span>
+<span class="sd">   existe um dicionário de ``estados`` não vazio.</span>
+<span class="sd">2. Validar cada estado individualmente: nome, dados e presença do campo</span>
+<span class="sd">   ``acoes``.</span>
+<span class="sd">3. Validar cada ação de cada estado: nome, formato, campos obrigatórios (</span>
+<span class="sd">   ``proximo_estado``, ``terminal``) e chaves permitidas.</span>
+<span class="sd">4. Validar as transições entre estados: se o ``proximo_estado`` existe e se é</span>
+<span class="sd">   coerente com o campo ``terminal``.</span>
+
+<span class="sd">O validador **não** lê arquivos — ele trabalha sobre a estrutura</span>
+<span class="sd">já carregada por :class:`~sme_workflow_sdk.configuracao.leitor.</span>
+<span class="sd">LeitorWorkflow`. Essa separação permite trocar a origem da</span>
+<span class="sd">configuração (arquivo, banco, API) sem alterar as regras de</span>
+<span class="sd">validação.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.excecoes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AcaoInvalidaError</span><span class="p">,</span>
+    <span class="n">EstadoInvalidoError</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="ValidadorWorkflow">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidadorWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Responsável por validar a configuração do workflow.</span>
+
+<span class="sd">    A classe percorre a configuração em três níveis — estados, ações e</span>
+<span class="sd">    transições — e lança exceções específicas quando encontra problemas.</span>
+<span class="sd">    Use-a depois de obter o dicionário do workflow, seja via</span>
+<span class="sd">    :class:`LeitorWorkflow</span>
+<span class="sd">    &lt;sme_workflow_sdk.configuracao.leitor.LeitorWorkflow&gt;`</span>
+<span class="sd">    ou de outra fonte.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        validador = ValidadorWorkflow()</span>
+<span class="sd">        validador.validar(configuracao)</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ValidadorWorkflow.validar">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow.validar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuracao</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida a configuração completa do workflow.</span>
+
+<span class="sd">        Verifica, em ordem, se a raiz é um dicionário, se o campo</span>
+<span class="sd">        ``estados`` é um dicionário não vazio, se cada estado está</span>
+<span class="sd">        bem formado e, por fim, se as transições entre eles são</span>
+<span class="sd">        coerentes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            configuracao (dict[str, Any]): Configuração carregada do arquivo</span>
+<span class="sd">                YAML.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EstadoInvalidoError:Lançada quando a configuração apresenta uma</span>
+<span class="sd">                estrutura inválida, como ausência do campo estados, definição</span>
+<span class="sd">                inválida ou inexistente de estados, ou quando alguma ação</span>
+<span class="sd">                referencia um estado que não está definido na configuração.</span>
+<span class="sd">            AcaoInvalidaError:Lançada quando algum estado não possui o campo</span>
+<span class="sd">                acoes, quando esse campo apresenta uma definição inválida ou</span>
+<span class="sd">                está vazio, ou quando alguma ação possui nome ou estrutura</span>
+<span class="sd">                incorretos, campos obrigatórios ausentes ou propriedades</span>
+<span class="sd">                adicionais não permitidas. Também é lançada quando há</span>
+<span class="sd">                incompatibilidade entre o valor do campo terminal de uma ação</span>
+<span class="sd">                e a existência de ações no estado de destino.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">configuracao</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">EstadoInvalidoError</span><span class="p">(</span><span class="s2">"A configuração fornecida é inválida."</span><span class="p">)</span>
+        <span class="n">estados</span> <span class="o">=</span> <span class="n">configuracao</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"estados"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">estados</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">estados</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EstadoInvalidoError</span><span class="p">(</span><span class="s2">"Campo 'estados' ausente ou inválido."</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">nome_estado</span><span class="p">,</span> <span class="n">dados_estado</span> <span class="ow">in</span> <span class="n">estados</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validar_estado</span><span class="p">(</span><span class="n">nome_estado</span><span class="p">,</span> <span class="n">dados_estado</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validar_transicoes</span><span class="p">(</span><span class="n">estados</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ValidadorWorkflow._validar_estado">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_estado">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_estado</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">nome_estado</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dados_estado</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida a estrutura de um estado.</span>
+
+<span class="sd">        Confere se o nome é uma string não vazia, se os dados são um</span>
+<span class="sd">        dicionário, se o campo ``acoes`` está presente e, quando</span>
+<span class="sd">        aplicável, delega a validação de cada ação a</span>
+<span class="sd">        :meth:`_validar_acao`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nome_estado (str): Nome do estado na configuração.</span>
+<span class="sd">            dados_estado (Any): Dados associados ao estado.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EstadoInvalidoError:Lançada quando o nome do estado não é uma</span>
+<span class="sd">                string não vazia ou quando sua definição apresenta uma</span>
+<span class="sd">                estrutura inválida.</span>
+<span class="sd">            AcaoInvalidaError: Lançada quando o estado não possui o campo</span>
+<span class="sd">                acoes, quando esse campo não contém uma definição válida ou</span>
+<span class="sd">                quando apresenta uma definição vazia.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nome_estado</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">nome_estado</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">EstadoInvalidoError</span><span class="p">(</span>
+                <span class="s2">"O nome de cada estado deve ser uma string não vazia."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dados_estado</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">EstadoInvalidoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Dados do estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' inválidos."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">"acoes"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dados_estado</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"O estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' deve possuir o campo 'acoes'."</span>
+            <span class="p">)</span>
+
+        <span class="n">acoes</span> <span class="o">=</span> <span class="n">dados_estado</span><span class="p">[</span><span class="s2">"acoes"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">acoes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">acoes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">acoes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"As ações do estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' estão no formato "</span>
+                <span class="s2">"inválido."</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">nome_acao</span><span class="p">,</span> <span class="n">dados_acao</span> <span class="ow">in</span> <span class="n">acoes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validar_acao</span><span class="p">(</span><span class="n">nome_estado</span><span class="p">,</span> <span class="n">nome_acao</span><span class="p">,</span> <span class="n">dados_acao</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ValidadorWorkflow._validar_acao">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_acao">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_acao</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">nome_estado</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">nome_acao</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dados_acao</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida a estrutura de uma ação de um estado.</span>
+
+<span class="sd">        Confere o nome e o formato dos dados, rejeita chaves que não</span>
+<span class="sd">        sejam ``proximo_estado`` e ``terminal``, e garante que ambos</span>
+<span class="sd">        os campos estão presentes e com os tipos esperados.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nome_estado (str): Nome do estado ao qual a ação pertence.</span>
+<span class="sd">            nome_acao (str): Nome da ação na configuração.</span>
+<span class="sd">            dados_acao (Any): Dados associados à ação.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AcaoInvalidaError:Lançada quando o nome da ação não é uma string</span>
+<span class="sd">                não vazia, quando sua definição apresenta uma estrutura</span>
+<span class="sd">                inválida ou contém propriedades adicionais além de</span>
+<span class="sd">                proximo_estado e terminal. Também é lançada quando algum</span>
+<span class="sd">                desses campos obrigatórios está ausente ou quando</span>
+<span class="sd">                proximo_estado não é uma string não vazia ou terminal não</span>
+<span class="sd">                possui um valor booleano.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nome_acao</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">nome_acao</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"O estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' possui uma ação "</span>
+                <span class="s2">"com nome inválido."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dados_acao</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"A ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' do estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="s2">"está no formato inválido."</span>
+            <span class="p">)</span>
+        <span class="n">chaves_permitidas</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"proximo_estado"</span><span class="p">,</span> <span class="s2">"terminal"</span><span class="p">}</span>
+        <span class="n">chaves_extras</span> <span class="o">=</span> <span class="n">dados_acao</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="n">chaves_permitidas</span>
+
+        <span class="k">if</span> <span class="n">chaves_extras</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"A ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' do estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' possui "</span>
+                <span class="sa">f</span><span class="s2">"chaves não permitidas: '</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">chaves_extras</span><span class="p">))</span><span class="si">}</span><span class="s2">'"</span>
+                <span class="sa">f</span><span class="s2">". Permitidas: '</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">chaves_permitidas</span><span class="p">))</span><span class="si">}</span><span class="s2">'."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">"proximo_estado"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dados_acao</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"A ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' do estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="s2">"deve possuir o campo 'proximo_estado'."</span>
+            <span class="p">)</span>
+
+        <span class="n">proximo_estado</span> <span class="o">=</span> <span class="n">dados_acao</span><span class="p">[</span><span class="s2">"proximo_estado"</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">proximo_estado</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">proximo_estado</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"O próximo estado da ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="sa">f</span><span class="s2">"do estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' deve ser uma string "</span>
+                <span class="s2">"não vazia."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">"terminal"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dados_acao</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"A ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' do estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="s2">"deve possuir o campo 'terminal'."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dados_acao</span><span class="p">[</span><span class="s2">"terminal"</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"O campo 'terminal' da ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="sa">f</span><span class="s2">"do estado '</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' deve ser booleano."</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ValidadorWorkflow._validar_transicoes">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_transicoes">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_transicoes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">estados</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Percorre todos os estados e valida cada transição.</span>
+
+<span class="sd">        Estados cujo campo ``acoes`` é ``None`` são ignorados, pois</span>
+<span class="sd">        não possuem transições a validar.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estados (dict[str, Any]): Dicionário de estados da configuração.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EstadoInvalidoError: Se alguma ação referenciar um estado</span>
+<span class="sd">                inexistente.</span>
+<span class="sd">            AcaoInvalidaError: Se houver incoerência entre o campo</span>
+<span class="sd">                ``terminal`` de alguma ação e as ações do estado de</span>
+<span class="sd">                destino.</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">nome_estado</span><span class="p">,</span> <span class="n">dados_estado</span> <span class="ow">in</span> <span class="n">estados</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">acoes</span> <span class="o">=</span> <span class="n">dados_estado</span><span class="p">[</span><span class="s2">"acoes"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">acoes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">nome_acao</span><span class="p">,</span> <span class="n">dados_acao</span> <span class="ow">in</span> <span class="n">dados_estado</span><span class="p">[</span><span class="s2">"acoes"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_validar_transicao_acao</span><span class="p">(</span>
+                    <span class="n">estados</span><span class="p">,</span> <span class="n">nome_estado</span><span class="p">,</span> <span class="n">nome_acao</span><span class="p">,</span> <span class="n">dados_acao</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ValidadorWorkflow._validar_transicao_acao">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.validador.ValidadorWorkflow._validar_transicao_acao">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_transicao_acao</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">estados</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">nome_estado</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">nome_acao</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dados_acao</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida uma única transição de ação.</span>
+
+<span class="sd">        Confere se o estado de destino existe e se o campo</span>
+<span class="sd">        ``terminal`` é coerente com a configuração de ações do destino.</span>
+
+<span class="sd">        Quando ``terminal`` é ``True``, o destino deve possuir</span>
+<span class="sd">        ``acoes=None``. Quando é ``False``, o destino deve possuir</span>
+<span class="sd">        um dicionário de ações não vazio.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estados (dict[str, Any]): Dicionário completo de estados,</span>
+<span class="sd">                usado para resolver a referência.</span>
+<span class="sd">            nome_estado (str): Estado de origem da ação.</span>
+<span class="sd">            nome_acao (str): Nome da ação que define a transição.</span>
+<span class="sd">            dados_acao (dict[str, Any]): Dados da ação, já validados</span>
+<span class="sd">                estruturalmente, contendo ``proximo_estado`` e</span>
+<span class="sd">                ``terminal``</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EstadoInvalidoError: Se o ``proximo_estado`` não existir na</span>
+<span class="sd">                configuração.</span>
+<span class="sd">            AcaoInvalidaError:Lançada quando uma ação está definida como</span>
+<span class="sd">                terminal, mas o estado de destino possui ações disponíveis,</span>
+<span class="sd">                ou quando uma ação não terminal direciona para um estado que</span>
+<span class="sd">                não possui ações.</span>
+<span class="sd">        """</span>
+        <span class="n">proximo_estado</span> <span class="o">=</span> <span class="n">dados_acao</span><span class="p">[</span><span class="s2">"proximo_estado"</span><span class="p">]</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="n">dados_acao</span><span class="p">[</span><span class="s2">"terminal"</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">proximo_estado</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">estados</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EstadoInvalidoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"A ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' do estado "</span>
+                <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' referencia o estado "</span>
+                <span class="sa">f</span><span class="s2">"inexistente '</span><span class="si">{</span><span class="n">proximo_estado</span><span class="si">}</span><span class="s2">'."</span>
+            <span class="p">)</span>
+
+        <span class="n">acoes_destino</span> <span class="o">=</span> <span class="n">estados</span><span class="p">[</span><span class="n">proximo_estado</span><span class="p">][</span><span class="s2">"acoes"</span><span class="p">]</span>
+        <span class="n">destino_tem_acoes</span> <span class="o">=</span> <span class="n">acoes_destino</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">terminal</span> <span class="ow">and</span> <span class="n">destino_tem_acoes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"A ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' do estado "</span>
+                <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' é terminal, mas o "</span>
+                <span class="sa">f</span><span class="s2">"estado de destino '</span><span class="si">{</span><span class="n">proximo_estado</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="s2">"possui ações configuradas."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">terminal</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">destino_tem_acoes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"A ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' do estado "</span>
+                <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">nome_estado</span><span class="si">}</span><span class="s2">' não é terminal, mas o "</span>
+                <span class="sa">f</span><span class="s2">"estado de destino '</span><span class="si">{</span><span class="n">proximo_estado</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="s2">"não possui ações configuradas."</span>
+            <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

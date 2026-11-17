@@ -1,0 +1,203 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.dominio.execucao_validada &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/dominio/execucao_validada.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.dominio.execucao_validada</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.dominio.execucao_validada</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Define a entidade que representa uma execução validada do workflow.</span>
+
+<span class="sd">Este módulo disponibiliza a classe ExecucaoValidada, responsável por</span>
+<span class="sd">armazenar os dados de uma transição após a validação do estado atual,</span>
+<span class="sd">da ação solicitada e das regras de consistência do workflow.</span>
+
+<span class="sd">A entidade contém o estado de origem, a ação correspondente e o horário</span>
+<span class="sd">de início da transição, sendo utilizada pelo motor durante a execução</span>
+<span class="sd">do workflow.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">UTC</span><span class="p">,</span> <span class="n">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.entidades</span><span class="w"> </span><span class="kn">import</span> <span class="n">Acao</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.validacao</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">validar_identificador</span><span class="p">,</span>
+    <span class="n">validar_string_nao_vazia</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.excecoes</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidacaoDominioError</span>
+
+
+<div class="viewcode-block" id="ExecucaoValidada">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada">[documentos]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExecucaoValidada</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Representa uma transição de workflow previamente validada.</span>
+
+<span class="sd">    Armazena os dados necessários para identificar uma transição</span>
+<span class="sd">    autorizada pela configuração do workflow, incluindo o estado atual,</span>
+<span class="sd">    a ação correspondente e o horário de início.</span>
+
+<span class="sd">    A instância é imutável após sua criação. Quando o horário de início</span>
+<span class="sd">    não é informado, ele é gerado automaticamente utilizando UTC.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        estado_atual: Nome do estado em que a transição será executada.</span>
+<span class="sd">            Deve ser um identificador válido.</span>
+<span class="sd">        acao: Instância de :class:`Acao</span>
+<span class="sd">            &lt;sme_workflow_sdk.dominio.entidades.Acao&gt;` contendo as informações</span>
+<span class="sd">            da ação validada e seu próximo estado.</span>
+<span class="sd">        inicio_transicao: Data e hora de início da transição, com fuso</span>
+<span class="sd">            horário definido. Por padrão, utiliza o horário atual em UTC.</span>
+<span class="sd">    """</span>
+
+    <span class="n">estado_atual</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">acao</span><span class="p">:</span> <span class="n">Acao</span>
+    <span class="n">inicio_transicao</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="ExecucaoValidada.__post_init__">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada.__post_init__">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida os atributos da execução.</span>
+
+<span class="sd">        Verifica se o estado atual é uma string não vazia e corresponde</span>
+<span class="sd">        ao padrão de identificadores aceito pelo domínio.</span>
+
+<span class="sd">        Também verifica se a ação é uma instância de :class:`Acao</span>
+<span class="sd">        &lt;sme_workflow_sdk.dominio.entidades.Acao&gt;` e se o horário de início é</span>
+<span class="sd">        um objeto datetime com fuso horário definido.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValidacaoDominioError: Se algum atributo não respeitar</span>
+<span class="sd">                o contrato da execução validada.</span>
+<span class="sd">        """</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estado_atual</span><span class="p">,</span> <span class="s2">"ExecucaoValidada.estado_atual"</span>
+        <span class="p">)</span>
+        <span class="n">validar_identificador</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estado_atual</span><span class="p">,</span> <span class="s2">"ExecucaoValidada.estado_atual"</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">acao</span><span class="p">,</span> <span class="n">Acao</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+                <span class="s2">"ExecucaoValidada.acao deve ser uma instância de Acao."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inicio_transicao</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+                <span class="s2">"ExecucaoValidada.inicio_transicao deve ser uma instância de "</span>
+                <span class="s2">"datetime."</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inicio_transicao</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">inicio_transicao</span><span class="o">.</span><span class="n">utcoffset</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+                <span class="s2">"ExecucaoValidada.inicio_transicao deve possuir fuso horário "</span>
+                <span class="s2">"definido."</span>
+            <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

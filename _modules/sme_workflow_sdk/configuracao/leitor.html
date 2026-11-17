@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.configuracao.leitor &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/configuracao/leitor.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.configuracao.leitor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.configuracao.leitor</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Leitura e parsing de arquivos YAML de configuração de workflow.</span>
+
+<span class="sd">Este módulo expõe :class:`LeitorWorkflow`, responsável por:</span>
+
+<span class="sd">1. Validar que o caminho informado tem extensão suportada</span>
+<span class="sd">   (``.yaml`` ou ``.yml``) e aponta para um arquivo real.</span>
+<span class="sd">2. Ler o conteúdo tratando erros de *encoding* e de sintaxe YAML.</span>
+<span class="sd">3. Garantir que existe exatamente um documento YAML e que sua</span>
+<span class="sd">   raiz é um mapeamento (``dict``).</span>
+
+<span class="sd">O leitor **não** conhece o esquema semântico do workflow — apenas</span>
+<span class="sd">garante que a estrutura de alto nível é coerente.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.excecoes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ArquivoNaoEncontradoError</span><span class="p">,</span>
+    <span class="n">ConfiguracaoInvalidaError</span><span class="p">,</span>
+    <span class="n">FormatoInvalidoError</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="LeitorWorkflow">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LeitorWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Carrega e valida a estrutura de alto nível de um workflow YAML.</span>
+
+<span class="sd">    A classe concentra toda a lógica de I/O e de checagem estrutural,</span>
+<span class="sd">    delegando a validação semântica (chaves obrigatórias, tipos de</span>
+<span class="sd">    ação, etc.) para etapas posteriores do SDK.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; leitor = LeitorWorkflow()</span>
+<span class="sd">        &gt;&gt;&gt; configuracao = leitor.carregar("workflows/pedido.yaml")</span>
+<span class="sd">        &gt;&gt;&gt; print(configuracao["estados"])</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        EXTENSOES_VALIDAS (list[str]): Extensões aceitas pelo leitor.</span>
+<span class="sd">            Atualmente ``[".yaml", ".yml"]``.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">EXTENSOES_VALIDAS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">".yaml"</span><span class="p">,</span> <span class="s2">".yml"</span><span class="p">]</span>
+
+<div class="viewcode-block" id="LeitorWorkflow.carregar">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow.carregar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">carregar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caminho</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Carrega e valida a configuração de um arquivo YAML.</span>
+
+<span class="sd">        Executa, em ordem, as três etapas internas de validação:</span>
+<span class="sd">        :meth:`_validar_caminho`, :meth:`_ler_yaml` e</span>
+<span class="sd">        :meth:`_validar_conteudo`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            caminho (str): Caminho para o arquivo ``.yaml`` ou ``.yml``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, Any]: Dicionário Python correspondente ao único</span>
+<span class="sd">                documento YAML presente no arquivo.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FormatoInvalidoError: Se a extensão do arquivo não estiver</span>
+<span class="sd">                em :attr:`EXTENSOES_VALIDAS`, se o YAML tiver sintaxe</span>
+<span class="sd">                inválida, se o *encoding* não for UTF-8, ou se houver</span>
+<span class="sd">                mais de um documento no arquivo.</span>
+<span class="sd">            ArquivoNaoEncontradoError: Se o caminho não existir ou não</span>
+<span class="sd">                apontar para um arquivo regular (ex.: diretório).</span>
+<span class="sd">            ConfiguracaoInvalidaError: Se o arquivo estiver vazio, só</span>
+<span class="sd">                contiver comentários, ou se a raiz do YAML não for um</span>
+<span class="sd">                mapeamento.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; leitor = LeitorWorkflow()</span>
+<span class="sd">            &gt;&gt;&gt; config = leitor.carregar("workflow.yaml")</span>
+<span class="sd">            &gt;&gt;&gt; "estados" in config</span>
+<span class="sd">            True</span>
+<span class="sd">        """</span>
+        <span class="n">caminho_arquivo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validar_caminho</span><span class="p">(</span><span class="n">caminho</span><span class="p">)</span>
+        <span class="n">configuracao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ler_yaml</span><span class="p">(</span><span class="n">caminho_arquivo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validar_conteudo</span><span class="p">(</span><span class="n">configuracao</span><span class="p">,</span> <span class="n">caminho_arquivo</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">configuracao</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LeitorWorkflow._validar_caminho">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_caminho">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_caminho</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caminho</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida extensão, existência e tipo do caminho informado.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            caminho (str | Path): Caminho a ser validado.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FormatoInvalidoError: Se a extensão do arquivo não estiver</span>
+<span class="sd">                entre as suportadas.</span>
+<span class="sd">            ArquivoNaoEncontradoError:Lançada quando o caminho informado não</span>
+<span class="sd">                existe no sistema de arquivos ou quando, apesar de existir,</span>
+<span class="sd">                não corresponde a um arquivo regular, como no caso de um</span>
+<span class="sd">                diretório.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Path: Objeto :class:`pathlib.Path` correspondente ao</span>
+<span class="sd">            caminho validado.</span>
+<span class="sd">        """</span>
+        <span class="n">caminho_arquivo</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">caminho</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">caminho_arquivo</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">EXTENSOES_VALIDAS</span><span class="p">:</span>
+            <span class="n">mensagem</span> <span class="o">=</span> <span class="n">caminho_arquivo</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">or</span> <span class="s2">"sem extensão"</span>
+            <span class="k">raise</span> <span class="n">FormatoInvalidoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Somente arquivos '</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EXTENSOES_VALIDAS</span><span class="p">)</span><span class="si">}</span><span class="s2">' são "</span>
+                <span class="sa">f</span><span class="s2">"aceitos. Recebido: '</span><span class="si">{</span><span class="n">mensagem</span><span class="si">}</span><span class="s2">'."</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">caminho_arquivo</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ArquivoNaoEncontradoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Arquivo não encontrado: '</span><span class="si">{</span><span class="n">caminho</span><span class="si">}</span><span class="s2">'."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">caminho_arquivo</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ArquivoNaoEncontradoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">caminho</span><span class="si">}</span><span class="s2">' não é um arquivo válido."</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">caminho_arquivo</span></div>
+
+
+<div class="viewcode-block" id="LeitorWorkflow._ler_yaml">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._ler_yaml">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ler_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caminho_arquivo</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Lê o arquivo YAML e valida o número de documentos.</span>
+
+<span class="sd">        Arquivos vazios ou que só contêm comentários são sinalizados</span>
+<span class="sd">        retornando ``None``; cabe a :meth:`_validar_conteudo` decidir</span>
+<span class="sd">        se isso é um erro de negócio.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            caminho_arquivo (Path): Caminho já validado do arquivo.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FormatoInvalidoError:Lançada quando o arquivo não está codificado</span>
+<span class="sd">                em UTF-8, apresenta erros de sintaxe YAML ou contém mais de um</span>
+<span class="sd">                documento YAML.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Any: Conteúdo carregado do YAML, ainda sujeito à validação</span>
+<span class="sd">            estrutural e semântica.</span>
+
+<span class="sd">        """</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">caminho_arquivo</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">arquivo</span><span class="p">:</span>
+                <span class="n">configuracao</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load_all</span><span class="p">(</span><span class="n">arquivo</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span> <span class="k">as</span> <span class="n">erro</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FormatoInvalidoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Arquivo '</span><span class="si">{</span><span class="n">caminho_arquivo</span><span class="si">}</span><span class="s2">' não está em UTF-8: </span><span class="si">{</span><span class="n">erro</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">erro</span>
+        <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">erro</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FormatoInvalidoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"YAML inválido em '</span><span class="si">{</span><span class="n">caminho_arquivo</span><span class="si">}</span><span class="s2">': </span><span class="si">{</span><span class="n">erro</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">erro</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">configuracao</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">configuracao</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FormatoInvalidoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Esperado exatamente 1 documento YAML em '</span><span class="si">{</span><span class="n">caminho_arquivo</span><span class="si">}</span><span class="s2">',"</span>
+                <span class="sa">f</span><span class="s2">" encontrados: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">configuracao</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">configuracao</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="LeitorWorkflow._validar_conteudo">
+<a class="viewcode-back" href="../../../api/configuracao.html#sme_workflow_sdk.configuracao.leitor.LeitorWorkflow._validar_conteudo">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_conteudo</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">configuracao</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">caminho_arquivo</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida se o conteúdo carregado possui um mapeamento na raiz.</span>
+
+<span class="sd">        Verifica se o conteúdo YAML foi carregado corretamente e se sua</span>
+<span class="sd">        estrutura de alto nível é um dicionário.</span>
+
+<span class="sd">        Não verifica se o dicionário possui estados ou se atende ao</span>
+<span class="sd">        esquema semântico do workflow. Essas validações são realizadas</span>
+<span class="sd">        posteriormente pelo ValidadorWorkflow.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            configuracao (Any): Objeto retornado por :meth:`_ler_yaml`. Pode</span>
+<span class="sd">                ser ``None`` (arquivo vazio), um ``dict`` (caso esperado) ou</span>
+<span class="sd">                qualquer outro tipo (ex.: ``list``, ``str``).</span>
+<span class="sd">            caminho_arquivo (Path): Caminho do arquivo, usado apenas para</span>
+<span class="sd">                compor mensagens de erro.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ConfiguracaoInvalidaError: Se o conteúdo for ``None``,</span>
+<span class="sd">                indicando arquivo vazio ou contendo apenas comentários,</span>
+<span class="sd">                ou se a raiz do YAML não for um dicionário.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">configuracao</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfiguracaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"O arquivo '</span><span class="si">{</span><span class="n">caminho_arquivo</span><span class="si">}</span><span class="s2">' está vazio ou só contém "</span>
+                <span class="s2">"comentários."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">configuracao</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ConfiguracaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Esperado um formato YAML na raiz de '</span><span class="si">{</span><span class="n">caminho_arquivo</span><span class="si">}</span><span class="s2">', "</span>
+                <span class="sa">f</span><span class="s2">"recebido: '</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">configuracao</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">'."</span>
+            <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

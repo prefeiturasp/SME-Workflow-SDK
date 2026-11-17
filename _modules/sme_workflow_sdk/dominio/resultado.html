@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.dominio.resultado &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/dominio/resultado.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.dominio.resultado</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.dominio.resultado</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Resultado estruturado de uma execução do workflow.</span>
+
+<span class="sd">Este módulo define a entidade responsável por representar o resultado de uma</span>
+<span class="sd">execução de workflow, registrando a transição realizada, o status da execução,</span>
+<span class="sd">os horários de início e término, o autor responsável e o contexto associado.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">is_dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingProxyType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.contexto</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextoExecucao</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.validacao</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">validar_booleano</span><span class="p">,</span>
+    <span class="n">validar_identificador</span><span class="p">,</span>
+    <span class="n">validar_string_nao_vazia</span><span class="p">,</span>
+    <span class="n">validar_tipo</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.excecoes</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidacaoDominioError</span>
+
+
+<div class="viewcode-block" id="ResultadoWorkflow">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow">[documentos]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResultadoWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Representa o resultado de uma execução do workflow.</span>
+
+<span class="sd">    Reúne as informações necessárias para identificar uma execução,</span>
+<span class="sd">    descrever a transição solicitada e registrar seu resultado.</span>
+
+<span class="sd">    A entidade é imutável após sua inicialização. Suas validações</span>
+<span class="sd">    verificam os tipos e valores dos atributos, a compatibilidade</span>
+<span class="sd">    dos horários e a consistência da transição.</span>
+
+<span class="sd">    Uma execução bem-sucedida e não terminal deve indicar um estado</span>
+<span class="sd">    de destino diferente do estado anterior. Execuções malsucedidas</span>
+<span class="sd">    podem manter o estado anterior como próximo estado.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        identificador: Identificador único da execução.</span>
+<span class="sd">        estado_anterior: Nome do estado em que a ação foi executada.</span>
+<span class="sd">        acao: Nome da ação executada.</span>
+<span class="sd">        proximo_estado: Nome do estado resultante da execução.</span>
+<span class="sd">        terminal: Indica se a transição encerra o workflow.</span>
+<span class="sd">        sucesso: Indica se a execução foi concluída com sucesso.</span>
+<span class="sd">        mensagem: Mensagem complementar sobre o resultado.</span>
+<span class="sd">        inicio: Data e hora de início da execução.</span>
+<span class="sd">        fim: Data e hora de término da execução.</span>
+<span class="sd">        autor: Identificação do autor responsável pela execução.</span>
+<span class="sd">        contexto: Contexto associado à execução, representado por</span>
+<span class="sd">            uma instância de :class:`ContextoExecucao</span>
+<span class="sd">            &lt;sme_workflow_sdk.dominio.contexto.ContextoExecucao&gt;`.</span>
+<span class="sd">    """</span>
+
+    <span class="n">identificador</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">estado_anterior</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">acao</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">proximo_estado</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">terminal</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">sucesso</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">mensagem</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">inicio</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">fim</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">autor</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">contexto</span><span class="p">:</span> <span class="n">ContextoExecucao</span>
+
+<div class="viewcode-block" id="ResultadoWorkflow.__post_init__">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.__post_init__">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida os atributos e a consistência do resultado.</span>
+
+<span class="sd">        Verifica os tipos e valores dos atributos obrigatórios,</span>
+<span class="sd">        a validade dos identificadores e a consistência dos horários.</span>
+
+<span class="sd">        Também verifica se o horário de término não é anterior ao</span>
+<span class="sd">        horário de início e se uma execução bem-sucedida e não terminal</span>
+<span class="sd">        aponta para um estado diferente do estado anterior.</span>
+
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValidacaoDominioError: Se algum atributo for inválido,</span>
+<span class="sd">                se os horários forem incompatíveis ou se a transição</span>
+<span class="sd">                não respeitar as regras de consistência do resultado.</span>
+<span class="sd">        """</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identificador</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.identificador"</span>
+        <span class="p">)</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.estado_anterior"</span>
+        <span class="p">)</span>
+        <span class="n">validar_identificador</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.estado_anterior"</span>
+        <span class="p">)</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">acao</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.acao"</span><span class="p">)</span>
+        <span class="n">validar_identificador</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">acao</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.acao"</span><span class="p">)</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">proximo_estado</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.proximo_estado"</span>
+        <span class="p">)</span>
+        <span class="n">validar_identificador</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">proximo_estado</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.proximo_estado"</span>
+        <span class="p">)</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">autor</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.autor"</span><span class="p">)</span>
+        <span class="n">validar_booleano</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.terminal"</span><span class="p">)</span>
+        <span class="n">validar_booleano</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sucesso</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.sucesso"</span><span class="p">)</span>
+        <span class="n">validar_tipo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inicio</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.inicio"</span><span class="p">)</span>
+        <span class="n">validar_tipo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fim</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.fim"</span><span class="p">)</span>
+        <span class="n">validar_tipo</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">contexto</span><span class="p">,</span> <span class="n">ContextoExecucao</span><span class="p">,</span> <span class="s2">"ResultadoWorkflow.contexto"</span>
+        <span class="p">)</span>
+        <span class="n">validar_string_nao_vazia</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mensagem</span><span class="p">,</span>
+            <span class="s2">"ResultadoWorkflow.mensagem"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fim</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">inicio</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+                    <span class="s2">"ResultadoWorkflow.fim não pode ser anterior a inicio"</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+                <span class="s2">"ResultadoWorkflow.inicio e fim devem ter fusos horários "</span>
+                <span class="s2">"compatíveis"</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sucesso</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">proximo_estado</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ValidacaoDominioError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Ação </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">acao</span><span class="si">}</span><span class="s2"> em </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="si">}</span><span class="s2"> aponta para "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proximo_estado</span><span class="si">}</span><span class="s2">. Uma execução bem-sucedida e não "</span>
+                <span class="s2">"terminal deve indicar um estado de destino diferente do "</span>
+                <span class="s2">"estado anterior."</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ResultadoWorkflow._converter_para_dict">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow._converter_para_dict">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_converter_para_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valor</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Converte recursivamente estruturas de dados em valores simples.</span>
+
+<span class="sd">        Converte dataclasses em dicionários, mapeamentos em dicionários</span>
+<span class="sd">        comuns, listas e tuplas em listas e enums em seus respectivos</span>
+<span class="sd">        valores.</span>
+
+<span class="sd">        A conversão é recursiva, permitindo tratar estruturas aninhadas.</span>
+<span class="sd">        Tipos não contemplados pelas conversões são preservados,</span>
+<span class="sd">        incluindo objetos datetime.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            valor (Any): Valor a ser convertido.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Any: Valor convertido conforme seu tipo, preservando os objetos</span>
+<span class="sd">            que não possuem uma regra específica de conversão.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">is_dataclass</span><span class="p">(</span><span class="n">valor</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="n">campo</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converter_para_dict</span><span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="n">campo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">campo</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">valor</span><span class="p">)</span>
+            <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span> <span class="o">|</span> <span class="n">MappingProxyType</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="n">chave</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converter_para_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">chave</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">valor</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_converter_para_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">valor</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converter_para_dict</span><span class="p">(</span><span class="n">valor</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">valor</span></div>
+
+
+<div class="viewcode-block" id="ResultadoWorkflow.para_dict">
+<a class="viewcode-back" href="../../../api/dominio.html#sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.para_dict">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">para_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Converte o resultado do workflow em um dicionário.</span>
+
+<span class="sd">        Percorre recursivamente os atributos do resultado, convertendo</span>
+<span class="sd">        dataclasses, mapeamentos, listas, tuplas e enums para estruturas</span>
+<span class="sd">        equivalentes em tipos básicos.</span>
+
+<span class="sd">        Os objetos datetime são preservados, não sendo convertidos</span>
+<span class="sd">        automaticamente para strings.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, Any]: Dicionário contendo os atributos do resultado,</span>
+<span class="sd">            incluindo os objetos datetime originais e o contexto convertido</span>
+<span class="sd">            recursivamente.</span>
+<span class="sd">        """</span>
+        <span class="n">dicionario</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converter_para_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dicionario</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

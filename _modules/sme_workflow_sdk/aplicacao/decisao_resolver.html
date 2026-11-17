@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_workflow_sdk.aplicacao.decisao_resolver &mdash; Documentação SME Workflow SDK 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+
+  
+    <link rel="canonical" href="https://prefeiturasp.github.io/SME-Workflow-SDK/_modules/sme_workflow_sdk/aplicacao/decisao_resolver.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME Workflow SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../primeiros_passos.html">Primeiros passos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configurando_workflow.html">Configurando workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../integrando_aplicacao.html">Integração com a aplicação</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tratamento_excecoes.html">Tratamento de exceções</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arquitetura.html">Arquitetura</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME Workflow SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">sme_workflow_sdk.aplicacao.decisao_resolver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para sme_workflow_sdk.aplicacao.decisao_resolver</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Resolve e valida as decisões disponíveis no workflow.</span>
+
+<span class="sd">Este módulo disponibiliza a classe DecisaoResolver, responsável por</span>
+<span class="sd">verificar se o estado informado existe na configuração e se a ação</span>
+<span class="sd">solicitada está disponível para esse estado.</span>
+
+<span class="sd">Após validar a decisão, retorna uma instância de ExecucaoValidada,</span>
+<span class="sd">que será utilizada pelo TransicaoResolver para verificar a consistência</span>
+<span class="sd">da transição configurada.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.entidades</span><span class="w"> </span><span class="kn">import</span> <span class="n">Acao</span><span class="p">,</span> <span class="n">Estado</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.dominio.execucao_validada</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecucaoValidada</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_workflow_sdk.excecoes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AcaoInvalidaError</span><span class="p">,</span>
+    <span class="n">EstadoInvalidoError</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="DecisaoResolver">
+<a class="viewcode-back" href="../../../api/aplicacao.html#sme_workflow_sdk.aplicacao.decisao_resolver.DecisaoResolver">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DecisaoResolver</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Resolve e valida as decisões permitidas em um workflow.</span>
+
+<span class="sd">    Recebe os estados previamente convertidos em entidades de domínio</span>
+<span class="sd">    pelo :class:`MotorWorkflow</span>
+<span class="sd">    &lt;sme_workflow_sdk.aplicacao.motor_workflow.MotorWorkflow&gt;` e verifica se o</span>
+<span class="sd">    estado informado existe e se a ação solicitada está disponível para esse</span>
+<span class="sd">    estado.</span>
+
+<span class="sd">    Quando as validações são concluídas, retorna uma instância de</span>
+<span class="sd">    :class:`ExecucaoValidada</span>
+<span class="sd">    &lt;sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada&gt;` para</span>
+<span class="sd">    processamento pelo :class:`TransicaoResolver</span>
+<span class="sd">    &lt;sme_workflow_sdk.aplicacao.transicao_resolver.TransicaoResolver&gt;`.</span>
+
+<span class="sd">    A validação do próximo estado, do campo ``terminal`` e das regras</span>
+<span class="sd">    de consistência da transição não é responsabilidade desta classe.</span>
+
+<span class="sd">    O resolvedor não executa regras de negócio nem realiza persistência.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estados</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Estado</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Inicializa o resolvedor com os estados do workflow.</span>
+
+<span class="sd">        Armazena o mapeamento de estados previamente convertido em</span>
+<span class="sd">        entidades de domínio, que será utilizado durante as validações.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estados (dict[str, Estado]): Dicionário de estados indexados por</span>
+<span class="sd">                seus nomes.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_estados</span> <span class="o">=</span> <span class="n">estados</span>
+
+<div class="viewcode-block" id="DecisaoResolver.validar">
+<a class="viewcode-back" href="../../../api/aplicacao.html#sme_workflow_sdk.aplicacao.decisao_resolver.DecisaoResolver.validar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estado_atual</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">acao</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExecucaoValidada</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valida a disponibilidade de uma ação no estado atual.</span>
+
+<span class="sd">        Verifica se o estado informado existe na configuração e se</span>
+<span class="sd">        disponibiliza a ação solicitada.</span>
+
+<span class="sd">        Quando as validações são concluídas, cria e retorna uma instância</span>
+<span class="sd">        de :class:`ExecucaoValidada</span>
+<span class="sd">        &lt;sme_workflow_sdk.dominio.execucao_validada.ExecucaoValidada&gt;`</span>
+<span class="sd">        contendo o estado atual, a ação correspondente e o horário de início</span>
+<span class="sd">        da transição.</span>
+
+<span class="sd">        A validação da consistência da transição é realizada posteriormente</span>
+<span class="sd">        pelo :class:`TransicaoResolver</span>
+<span class="sd">        &lt;sme_workflow_sdk.aplicacao.transicao_resolver.TransicaoResolver&gt;`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estado_atual (str): Nome do estado atual do workflow.</span>
+<span class="sd">            acao (str): Nome da ação solicitada.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EstadoInvalidoError: Se o estado informado não existir</span>
+<span class="sd">                na configuração.</span>
+<span class="sd">            AcaoInvalidaError: Se o estado não possuir ações configuradas</span>
+<span class="sd">                ou se a ação solicitada não estiver disponível nele.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ExecucaoValidada: Dados da execução necessários para a etapa</span>
+<span class="sd">            seguinte do processamento do workflow.</span>
+<span class="sd">        """</span>
+        <span class="n">estado</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validar_estado</span><span class="p">(</span><span class="n">estado_atual</span><span class="p">)</span>
+        <span class="n">acao_configurada</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validar_acao</span><span class="p">(</span><span class="n">estado</span><span class="p">,</span> <span class="n">acao</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ExecucaoValidada</span><span class="p">(</span>
+            <span class="n">estado_atual</span><span class="o">=</span><span class="n">estado_atual</span><span class="p">,</span> <span class="n">acao</span><span class="o">=</span><span class="n">acao_configurada</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DecisaoResolver._validar_estado">
+<a class="viewcode-back" href="../../../api/aplicacao.html#sme_workflow_sdk.aplicacao.decisao_resolver.DecisaoResolver._validar_estado">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_estado</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estado_atual</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Estado</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Obtém o estado informado na configuração do workflow.</span>
+
+<span class="sd">        Consulta o mapeamento de estados utilizando o nome informado</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estado_atual (str): Nome do estado que será localizado.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EstadoInvalidoError: Se o estado não estiver configurado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Estado: Entidade correspondente ao estado informado.</span>
+<span class="sd">        """</span>
+        <span class="n">estado</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">estado_atual</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">estado</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EstadoInvalidoError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"O estado '</span><span class="si">{</span><span class="n">estado_atual</span><span class="si">}</span><span class="s2">' não existe no arquivo de "</span>
+                <span class="s2">"configuração."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">estado</span></div>
+
+
+<div class="viewcode-block" id="DecisaoResolver._validar_acao">
+<a class="viewcode-back" href="../../../api/aplicacao.html#sme_workflow_sdk.aplicacao.decisao_resolver.DecisaoResolver._validar_acao">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_acao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estado</span><span class="p">:</span> <span class="n">Estado</span><span class="p">,</span> <span class="n">nome_acao</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Acao</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Obtém a ação disponível no estado informado.</span>
+
+<span class="sd">        Verifica se o estado possui ações configuradas e se a ação</span>
+<span class="sd">        solicitada está disponível no mapeamento de ações do estado.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estado (Estado): Estado em que a ação será procurada.</span>
+<span class="sd">            nome_acao (str): Nome da ação solicitada.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AcaoInvalidaError: Se o estado não possuir ações configuradas</span>
+<span class="sd">                ou se a ação solicitada não estiver disponível nele.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Acao:  Entidade correspondente à ação configurada.</span>
+<span class="sd">        """</span>
+        <span class="n">acoes</span> <span class="o">=</span> <span class="n">estado</span><span class="o">.</span><span class="n">acoes</span>
+
+        <span class="k">if</span> <span class="n">acoes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">nome_acao</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">acoes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcaoInvalidaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"A ação '</span><span class="si">{</span><span class="n">nome_acao</span><span class="si">}</span><span class="s2">' não é permitida "</span>
+                <span class="sa">f</span><span class="s2">"no estado '</span><span class="si">{</span><span class="n">estado</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">'."</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">acoes</span><span class="p">[</span><span class="n">nome_acao</span><span class="p">]</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais 2026, SME São Paulo.</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
