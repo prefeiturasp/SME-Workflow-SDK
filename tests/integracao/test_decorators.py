@@ -212,8 +212,6 @@ class TestDecorators:
     def test_decorator_registra_metodo_na_importacao(self) -> None:
         """A declaração registra apenas os métodos decorados com workflow."""
 
-        registro_acoes.limpar()
-
         class Servico:
             @workflow(estado="pendente", acao="aprovar")
             def aprovar(self) -> None:
@@ -223,7 +221,6 @@ class TestDecorators:
             def reprovar(self) -> None:
                 return None
 
-            @property
             def obter_dados(self) -> str:
                 return "dados"
 
@@ -237,9 +234,13 @@ class TestDecorators:
             is Servico.reprovar
         )
 
-        assert Servico.obter_dados is not None
-
-        registro_acoes.limpar()
+        assert (
+            registro_acoes.obter(
+                estado="pendente",
+                acao="obter_dados",
+            )
+            is None
+        )
 
     def test_decorator_rejeita_objeto_nao_chamavel(self) -> None:
         """O decorator rejeita objetos que não são métodos ou funções."""
@@ -252,3 +253,45 @@ class TestDecorators:
             str(exc.value)
             == "O decorator @workflow deve ser aplicado a um método ou função."
         )
+
+    def test_decorator_preserva_funcionamento_do_metodo(self) -> None:
+        """O método decorado mantém seus argumentos e retorno."""
+
+        class Servico:
+            @workflow(estado="pendente", acao="aprovar")
+            def aprovar(self, valor: int) -> int:
+                return valor * 2
+
+        servico = Servico()
+
+        assert servico.aprovar(10) == 20
+
+    @pytest.mark.parametrize(
+        ("estado", "acao"),
+        [
+            ("", "aprovar"),
+            ("   ", "aprovar"),
+            (None, "aprovar"),
+            (123, "aprovar"),
+            ("pendente", ""),
+            ("pendente", "   "),
+            ("pendente", None),
+            ("pendente", 123),
+        ],
+    )
+    def test_decorator_rejeita_estado_ou_acao_invalido(
+        self,
+        estado: object,
+        acao: object,
+    ) -> None:
+        """O decorator exige estado e ação como strings não vazias."""
+        workflow_generico = cast(
+            Callable[..., object],
+            workflow,
+        )
+
+        with pytest.raises(DeclaracaoWorkflowInvalidaError):
+            workflow_generico(
+                estado=estado,
+                acao=acao,
+            )
