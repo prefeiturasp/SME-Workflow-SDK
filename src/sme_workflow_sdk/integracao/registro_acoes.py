@@ -45,7 +45,7 @@ class RegistroAcoes:
 
             raise AcaoDuplicadaError(
                 f"Já existe um método registrado para o estado "
-                f"'{estado}' e a ação '{acao}'."
+                f"'{estado}' e a ação '{acao}': {metodo_existente.__name__}."
             )
 
         self._acoes[chave] = metodo
