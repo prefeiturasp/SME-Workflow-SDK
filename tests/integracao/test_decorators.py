@@ -28,6 +28,43 @@ class TestRegistroAcoes:
             is executar_aprovacao
         )
 
+    def test_registro_permite_multiplas_acoes(self) -> None:
+        """Permite registrar ações diferentes para o mesmo estado."""
+        registro = RegistroAcoes()
+
+        def aprovar() -> str:
+            return "aprovado"
+
+        def reprovar() -> str:
+            return "reprovado"
+
+        registro.registrar(
+            estado="pendente",
+            acao="aprovar",
+            metodo=aprovar,
+        )
+        registro.registrar(
+            estado="pendente",
+            acao="reprovar",
+            metodo=reprovar,
+        )
+
+        assert (
+            registro.obter(
+                estado="pendente",
+                acao="aprovar",
+            )
+            is aprovar
+        )
+
+        assert (
+            registro.obter(
+                estado="pendente",
+                acao="reprovar",
+            )
+            is reprovar
+        )
+
     def test_registro_permite_mesma_acao_em_estados_diferentes(self) -> None:
         """A mesma ação pode ser registrada em estados distintos."""
         registro = RegistroAcoes()
@@ -120,6 +157,38 @@ class TestRegistroAcoes:
         assert len(metodos) == 2
         assert ("pendente", "aprovar") in metodos
         assert ("pendente", "reprovar") in metodos
+
+    def test_limpar_remove_todos_os_registros(self) -> None:
+        """O método limpar remove todas as ações registradas."""
+        registro = RegistroAcoes()
+
+        def aprovar() -> None:
+            return None
+
+        def reprovar() -> None:
+            return None
+
+        registro.registrar(
+            estado="pendente",
+            acao="aprovar",
+            metodo=aprovar,
+        )
+        registro.registrar(
+            estado="pendente",
+            acao="reprovar",
+            metodo=reprovar,
+        )
+
+        registro.limpar()
+
+        assert registro.listar() == {}
+        assert (
+            registro.obter(
+                estado="pendente",
+                acao="aprovar",
+            )
+            is None
+        )
 
 
 class TestDecorators:
