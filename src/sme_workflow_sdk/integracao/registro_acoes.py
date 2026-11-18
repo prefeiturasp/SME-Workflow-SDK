@@ -3,6 +3,8 @@
 from collections.abc import Callable
 from typing import Any
 
+from sme_workflow_sdk.excecoes.integracao import AcaoDuplicadaError
+
 MetodoWorkflow = Callable[..., Any]
 
 
@@ -30,12 +32,21 @@ class RegistroAcoes:
             estado (str): _description_
             acao (str): _description_
             metodo (MetodoWorkflow): _description_
+
+        Raises:
+            AcaoDuplicadaError: _description_
         """
         chave = (estado, acao)
         metodo_existente = self._acoes.get(chave)
 
-        if metodo_existente is not None and metodo_existente is metodo:
-            return
+        if metodo_existente is not None:
+            if metodo_existente is metodo:
+                return
+
+            raise AcaoDuplicadaError(
+                f"Já existe um método registrado para o estado "
+                f"'{estado}' e a ação '{acao}'."
+            )
 
         self._acoes[chave] = metodo
 
