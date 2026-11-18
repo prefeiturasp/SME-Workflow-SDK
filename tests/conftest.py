@@ -15,6 +15,7 @@ from sme_workflow_sdk.configuracao.validador import ValidadorWorkflow
 from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
+from sme_workflow_sdk.integracao import registro_acoes
 
 WORKFLOW_EXEMPLO = """\
 estados:
@@ -373,3 +374,11 @@ def limpar_runtime() -> Any:
     runtime.shutdown()
     yield
     runtime.shutdown()
+
+
+@pytest.fixture(autouse=True)
+def limpar_registro_global() -> Any:
+    """Limpa o registro global antes e depois de cada teste."""
+    registro_acoes.limpar()
+    yield
+    registro_acoes.limpar()
