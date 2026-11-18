@@ -11,8 +11,12 @@ MetodoWorkflow = Callable[..., Any]
 class RegistroAcoes:
     """Armazena métodos associados a combinações de estado e ação.
 
-    O registro mantém referências às funções originais, sem criar ou armazenar
-    instâncias das classes da aplicação consumidora.
+    O registro mantém referências às funções originais, sem criar ou
+    armazenar instâncias das classes da aplicação consumidora.
+
+    Cada associação é identificada por uma chave composta pelo estado
+    e pela ação. Não permite que métodos diferentes sejam registrados
+    para a mesma combinação.
     """
 
     def __init__(self) -> None:
@@ -28,13 +32,19 @@ class RegistroAcoes:
     ) -> None:
         """Registra um método para uma combinação de estado e ação.
 
+        Se a combinação já estiver registrada pelo mesmo método, a operação
+        será considerada idempotente. Caso outro método esteja associado
+        à mesma combinação, será lançada uma exceção.
+
         Args:
-            estado (str): _description_
-            acao (str): _description_
-            metodo (MetodoWorkflow): _description_
+            estado (str): Nome do estado ao qual o método será associado.
+            acao (str): Nome da ação executada no estado informado.
+            metodo (MetodoWorkflow): Referência da função ou método a ser
+                registrado.
 
         Raises:
-            AcaoDuplicadaError: _description_
+            AcaoDuplicadaError: Se outro método já estiver registrado
+                para a mesma combinação de estado e ação.
         """
         chave = (estado, acao)
         metodo_existente = self._acoes.get(chave)
@@ -51,22 +61,28 @@ class RegistroAcoes:
         self._acoes[chave] = metodo
 
     def obter(self, *, estado: str, acao: str) -> MetodoWorkflow | None:
-        """Retorna o método associado à combinação informada, se existir.
+        """Obtém o método associado a uma combinação de estado e ação.
 
         Args:
-            estado (str): _description_
-            acao (str): _description_
+            estado (str): Nome do estado utilizado na consulta.
+            acao (str): Nome da ação utilizada na consulta.
 
         Returns:
-            MetodoWorkflow | None: _description_
+            MetodoWorkflow | None: O método registrado para a combinação
+                informada ou None quando não existir associação.
         """
         return self._acoes.get((estado, acao))
 
     def listar(self) -> dict[tuple[str, str], MetodoWorkflow]:
         """Retorna uma cópia das ações registradas.
 
+        A cópia permite consultar as associações sem possibilitar alterações
+        diretas no dicionário interno do registro.
+
         Returns:
-            dict[tuple[str, str], MetodoWorkflow]: _description_
+            dict[tuple[str, str], MetodoWorkflow]: Dicionário contendo as
+                combinações de estado e ação e seus respectivos métodos
+                registrados.
         """
         return self._acoes.copy()
 
@@ -76,3 +92,4 @@ class RegistroAcoes:
 
 
 registro_acoes = RegistroAcoes()
+"""Instância global utilizada para centralizar o registro de ações."""
