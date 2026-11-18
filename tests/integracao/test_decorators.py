@@ -1,6 +1,13 @@
+from collections.abc import Callable
+from typing import Any, cast
+
 import pytest
 
-from sme_workflow_sdk.excecoes.integracao import AcaoDuplicadaError
+from sme_workflow_sdk.excecoes.integracao import (
+    AcaoDuplicadaError,
+    DeclaracaoWorkflowInvalidaError,
+)
+from sme_workflow_sdk.integracao import registro_acoes, workflow
 from sme_workflow_sdk.integracao.registro_acoes import RegistroAcoes
 
 
@@ -113,3 +120,66 @@ class TestRegistroAcoes:
         assert len(metodos) == 2
         assert ("pendente", "aprovar") in metodos
         assert ("pendente", "reprovar") in metodos
+
+
+class TestDecorators:
+    @pytest.mark.parametrize("parametro", ["estado", "acao"])
+    @pytest.mark.parametrize("valor", ["", "   ", None, 123])
+    def test_decorator_rejeita_parametro_invalido(
+        self, parametro: str, valor: Any
+    ) -> None:
+        """O decorator exige estado e ação como strings não vazias."""
+        argumentos = {"estado": "pendente", "acao": "aprovar"}
+        argumentos[parametro] = valor
+
+        with pytest.raises(DeclaracaoWorkflowInvalidaError) as exc:
+            workflow(**argumentos)
+
+        assert (
+            str(exc.value)
+            == f"O parâmetro '{parametro}' deve ser uma string não vazia."
+        )
+
+    def test_decorator_registra_metodo_na_importacao(self) -> None:
+        """A declaração registra apenas os métodos decorados com workflow."""
+
+        registro_acoes.limpar()
+
+        class Servico:
+            @workflow(estado="pendente", acao="aprovar")
+            def aprovar(self) -> None:
+                return None
+
+            @workflow(estado="pendente", acao="reprovar")
+            def reprovar(self) -> None:
+                return None
+
+            @property
+            def obter_dados(self) -> str:
+                return "dados"
+
+        assert (
+            registro_acoes.obter(estado="pendente", acao="aprovar")
+            is Servico.aprovar
+        )
+
+        assert (
+            registro_acoes.obter(estado="pendente", acao="reprovar")
+            is Servico.reprovar
+        )
+
+        assert Servico.obter_dados is not None
+
+        registro_acoes.limpar()
+
+    def test_decorator_rejeita_objeto_nao_chamavel(self) -> None:
+        """O decorator rejeita objetos que não são métodos ou funções."""
+
+        objeto_invalido = cast(Callable[..., Any], object())
+
+        with pytest.raises(DeclaracaoWorkflowInvalidaError) as exc:
+            workflow(estado="pendente", acao="aprovar")(objeto_invalido)
+        assert (
+            str(exc.value)
+            == "O decorator @workflow deve ser aplicado a um método ou função."
+        )
