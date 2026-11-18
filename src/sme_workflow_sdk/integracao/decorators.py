@@ -3,6 +3,9 @@
 from collections.abc import Callable
 from typing import Any, TypeVar, cast
 
+from sme_workflow_sdk.excecoes.integracao import (
+    DeclaracaoWorkflowInvalidaError,
+)
 from sme_workflow_sdk.integracao.registro_acoes import registro_acoes
 
 Metodo = TypeVar("Metodo", bound=Callable[..., Any])
@@ -16,22 +19,27 @@ def workflow(*, estado: str, acao: str) -> Callable[[Metodo], Metodo]:
         acao (str): _description_
 
     Raises:
-        TypeError: _description_
-        TypeError: _description_
-        TypeError: _description_
+        DeclaracaoWorkflowInvalidaError: _description_
 
     Returns:
         Callable[[Metodo], Metodo]: _description_
     """
     if not isinstance(estado, str) or not estado.strip():
-        raise TypeError
+        raise DeclaracaoWorkflowInvalidaError(
+            "O parâmetro 'estado' deve ser uma string não vazia."
+        )
 
     if not isinstance(acao, str) or not acao.strip():
-        raise TypeError
+        raise DeclaracaoWorkflowInvalidaError(
+            "O parâmetro 'acao' deve ser uma string não vazia."
+        )
 
     def decorator(metodo: Metodo) -> Metodo:
         if not callable(metodo):
-            raise TypeError
+            raise DeclaracaoWorkflowInvalidaError(
+                "O decorator @workflow deve ser aplicado a um método ou "
+                "função."
+            )
 
         registro_acoes.registrar(
             estado=estado,

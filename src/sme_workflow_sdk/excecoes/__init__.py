@@ -12,7 +12,10 @@ from sme_workflow_sdk.excecoes.configuracao import (
     EstadoInvalidoError,
     FormatoInvalidoError,
 )
-from sme_workflow_sdk.excecoes.integracao import AcaoDuplicadaError
+from sme_workflow_sdk.excecoes.integracao import (
+    AcaoDuplicadaError,
+    DeclaracaoWorkflowInvalidaError,
+)
 from sme_workflow_sdk.excecoes.workflow import TransicaoInvalidaError
 
 __all__ = [
@@ -26,4 +29,5 @@ __all__ = [
     "ValidacaoDominioError",
     "TransicaoInvalidaError",
     "AcaoDuplicadaError",
+    "DeclaracaoWorkflowInvalidaError",
 ]
