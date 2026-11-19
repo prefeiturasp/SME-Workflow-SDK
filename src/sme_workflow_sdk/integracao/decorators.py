@@ -6,6 +6,7 @@ from typing import Any, cast
 
 from sme_workflow_sdk.excecoes.integracao import (
     DeclaracaoWorkflowInvalidaError,
+    EstadoWorkflowIncompativelError,
 )
 from sme_workflow_sdk.integracao.registro_acoes import registro_acoes
 
@@ -74,7 +75,11 @@ def workflow[Retorno](
             from sme_workflow_sdk.runtime import get_workflow
 
             if estado != estado_declarado:
-                raise TypeError
+                raise EstadoWorkflowIncompativelError(
+                    f"A ação '{acao}' foi declarada para o estado "
+                    f"'{estado_declarado}', mas recebeu o estado "
+                    f"'{estado}'."
+                )
 
             motor = get_workflow()
             motor.validar(estado_atual=estado, acao=acao)
