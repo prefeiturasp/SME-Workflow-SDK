@@ -199,6 +199,30 @@ class TestRegistroAcoes:
             is None
         )
 
+    def test_listar_retorna_copia_dos_registros(self) -> None:
+        """Alterações na cópia não modificam o registro original."""
+        registro = RegistroAcoes()
+
+        def aprovar() -> None:
+            return None
+
+        registro.registrar(
+            estado="pendente",
+            acao="aprovar",
+            metodo=aprovar,
+        )
+
+        registros = registro.listar()
+        registros.clear()
+
+        assert (
+            registro.obter(
+                estado="pendente",
+                acao="aprovar",
+            )
+            is aprovar
+        )
+
 
 class TestDecorators:
     @pytest.mark.parametrize("parametro", ["estado", "acao"])
@@ -447,3 +471,24 @@ class TestDecorators:
             == "A ação 'cancelar' não é permitida no estado 'aberto'."
         )
         assert chamadas == []
+
+    def test_decorator_rejeita_metodos_com_mesma_combinacao(self) -> None:
+        """Não permite métodos diferentes para a mesma combinação."""
+
+        class Servico:
+            @workflow(estado="pendente", acao="aprovar")
+            def aprovar(self) -> None:
+                return None
+
+        with pytest.raises(AcaoDuplicadaError) as exc:
+
+            class OutroServico:
+                @workflow(estado="pendente", acao="aprovar")
+                def aprovar(self) -> None:
+                    return None
+
+        assert (
+            str(exc.value)
+            == "Já existe um método registrado para o estado 'pendente' e a "
+            "ação 'aprovar': aprovar."
+        )
