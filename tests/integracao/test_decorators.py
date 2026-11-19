@@ -17,7 +17,7 @@ from sme_workflow_sdk.excecoes.integracao import (
 )
 from sme_workflow_sdk.integracao import registro_acoes, workflow
 from sme_workflow_sdk.integracao.registro_acoes import RegistroAcoes
-from sme_workflow_sdk.runtime import configure
+from sme_workflow_sdk.runtime import configure, shutdown
 
 
 class TestRegistroAcoes:
@@ -371,6 +371,66 @@ class TestDecorators:
         yaml_valido: Path,
     ) -> None:
         """Rejeita ações que não estão disponíveis para o estado no YAML."""
+        configure(yaml_valido)
+        chamadas: list[int] = []
+
+        class Servico:
+            @workflow(estado="aberto", acao="cancelar")
+            def cancelar(self, valor: int) -> int:
+                chamadas.append(valor)
+                return valor
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            Servico().cancelar(estado="aberto", valor=10)
+        assert (
+            str(exc.value)
+            == "A ação 'cancelar' não é permitida no estado 'aberto'."
+        )
+        assert chamadas == []
+
+    def test_decorator_exige_estado_na_chamada(
+        self,
+        yaml_valido: Path,
+    ) -> None:
+        """Exige o parâmetro estado ao chamar um método decorado."""
+        configure(yaml_valido)
+
+        class Servico:
+            @workflow(estado="aberto", acao="aprovar")
+            def aprovar(self, valor: int) -> int:
+                return valor * 2
+
+        with pytest.raises(TypeError) as exc:
+            Servico().aprovar(valor=10)
+
+        assert "missing 1 required keyword-only argument: 'estado'" in str(
+            exc.value
+        )
+
+    def test_decorator_exige_runtime_configurado(self) -> None:
+        """Impede a execução quando o runtime não está inicializado."""
+
+        shutdown()
+
+        class Servico:
+            @workflow(estado="aberto", acao="aprovar")
+            def aprovar(self, valor: int) -> int:
+                return valor * 2
+
+        with pytest.raises(
+            RuntimeError,
+        ) as exc:
+            Servico().aprovar(estado="aberto", valor=10)
+        assert (
+            str(exc.value)
+            == "O runtime do workflow ainda não foi inicializado."
+        )
+
+    def test_decorator_nao_executa_metodo_quando_validacao_falha(
+        self,
+        yaml_valido: Path,
+    ) -> None:
+        """Não executa o método original quando a validação falha."""
         configure(yaml_valido)
         chamadas: list[int] = []
 
