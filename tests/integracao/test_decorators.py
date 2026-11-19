@@ -1,5 +1,7 @@
 from collections.abc import Callable
+from inspect import unwrap
 from typing import Any, cast
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -224,15 +226,13 @@ class TestDecorators:
             def obter_dados(self) -> str:
                 return "dados"
 
-        assert (
-            registro_acoes.obter(estado="pendente", acao="aprovar")
-            is Servico.aprovar
-        )
+        assert registro_acoes.obter(
+            estado="pendente", acao="aprovar"
+        ) is unwrap(Servico.aprovar)
 
-        assert (
-            registro_acoes.obter(estado="pendente", acao="reprovar")
-            is Servico.reprovar
-        )
+        assert registro_acoes.obter(
+            estado="pendente", acao="reprovar"
+        ) is unwrap(Servico.reprovar)
 
         assert (
             registro_acoes.obter(
@@ -264,7 +264,22 @@ class TestDecorators:
 
         servico = Servico()
 
-        assert servico.aprovar(10) == 20
+        motor = Mock()
+        with patch(
+            "sme_workflow_sdk.runtime.get_workflow",
+            return_value=motor,
+        ):
+            resultado = servico.aprovar(
+                estado="pendente",
+                valor=10,
+            )
+
+        assert resultado == 20
+
+        motor.validar.assert_called_once_with(
+            estado_atual="pendente",
+            acao="aprovar",
+        )
 
     @pytest.mark.parametrize(
         ("estado", "acao"),
