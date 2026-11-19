@@ -1,16 +1,23 @@
 from collections.abc import Callable
 from inspect import unwrap
+from pathlib import Path
 from typing import Any, cast
 from unittest.mock import Mock, patch
 
 import pytest
 
+from sme_workflow_sdk.excecoes.configuracao import (
+    AcaoInvalidaError,
+    EstadoInvalidoError,
+)
 from sme_workflow_sdk.excecoes.integracao import (
     AcaoDuplicadaError,
     DeclaracaoWorkflowInvalidaError,
+    EstadoWorkflowIncompativelError,
 )
 from sme_workflow_sdk.integracao import registro_acoes, workflow
 from sme_workflow_sdk.integracao.registro_acoes import RegistroAcoes
+from sme_workflow_sdk.runtime import configure
 
 
 class TestRegistroAcoes:
@@ -305,8 +312,78 @@ class TestDecorators:
             workflow,
         )
 
-        with pytest.raises(DeclaracaoWorkflowInvalidaError):
+        with pytest.raises(DeclaracaoWorkflowInvalidaError) as exc:
             workflow_generico(
                 estado=estado,
                 acao=acao,
             )
+        assert "deve ser uma string não vazia." in str(exc.value)
+
+    def test_decorator_rejeita_estado_diferente_do_declarado(
+        self,
+        yaml_valido: Path,
+    ) -> None:
+        """Rejeita estado diferente daquele declarado no decorator."""
+        configure(yaml_valido)
+        chamadas: list[int] = []
+
+        class Servico:
+            @workflow(estado="aberto", acao="aprovar")
+            def aprovar(self, valor: int) -> int:
+                chamadas.append(valor)
+                return valor * 2
+
+        with pytest.raises(EstadoWorkflowIncompativelError) as exc:
+            Servico().aprovar(estado="aprovado", valor=10)
+
+        assert (
+            str(exc.value)
+            == "A ação 'aprovar' foi declarada para o estado 'aberto', mas "
+            "recebeu o estado 'aprovado'."
+        )
+        assert chamadas == []
+
+    def test_decorator_rejeita_estado_inexistente_no_yaml(
+        self,
+        yaml_valido: Path,
+    ) -> None:
+        """Rejeita estados que não estão definidos no YAML."""
+        configure(yaml_valido)
+        chamadas: list[int] = []
+
+        class Servico:
+            @workflow(estado="inexistente", acao="aprovar")
+            def aprovar(self, valor: int) -> int:
+                chamadas.append(valor)
+                return valor * 2
+
+        with pytest.raises(EstadoInvalidoError) as exc:
+            Servico().aprovar(estado="inexistente", valor=10)
+
+        assert (
+            str(exc.value)
+            == "O estado 'inexistente' não existe no arquivo de configuração."
+        )
+        assert chamadas == []
+
+    def test_decorator_rejeita_acao_nao_permitida(
+        self,
+        yaml_valido: Path,
+    ) -> None:
+        """Rejeita ações que não estão disponíveis para o estado no YAML."""
+        configure(yaml_valido)
+        chamadas: list[int] = []
+
+        class Servico:
+            @workflow(estado="aberto", acao="cancelar")
+            def cancelar(self, valor: int) -> int:
+                chamadas.append(valor)
+                return valor
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            Servico().cancelar(estado="aberto", valor=10)
+        assert (
+            str(exc.value)
+            == "A ação 'cancelar' não é permitida no estado 'aberto'."
+        )
+        assert chamadas == []
