@@ -1,6 +1,7 @@
 """Decorators para declarar ações associadas aos estados do workflow."""
 
 from collections.abc import Callable
+from functools import wraps
 from typing import Any, cast
 
 from sme_workflow_sdk.excecoes.integracao import (
@@ -9,9 +10,9 @@ from sme_workflow_sdk.excecoes.integracao import (
 from sme_workflow_sdk.integracao.registro_acoes import registro_acoes
 
 
-def workflow[Metodo: Callable[..., Any]](
+def workflow[Retorno](
     *, estado: str, acao: str
-) -> Callable[[Metodo], Metodo]:
+) -> Callable[[Callable[..., Retorno]], Callable[..., Retorno]]:
     """Associa um método da aplicação consumidora a um estado e uma ação.
 
     O decorator registra a referência do método no registro centralizado
@@ -47,7 +48,9 @@ def workflow[Metodo: Callable[..., Any]](
             "O parâmetro 'acao' deve ser uma string não vazia."
         )
 
-    def decorator(metodo: Metodo) -> Metodo:
+    estado_declarado = estado
+
+    def decorator(metodo: Callable[..., Retorno]) -> Callable[..., Retorno]:
         if not callable(metodo):
             raise DeclaracaoWorkflowInvalidaError(
                 "O decorator @workflow deve ser aplicado a um método ou "
@@ -59,6 +62,25 @@ def workflow[Metodo: Callable[..., Any]](
             acao=acao,
             metodo=cast(Callable[..., Any], metodo),
         )
-        return metodo
+
+        @wraps(metodo)
+        def wrapper(
+            *args: Any,
+            estado: str,
+            **kwargs: Any,
+        ) -> Retorno:
+            # Importação local para evitar acoplamento/ciclo de importação
+            # durante a declaração dos métodos decorados.
+            from sme_workflow_sdk.runtime import get_workflow
+
+            if estado != estado_declarado:
+                raise TypeError
+
+            motor = get_workflow()
+            motor.validar(estado_atual=estado, acao=acao)
+
+            return metodo(*args, **kwargs)
+
+        return wrapper
 
     return decorator
