@@ -4,7 +4,6 @@ from typing import cast
 import pytest
 
 from sme_workflow_sdk import (
-    ContextoExecucao,
     ResultadoWorkflow,
 )
 from sme_workflow_sdk.excecoes.base import ValidacaoDominioError
@@ -28,7 +27,6 @@ class TestResultadoWorkflow:
             inicio=cast(datetime, dados_resultado["inicio"]),
             fim=cast(datetime, dados_resultado["fim"]),
             autor=cast(str, dados_resultado["autor"]),
-            contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
         )
 
         assert resultado.identificador == "execucao-123"
@@ -63,7 +61,6 @@ class TestResultadoWorkflow:
             inicio=cast(datetime, dados_resultado["inicio"]),
             fim=cast(datetime, dados_resultado["fim"]),
             autor=cast(str, dados_resultado["autor"]),
-            contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
         )
 
         assert resultado.sucesso is False
@@ -115,7 +112,6 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
 
         assert str(exc.value) == mensagem
@@ -157,7 +153,6 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
 
         assert str(exc.value) == mensagem
@@ -180,38 +175,11 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
 
         assert (
             str(exc.value)
             == "ResultadoWorkflow.inicio deve ser datetime, recebido str"
-        )
-
-    def test_rejeita_contexto_com_tipo_invalido(
-        self, dados_resultado: dict[str, object]
-    ) -> None:
-        """Deve rejeitar contexto que não seja ContextoExecucao."""
-        dados_resultado["contexto"] = {}
-
-        with pytest.raises(ValidacaoDominioError) as exc:
-            ResultadoWorkflow(
-                identificador=cast(str, dados_resultado["identificador"]),
-                estado_anterior=cast(str, dados_resultado["estado_anterior"]),
-                acao=cast(str, dados_resultado["acao"]),
-                proximo_estado=cast(str, dados_resultado["proximo_estado"]),
-                terminal=cast(bool, dados_resultado["terminal"]),
-                sucesso=cast(bool, dados_resultado["sucesso"]),
-                mensagem=cast(str, dados_resultado["mensagem"]),
-                inicio=cast(datetime, dados_resultado["inicio"]),
-                fim=cast(datetime, dados_resultado["fim"]),
-                autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
-            )
-
-        assert (
-            str(exc.value) == "ResultadoWorkflow.contexto deve ser "
-            "ContextoExecucao, recebido dict"
         )
 
     def test_rejeita_fim_anterior_ao_inicio(
@@ -234,7 +202,6 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
 
         assert (
@@ -261,7 +228,6 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
 
         assert (
@@ -293,7 +259,6 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
 
         assert (
@@ -321,7 +286,6 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
         assert (
             f"ResultadoWorkflow.estado_anterior inválido ('{valor_invalido}')."
@@ -346,7 +310,6 @@ class TestResultadoWorkflow:
             inicio=cast(datetime, dados_resultado["inicio"]),
             fim=cast(datetime, dados_resultado["fim"]),
             autor=cast(str, dados_resultado["autor"]),
-            contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
         )
         assert resultado.estado_anterior == valor_valido
 
@@ -366,7 +329,6 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
         assert (
             f"ResultadoWorkflow.acao inválido ('{valor_invalido}'). O valor "
@@ -391,7 +353,6 @@ class TestResultadoWorkflow:
             inicio=cast(datetime, dados_resultado["inicio"]),
             fim=cast(datetime, dados_resultado["fim"]),
             autor=cast(str, dados_resultado["autor"]),
-            contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
         )
         assert resultado.acao == valor_valido
 
@@ -411,7 +372,6 @@ class TestResultadoWorkflow:
                 inicio=cast(datetime, dados_resultado["inicio"]),
                 fim=cast(datetime, dados_resultado["fim"]),
                 autor=cast(str, dados_resultado["autor"]),
-                contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
             )
         assert (
             f"ResultadoWorkflow.proximo_estado inválido ('{valor_invalido}'). "
@@ -436,7 +396,6 @@ class TestResultadoWorkflow:
             inicio=cast(datetime, dados_resultado["inicio"]),
             fim=cast(datetime, dados_resultado["fim"]),
             autor=cast(str, dados_resultado["autor"]),
-            contexto=cast(ContextoExecucao, dados_resultado["contexto"]),
         )
         assert resultado.proximo_estado == valor_valido
 
@@ -462,38 +421,7 @@ class TestResultadoWorkflowParaDict:
             "inicio": datetime(2026, 10, 27, 12, 0, tzinfo=UTC),
             "fim": datetime(2026, 10, 27, 12, 1, tzinfo=UTC),
             "autor": "usuario-teste",
-            "contexto": {
-                "identificador": "execucao-123",
-                "autor": "usuario-teste",
-                "dados": {
-                    "origem": "teste",
-                    "lista": ["item1", "item2"],
-                    "tupla": [2, 3, 4],
-                },
-            },
         }
-
-    def test_converte_contexto_com_mappingproxy(
-        self,
-        resultado_workflow: ResultadoWorkflow,
-    ) -> None:
-        """Deve serializar dados imutáveis do contexto sem TypeError."""
-        resultado = resultado_workflow.para_dict()
-
-        assert resultado["contexto"]["dados"]["origem"] == "teste"
-
-    def test_conversao_nao_modifica_resultado_original(
-        self,
-        resultado_workflow: ResultadoWorkflow,
-    ) -> None:
-        """A conversão não deve alterar os dados originais."""
-        contexto_original = resultado_workflow.contexto
-        dados_originais = dict(contexto_original.dados)
-
-        resultado_workflow.para_dict()
-
-        assert resultado_workflow.contexto is contexto_original
-        assert dict(contexto_original.dados) == dados_originais
 
     def test_retorna_novo_dicionario_a_cada_chamada(
         self,
@@ -505,4 +433,3 @@ class TestResultadoWorkflowParaDict:
 
         assert primeiro == segundo
         assert primeiro is not segundo
-        assert primeiro["contexto"] is not segundo["contexto"]

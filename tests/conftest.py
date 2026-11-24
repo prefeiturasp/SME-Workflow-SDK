@@ -358,7 +358,6 @@ def resultado_workflow() -> ResultadoWorkflow:
         inicio=inicio,
         fim=fim,
         autor=contexto.autor,
-        contexto=contexto,
     )
 
 
