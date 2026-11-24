@@ -48,6 +48,18 @@ def workflow[Metodo: Callable[..., Any]](
         )
 
     def decorator(metodo: Metodo) -> Metodo:
+        """Registra o método associado ao estado e à ação informados.
+
+        Args:
+            metodo (Metodo):  Método ou função que será associado à ação
+                do workflow.
+
+        Raises:
+            DeclaracaoWorkflowInvalidaError: _description_
+
+        Returns:
+            Metodo: Quando o objeto recebido não for chamável.
+        """
         if not callable(metodo):
             raise DeclaracaoWorkflowInvalidaError(
                 "O decorator @workflow deve ser aplicado a um método ou "
