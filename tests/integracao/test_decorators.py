@@ -6,6 +6,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from sme_workflow_sdk.excecoes.configuracao import (
+    AcaoInvalidaError,
+    EstadoInvalidoError,
+)
 from sme_workflow_sdk.excecoes.integracao import (
     AcaoDuplicadaError,
     DeclaracaoWorkflowInvalidaError,
@@ -218,6 +222,105 @@ class TestRegistroAcoes:
             )
             is aprovar
         )
+
+    def test_aceita_declaracao_existente_na_configuracao(
+        self,
+        workflow_exemplo_dict: dict[str, Any],
+    ) -> None:
+        """Não lança exceção quando estado e ação existem no YAML."""
+        registro = RegistroAcoes()
+
+        def aprovar() -> None:
+            return None
+
+        registro.registrar(
+            estado="aberto",
+            acao="aprovar",
+            metodo=aprovar,
+        )
+
+        registro.validar_declaracoes(workflow_exemplo_dict)
+
+    def test_rejeita_estado_ausente_na_configuracao(
+        self,
+        workflow_exemplo_dict: dict[str, Any],
+    ) -> None:
+        """Rejeita estado declarado no decorator que não existe no YAML."""
+        registro = RegistroAcoes()
+
+        def aprovar() -> None:
+            return None
+
+        registro.registrar(
+            estado="inexistente",
+            acao="aprovar",
+            metodo=aprovar,
+        )
+
+        with pytest.raises(EstadoInvalidoError) as exc:
+            registro.validar_declaracoes(workflow_exemplo_dict)
+
+        assert str(exc.value) == (
+            "O estado 'inexistente' declarado no decorator não existe "
+            "no arquivo de configuração."
+        )
+
+    def test_rejeita_acao_ausente_no_estado(
+        self,
+        workflow_exemplo_dict: dict[str, Any],
+    ) -> None:
+        """Rejeita ação que não está declarada para o estado no YAML."""
+        registro = RegistroAcoes()
+
+        def cancelar() -> None:
+            return None
+
+        registro.registrar(
+            estado="aberto",
+            acao="cancelar",
+            metodo=cancelar,
+        )
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            registro.validar_declaracoes(workflow_exemplo_dict)
+
+        assert str(exc.value) == (
+            "A ação 'cancelar' declarada no decorator não está "
+            "configurada para o estado 'aberto'."
+        )
+
+    def test_rejeita_acao_em_estado_sem_acoes(
+        self,
+        workflow_exemplo_dict: dict[str, Any],
+    ) -> None:
+        """Rejeita ação declarada para um estado terminal sem ações."""
+        registro = RegistroAcoes()
+
+        def reabrir() -> None:
+            return None
+
+        registro.registrar(
+            estado="concluido",
+            acao="reabrir",
+            metodo=reabrir,
+        )
+
+        with pytest.raises(AcaoInvalidaError) as exc:
+            registro.validar_declaracoes(workflow_exemplo_dict)
+
+        assert str(exc.value) == (
+            "A ação 'reabrir' declarada no decorator não está "
+            "configurada para o estado 'concluido'."
+        )
+
+    def test_aceita_registro_vazio(
+        self,
+        workflow_exemplo_dict: dict[str, Any],
+    ) -> None:
+        """Não exige declarações quando nenhum método foi registrado."""
+        registro = RegistroAcoes()
+
+        registro.validar_declaracoes(workflow_exemplo_dict)
 
 
 class TestDecorators:
