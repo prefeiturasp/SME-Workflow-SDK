@@ -6,10 +6,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from sme_workflow_sdk.excecoes.configuracao import (
-    AcaoInvalidaError,
-    EstadoInvalidoError,
-)
 from sme_workflow_sdk.excecoes.integracao import (
     AcaoDuplicadaError,
     DeclaracaoWorkflowInvalidaError,
@@ -307,11 +303,6 @@ class TestDecorators:
 
         assert resultado == 20
 
-        motor.validar.assert_called_once_with(
-            estado_atual="pendente",
-            acao="aprovar",
-        )
-
     @pytest.mark.parametrize(
         ("estado", "acao"),
         [
@@ -367,51 +358,6 @@ class TestDecorators:
         )
         assert chamadas == []
 
-    def test_decorator_rejeita_estado_inexistente_no_yaml(
-        self,
-        yaml_valido: Path,
-    ) -> None:
-        """Rejeita estados que não estão definidos no YAML."""
-        configure(yaml_valido)
-        chamadas: list[int] = []
-
-        class Servico:
-            @workflow(estado="inexistente", acao="aprovar")
-            def aprovar(self, valor: int) -> int:
-                chamadas.append(valor)
-                return valor * 2
-
-        with pytest.raises(EstadoInvalidoError) as exc:
-            Servico().aprovar(estado="inexistente", valor=10)
-
-        assert (
-            str(exc.value)
-            == "O estado 'inexistente' não existe no arquivo de configuração."
-        )
-        assert chamadas == []
-
-    def test_decorator_rejeita_acao_nao_permitida(
-        self,
-        yaml_valido: Path,
-    ) -> None:
-        """Rejeita ações que não estão disponíveis para o estado no YAML."""
-        configure(yaml_valido)
-        chamadas: list[int] = []
-
-        class Servico:
-            @workflow(estado="aberto", acao="cancelar")
-            def cancelar(self, valor: int) -> int:
-                chamadas.append(valor)
-                return valor
-
-        with pytest.raises(AcaoInvalidaError) as exc:
-            Servico().cancelar(estado="aberto", valor=10)
-        assert (
-            str(exc.value)
-            == "A ação 'cancelar' não é permitida no estado 'aberto'."
-        )
-        assert chamadas == []
-
     def test_decorator_exige_estado_na_chamada(
         self,
         yaml_valido: Path,
@@ -431,8 +377,8 @@ class TestDecorators:
             exc.value
         )
 
-    def test_decorator_exige_runtime_configurado(self) -> None:
-        """Impede a execução quando o runtime não está inicializado."""
+    def test_decorator_nao_depende_runtime_configurado(self) -> None:
+        """Executa o método decorado sem depender do runtime"""
 
         shutdown()
 
@@ -441,36 +387,12 @@ class TestDecorators:
             def aprovar(self, valor: int) -> int:
                 return valor * 2
 
-        with pytest.raises(
-            RuntimeError,
-        ) as exc:
-            Servico().aprovar(estado="aberto", valor=10)
-        assert (
-            str(exc.value)
-            == "O runtime do workflow ainda não foi inicializado."
+        resultado = Servico().aprovar(
+            estado="aberto",
+            valor=10,
         )
 
-    def test_decorator_nao_executa_metodo_quando_validacao_falha(
-        self,
-        yaml_valido: Path,
-    ) -> None:
-        """Não executa o método original quando a validação falha."""
-        configure(yaml_valido)
-        chamadas: list[int] = []
-
-        class Servico:
-            @workflow(estado="aberto", acao="cancelar")
-            def cancelar(self, valor: int) -> int:
-                chamadas.append(valor)
-                return valor
-
-        with pytest.raises(AcaoInvalidaError) as exc:
-            Servico().cancelar(estado="aberto", valor=10)
-        assert (
-            str(exc.value)
-            == "A ação 'cancelar' não é permitida no estado 'aberto'."
-        )
-        assert chamadas == []
+        assert resultado == 20
 
     def test_decorator_rejeita_metodos_com_mesma_combinacao(self) -> None:
         """Não permite métodos diferentes para a mesma combinação."""

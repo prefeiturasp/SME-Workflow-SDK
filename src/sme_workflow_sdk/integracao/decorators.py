@@ -144,18 +144,12 @@ def workflow[Retorno](
                 Retorno: O resultado produzido pela execução do método
                     original.
             """
-            from sme_workflow_sdk.runtime import get_workflow
-
             if estado != estado_declarado:
                 raise EstadoWorkflowIncompativelError(
                     f"A ação '{acao}' foi declarada para o estado "
                     f"'{estado_declarado}', mas recebeu o estado "
                     f"'{estado}'."
                 )
-
-            motor = get_workflow()
-            motor.validar(estado_atual=estado, acao=acao)
-
             return metodo(*args, **kwargs)
 
         return wrapper
