@@ -10,7 +10,6 @@ from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
 from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
-from sme_workflow_sdk.excecoes.workflow import TransicaoInvalidaError
 
 logger = logging.getLogger(__name__)
 
@@ -175,10 +174,12 @@ class MotorWorkflow:
             )
             raise
 
-    def executar(
+    def processar_transicao(
         self,
-        dados_transicao: ExecucaoValidada,
-        contexto: ContextoExecucao,
+        *,
+        estado: str,
+        acao: str,
+        autor: str,
     ) -> dict[str, Any]:
         """Produz o resultado de uma execução do workflow.
 
@@ -198,10 +199,9 @@ class MotorWorkflow:
         resultado indicando que a execução não foi bem-sucedida.
 
         Args:
-            dados_transicao (ExecucaoValidada): Dados da transição
-                previamente validados  método validar().
-            contexto (ContextoExecucao): Contexto da execução, incluindo
-                identificador, autor e dados adicionais.
+            estado (str): ok.
+            acao (str): ok
+            autor (str): ok
 
         Returns:
             dict[str, Any]: Dicionário contendo os dados do resultado da
@@ -220,64 +220,36 @@ class MotorWorkflow:
             True
         """
         logger.info(
-            "Iniciando execução do workflow. Identificador: %s | "
-            "Estado atual: %s | Ação: %s | Autor: %s",
-            contexto.identificador,
-            dados_transicao.estado_atual,
-            dados_transicao.acao.nome,
-            contexto.autor,
+            "Iniciando processamento da transição. Estado atual: %s | "
+            "Ação: %s | Autor: %s",
+            estado,
+            acao,
+            autor,
         )
-        try:
-            execucao = self._transicao_resolver.resolver(dados_transicao)
-            sucesso = True
-            mensagem = "Transição executada com sucesso!"
-            acao = execucao.acao
-            resultado = ResultadoWorkflow(
-                identificador=contexto.identificador,
-                estado_anterior=execucao.estado_atual,
-                acao=acao.nome,
-                proximo_estado=acao.proximo_estado,
-                terminal=acao.terminal,
-                sucesso=sucesso,
-                inicio=execucao.inicio_transicao,
-                fim=datetime.now(UTC),
-                autor=contexto.autor,
-                contexto=contexto,
-                mensagem=mensagem,
-            )
 
-            logger.info(
-                "Workflow executado com sucesso. Identificador: %s | "
-                "Estado anterior: %s | Ação: %s | Próximo estado: %s | "
-                "Terminal: %s",
-                resultado.identificador,
-                resultado.estado_anterior,
-                resultado.acao,
-                resultado.proximo_estado,
-                resultado.terminal,
-            )
-        except TransicaoInvalidaError as exc:
-            estado_atual = dados_transicao.estado_atual
-            resultado = ResultadoWorkflow(
-                identificador=contexto.identificador,
-                estado_anterior=estado_atual,
-                acao=dados_transicao.acao.nome,
-                proximo_estado=estado_atual,
-                terminal=False,
-                sucesso=False,
-                inicio=dados_transicao.inicio_transicao,
-                fim=datetime.now(UTC),
-                autor=contexto.autor,
-                contexto=contexto,
-                mensagem=f"Transição não executada! {str(exc)}",
-            )
-            logger.warning(
-                "Falha na execução do workflow. Identificador: %s | "
-                "Estado atual: %s | Ação: %s | Motivo: %s",
-                contexto.identificador,
-                estado_atual,
-                dados_transicao.acao.nome,
-                exc,
-            )
+        execucao = self.validar(estado, acao)
+        contexto = ContextoExecucao(autor=autor)
+        resultado = ResultadoWorkflow(
+            identificador=contexto.identificador,
+            estado_anterior=execucao.estado_atual,
+            acao=execucao.acao.nome,
+            proximo_estado=execucao.acao.proximo_estado,
+            terminal=execucao.acao.terminal,
+            sucesso=True,
+            inicio=execucao.inicio_transicao,
+            fim=datetime.now(UTC),
+            autor=contexto.autor,
+            mensagem="Transição processada com sucesso!",
+        )
 
+        logger.info(
+            "Transição processada com sucesso. Identificador: %s | "
+            "Estado anterior: %s | Ação: %s | Próximo estado: %s | "
+            "Terminal: %s",
+            resultado.identificador,
+            resultado.estado_anterior,
+            resultado.acao,
+            resultado.proximo_estado,
+            resultado.terminal,
+        )
         return resultado.para_dict()

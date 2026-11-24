@@ -11,7 +11,6 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Any
 
-from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.validacao import (
     validar_booleano,
     validar_identificador,
@@ -47,9 +46,6 @@ class ResultadoWorkflow:
         inicio: Data e hora de início da execução.
         fim: Data e hora de término da execução.
         autor: Identificação do autor responsável pela execução.
-        contexto: Contexto associado à execução, representado por
-            uma instância de :class:`ContextoExecucao
-            <sme_workflow_sdk.dominio.contexto.ContextoExecucao>`.
     """
 
     identificador: str
@@ -62,7 +58,6 @@ class ResultadoWorkflow:
     inicio: datetime
     fim: datetime
     autor: str
-    contexto: ContextoExecucao
 
     def __post_init__(self) -> None:
         """Valida os atributos e a consistência do resultado.
@@ -102,9 +97,6 @@ class ResultadoWorkflow:
         validar_booleano(self.sucesso, "ResultadoWorkflow.sucesso")
         validar_tipo(self.inicio, datetime, "ResultadoWorkflow.inicio")
         validar_tipo(self.fim, datetime, "ResultadoWorkflow.fim")
-        validar_tipo(
-            self.contexto, ContextoExecucao, "ResultadoWorkflow.contexto"
-        )
         validar_string_nao_vazia(
             self.mensagem,
             "ResultadoWorkflow.mensagem",
