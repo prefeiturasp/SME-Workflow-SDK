@@ -219,16 +219,17 @@ class MotorWorkflow:
             >>> resultado["sucesso"]
             True
         """
+        contexto = ContextoExecucao(autor=autor)
         logger.info(
-            "Iniciando processamento da transição. Estado atual: %s | "
-            "Ação: %s | Autor: %s",
+            "Iniciando processamento da transição. Identificador: %s | Estado "
+            "atual: %s | Ação: %s | Autor: %s",
+            contexto.identificador,
             estado,
             acao,
-            autor,
+            contexto.autor,
         )
 
         execucao = self.validar(estado, acao)
-        contexto = ContextoExecucao(autor=autor)
         resultado = ResultadoWorkflow(
             identificador=contexto.identificador,
             estado_anterior=execucao.estado_atual,

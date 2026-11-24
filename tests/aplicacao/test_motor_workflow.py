@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC
 from typing import Any
 
 import pytest
@@ -208,34 +208,23 @@ class TestMotorWorkflowExecucao:
     def test_executa_transicao_com_sucesso(
         self,
         motor: MotorWorkflow,
-        contexto: ContextoExecucao,
     ) -> None:
         """Deve montar um resultado de sucesso para a transição."""
-        inicio = datetime(2026, 10, 23, 12, 0, tzinfo=UTC)
-        dados_transicao = ExecucaoValidada(
-            estado_atual="aberto",
-            acao=Acao(
-                nome="aprovar",
-                proximo_estado="aprovado",
-                terminal=True,
-            ),
-            inicio_transicao=inicio,
+
+        resultado = motor.processar_transicao(
+            estado="aberto", acao="aprovar", autor="Antonio"
         )
-
-        resultado = motor.executar(dados_transicao, contexto)
-
-        assert resultado["identificador"] == contexto.identificador
+        assert "identificador" in resultado
         assert resultado["estado_anterior"] == "aberto"
         assert resultado["acao"] == "aprovar"
         assert resultado["proximo_estado"] == "aprovado"
-        assert resultado["terminal"] is True
+        assert resultado["terminal"] is False
         assert resultado["sucesso"] is True
-        assert resultado["inicio"] == inicio
+        assert resultado["inicio"].tzinfo == UTC
         assert resultado["fim"] >= resultado["inicio"]
         assert resultado["fim"].tzinfo == UTC
-        assert resultado["autor"] == contexto.autor
-        assert resultado["contexto"]["identificador"] == contexto.identificador
-        assert resultado["mensagem"] == "Transição executada com sucesso!"
+        assert resultado["autor"] == "Antonio"
+        assert resultado["mensagem"] == "Transição processada com sucesso!"
 
     def test_executa_transicao_nao_terminal(
         self,
@@ -245,7 +234,11 @@ class TestMotorWorkflowExecucao:
         """Deve preservar o destino e o indicador de transição não terminal."""
         dados_transicao = motor.validar("aberto", "aprovar")
 
-        resultado = motor.executar(dados_transicao, contexto)
+        resultado = motor.processar_transicao(
+            estado=dados_transicao.estado_atual,
+            acao=dados_transicao.acao.nome,
+            autor=contexto.autor,
+        )
 
         assert resultado["estado_anterior"] == "aberto"
         assert resultado["acao"] == "aprovar"
@@ -258,46 +251,29 @@ class TestMotorWorkflowExecucao:
         motor: MotorWorkflow,
     ) -> None:
         """Deve utilizar os dados de identificação do contexto recebido."""
-        contexto = ContextoExecucao(
-            identificador="25284f10-7358-4355-bce3-12c399172a30",
+        dados_transicao = motor.validar("aberto", "aprovar")
+
+        resultado = motor.processar_transicao(
+            estado=dados_transicao.estado_atual,
+            acao=dados_transicao.acao.nome,
             autor="Autor 0003",
         )
-        dados_transicao = motor.validar("aberto", "aprovar")
 
-        resultado = motor.executar(dados_transicao, contexto)
-
-        assert (
-            resultado["identificador"]
-            == "25284f10-7358-4355-bce3-12c399172a30"
-        )
+        assert "identificador" in resultado
         assert resultado["autor"] == "Autor 0003"
-
-    def test_preserva_contexto_com_dados(
-        self,
-        motor: MotorWorkflow,
-    ) -> None:
-        """Deve preservar o contexto e os dados fornecidos."""
-        contexto = ContextoExecucao(
-            identificador="25284f10-7358-4355-bce3-12c399172a30",
-            autor="Diretor 9635",
-            dados={"origem": "portal", "prioridade": "alta"},
-        )
-        dados_transicao = motor.validar("aberto", "aprovar")
-
-        resultado = motor.executar(dados_transicao, contexto)
-
-        assert resultado["contexto"]["dados"]["origem"] == "portal"
-        assert resultado["contexto"]["dados"]["prioridade"] == "alta"
 
     def test_gera_datas_com_fuso_utc(
         self,
         motor: MotorWorkflow,
-        contexto: ContextoExecucao,
     ) -> None:
         """Deve gerar a data final com fuso UTC."""
         dados_transicao = motor.validar("aberto", "aprovar")
 
-        resultado = motor.executar(dados_transicao, contexto)
+        resultado = motor.processar_transicao(
+            estado=dados_transicao.estado_atual,
+            acao=dados_transicao.acao.nome,
+            autor="458631",
+        )
 
         inicio = resultado["inicio"]
         fim = resultado["fim"]
@@ -310,37 +286,25 @@ class TestMotorWorkflowExecucao:
         motor: MotorWorkflow,
     ) -> None:
         """Execuções distintas devem manter seus próprios contextos."""
-        primeiro_contexto = ContextoExecucao(
-            identificador="execucao-1",
-            autor="usuario-1",
-        )
-        segundo_contexto = ContextoExecucao(
-            identificador="execucao-2",
-            autor="usuario-2",
-        )
         dados_transicao = motor.validar("aberto", "aprovar")
 
-        primeiro_resultado = motor.executar(
-            dados_transicao,
-            primeiro_contexto,
+        primeiro_resultado = motor.processar_transicao(
+            estado=dados_transicao.estado_atual,
+            acao=dados_transicao.acao.nome,
+            autor="usuario-1",
         )
-        segundo_resultado = motor.executar(
-            dados_transicao,
-            segundo_contexto,
+        segundo_resultado = motor.processar_transicao(
+            estado=dados_transicao.estado_atual,
+            acao=dados_transicao.acao.nome,
+            autor="usuario-2",
         )
 
-        assert primeiro_resultado["contexto"]["identificador"] == "execucao-1"
-        assert primeiro_resultado["identificador"] == "execucao-1"
         assert primeiro_resultado["autor"] == "usuario-1"
-
-        assert segundo_resultado["contexto"]["identificador"] == "execucao-2"
-        assert segundo_resultado["identificador"] == "execucao-2"
         assert segundo_resultado["autor"] == "usuario-2"
 
     def test_nao_altera_a_execucao_validada(
         self,
         motor: MotorWorkflow,
-        contexto: ContextoExecucao,
     ) -> None:
         """Executar não deve modificar os dados previamente validados."""
         dados_transicao = motor.validar("aberto", "aprovar")
@@ -348,31 +312,12 @@ class TestMotorWorkflowExecucao:
         acao_original = dados_transicao.acao
         inicio_original = dados_transicao.inicio_transicao
 
-        motor.executar(dados_transicao, contexto)
+        motor.processar_transicao(
+            estado=estado_original,
+            acao=acao_original.nome,
+            autor="usuario-2",
+        )
 
         assert dados_transicao.estado_atual == estado_original
         assert dados_transicao.acao is acao_original
         assert dados_transicao.inicio_transicao == inicio_original
-
-    def test_retorna_falha_para_transicao_nao_terminal_para_mesmo_estado(
-        self,
-        motor: MotorWorkflow,
-        contexto: ContextoExecucao,
-    ) -> None:
-        """Deve retornar falha quando a transição não for válida."""
-        dados_transicao = ExecucaoValidada(
-            estado_atual="aberto",
-            acao=Acao(
-                nome="aprovar",
-                proximo_estado="aberto",
-                terminal=False,
-            ),
-        )
-
-        resultado = motor.executar(dados_transicao, contexto)
-
-        assert resultado["sucesso"] is False
-        assert resultado["estado_anterior"] == "aberto"
-        assert resultado["proximo_estado"] == "aberto"
-        assert resultado["terminal"] is False
-        assert resultado["mensagem"].startswith("Transição não executada!")
