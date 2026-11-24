@@ -48,7 +48,11 @@ class MotorWorkflow:
         >>> configuracao = configurador.carregar("workflow.yaml")
         >>> configurador.validar(configuracao)
         >>> motor = MotorWorkflow(configuracao)
-        >>> execucao = motor.validar("pendente", "aprovar")
+        >>> resultado = motor.processar_transicao(
+        ...     estado="pendente",
+        ...     acao="aprovar",
+        ...     autor="usuario_sistema",
+        ... )
     """
 
     def __init__(self, configuracao: dict[str, Any]) -> None:
@@ -181,41 +185,55 @@ class MotorWorkflow:
         acao: str,
         autor: str,
     ) -> dict[str, Any]:
-        """Produz o resultado de uma execução do workflow.
+        """Valida e processa uma transição do workflow.
 
-        Recebe os dados previamente validados e o contexto da execução para
-        montar o resultado da transição, incluindo os estados envolvidos, a
-        ação, os horários, o autor e os dados de contexto.
+        Recebe o estado atual, a ação solicitada e a identificação do autor.
+        Valida a disponibilidade da ação e a consistência da transição e,
+        quando todas as validações são concluídas, produz o resultado
+        estruturado da operação.
 
-        Deve ser chamado após a aplicação consumidora executar com sucesso as
-        regras de negócio associadas à ação.
+        O identificador da execução e o contexto são criados internamente
+        pelo motor. A aplicação consumidora não precisa criar ou fornecer
+        instâncias de :class:`ExecucaoValidada` ou
+        :class:`ContextoExecucao`.
 
         Este método não executa regras de negócio, não altera o estado
         persistido da entidade e não realiza operações de persistência.
-
-        Se ocorrer uma :class:`TransicaoInvalidaError
-        <sme_workflow_sdk.excecoes.workflow.TransicaoInvalidaError>` durante a
-        resolução da transição, o método captura a exceção e retorna um
-        resultado indicando que a execução não foi bem-sucedida.
+        A aplicação consumidora é responsável por utilizar o próximo estado
+        retornado e atualizar sua entidade.
 
         Args:
-            estado (str): ok.
-            acao (str): ok
-            autor (str): ok
+            estado (str): Nome do estado atual do workflow..
+            acao (str): Nome da ação solicitada para o estado informado.
+            autor (str): Identificação textual do autor responsável pela
+                operação.
 
         Returns:
             dict[str, Any]: Dicionário contendo os dados do resultado da
             execução, incluindo identificador, estado anterior, ação,
             próximo estado, terminalidade, indicador de sucesso, mensagem,
-            horários, autor e contexto.
+            horários e  autor.
 
             Os valores de data e hora permanecem como objetos datetime,
             conforme o comportamento de :meth:`ResultadoWorkflow.para_dict()
             <sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.para_dict>`
 
+        Raises:
+            EstadoInvalidoError: Se o estado não estiver configurado.
+            AcaoInvalidaError: Se a ação não estiver disponível para o estado.
+            TransicaoInvalidaError: Se a transição configurada não respeitar
+                as regras de consistência do workflow.
+            ValidacaoDominioError: Se o autor ou os dados internos do
+                resultado não atenderem às regras de validação do domínio.
+
         Examples:
-            >>> execucao = motor.validar("pendente", "aprovar")
-            >>> resultado = motor.executar(execucao, contexto)
+            >>> resultado = motor.processar_transicao(
+            ...     estado="pendente",
+            ...     acao="aprovar",
+            ...     autor="usuario_sistema",
+            ... )
+            >>> resultado["proximo_estado"]
+            'aprovado'
             >>> resultado["sucesso"]
             True
         """
