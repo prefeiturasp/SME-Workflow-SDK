@@ -4,6 +4,7 @@ Este guia apresenta como integrar o SME Workflow SDK a uma aplicação consumido
 
 O SDK é responsável por validar as transições configuradas e gerar o resultado da execução. As regras de negócio específicas, a atualização do estado da entidade e a persistência dos dados continuam sob responsabilidade da aplicação consumidora.
 
+
 ## 1. Inicialização do SDK
 
 A inicialização deve ocorrer durante a inicialização da aplicação, antes de qualquer operação que utilize o workflow.
@@ -16,109 +17,98 @@ from sme_workflow_sdk import configure
 configure("workflow.yaml")
 ```
 
-A inicialização é idempotente para o mesmo caminho de configuração. Caso o runtime já esteja inicializado com outro arquivo, será lançada uma exceção.
+Durante `configure()`, o SDK:
 
-## 2. Obtendo o motor de workflow
+1. Carrega o arquivo YAML.
+2. Valida a estrutura e a consistência da configuração.
+3. Instancia e disponibiliza o motor.
 
-Após a inicialização, utilize `get_workflow()` para obter a instância configurada do motor.
+
+
+A chamada de `configure()` com o mesmo caminho já utilizado é idempotente. Se o runtime estiver ativo com outro caminho, será lançada `RuntimeError`.
+
+
+## 2. Declarando métodos com `@workflow`
+
+Importe o decorator:
 
 ```python
-from sme_workflow_sdk import get_workflow
-
-workflow = get_workflow()
+from sme_workflow_sdk.integracao import workflow
 ```
 
-Caso o runtime ainda não tenha sido inicializado, a chamada lançará uma exceção `RuntimeError`.
-
-## 3. Validando uma ação
-
-Antes de executar as regras de negócio associadas à operação, a aplicação deve validar se a ação solicitada está disponível para o estado atual da entidade.
-
-Para isso, utilize o método `validar()`.
+Associe o método ao estado e à ação correspondentes no YAML:
 
 ```python
-execucao = workflow.validar(
-    estado_atual="aguardando_analise",
+class SolicitacaoService:
+    @workflow(estado="aguardando_analise", acao="aprovar")
+    def aprovar(self, *, solicitacao, usuario):
+        # Regras de negócio da aplicação consumidora.
+        self.validar_aprovacao(solicitacao, usuario)
+
+        resultado = processar_transicao(
+            estado=solicitacao.status,
+            acao="aprovar",
+            autor=str(usuario.id),
+        )
+
+        if resultado["sucesso"]:
+            solicitacao.status = resultado["proximo_estado"]
+            solicitacao.save()
+
+        return resultado
+```
+
+O decorator recebe somente `estado` e `acao` na declaração. Na chamada do método, o argumento nomeado `estado` é obrigatório.
+
+O decorator compara o estado recebido com o estado declarado. Se forem diferentes, lança `EstadoWorkflowIncompativelError`. O argumento `estado` é consumido pelo wrapper e não é repassado ao método original; os demais argumentos são preservados.
+
+O decorator não chama o motor nem processa a transição automaticamente. A implementação do método deve chamar `processar_transicao()` explicitamente, depois de executar as regras de negócio necessárias.
+
+## 3. Registro das declarações
+
+Quando um módulo contendo um método decorado é importado, a associação entre estado, ação e método é registrada no registro centralizado do SDK.
+
+O registro:
+
+- Permite a mesma ação em estados diferentes.
+- Impede métodos diferentes para a mesma combinação de estado e ação.
+- Trata o registro repetido da mesma função para a mesma combinação como idempotente.
+- Armazena a função original, sem instanciar serviços da aplicação consumidora.
+
+O registro do decorator acontece quando o Python importa o módulo que contém o método decorado. Entretanto, a inicialização do SDK não depende desse registro: não é necessário importar previamente os serviços para executar `configure()`. A aplicação importa e utiliza seus serviços normalmente, conforme sua própria organização.
+
+
+## 4. Processando uma transição
+
+A aplicação utiliza `processar_transicao()` para solicitar explicitamente o processamento:
+
+```python
+from sme_workflow_sdk import processar_transicao
+
+resultado = processar_transicao(
+    estado="aguardando_analise",
     acao="aprovar",
+    autor=str(usuario.id),
 )
 ```
 
-O método verifica:
+A função encaminha os parâmetros para o motor configurado. O motor valida se o estado existe, se a ação está disponível e se a transição respeita as regras de consistência do workflow.
 
-- Se o estado informado está definido no workflow.
-- Se a ação está disponível para o estado atual.
-- Se a transição configurada respeita as regras de consistência do workflow.
+O retorno é um dicionário com informações da operação, incluindo:
 
-Em caso de sucesso, retorna uma instância de `ExecucaoValidada`, contendo o estado atual, a ação validada e o horário de início da transição.
+- `identificador`: identificador da execução;
+- `estado_anterior`: estado atual informado;
+- `acao`: ação processada;
+- `proximo_estado`: estado de destino;
+- `terminal`: indicador de transição terminal;
+- `sucesso`: indicador de sucesso;
+- `autor`: identificação do responsável;
+- `inicio` e `fim`: horários do processamento.
 
-Se houver inconsistências, poderão ser lançadas exceções específicas, como `EstadoInvalidoError`, `AcaoInvalidaError` e `TransicaoInvalidaError`.
+Os valores de `inicio` e `fim` são objetos `datetime`. A aplicação deve convertê-los quando precisar serializar o resultado.
 
-## 4. Executando as regras de negócio
 
-Após a validação da ação, a aplicação consumidora deve executar suas próprias regras de negócio.
-
-Por exemplo, ao aprovar uma solicitação, a aplicação pode precisar verificar informações adicionais, registrar a aprovação e atualizar outros dados relacionados.
-
-Essas operações não são executadas pelo SDK.
-
-```python
-def aprovar_solicitacao(solicitacao):
-    # Regras de negócio da aplicação.
-    # Exemplo: verificar condições para aprovação.
-    # Registrar informações da aprovação.
-    pass
-```
-
-A aplicação deve garantir que as regras de negócio sejam executadas com sucesso antes de chamar `workflow.executar()`.
-
-## 5. Criando o contexto da execução
-
-O `ContextoExecucao` reúne informações complementares da operação, como o autor responsável e dados adicionais fornecidos pela aplicação.
-
-```python
-from sme_workflow_sdk import ContextoExecucao
-
-contexto = ContextoExecucao(
-    autor="usuario_sistema",
-    dados={
-        "origem": "portal",
-        "entidade": "solicitacao",
-        "id_solicitacao": 123,
-    },
-)
-```
-
-O atributo `identificador` é gerado automaticamente quando não informado. A aplicação também pode fornecer seu próprio identificador.
-
-O atributo `dados` recebe um mapeamento com informações adicionais e é protegido contra alterações diretas no mapeamento armazenado.
-
-## 6. Gerando o resultado da transição
-
-Depois que as regras de negócio forem executadas com sucesso, utilize `motor.executar()` para produzir o resultado da transição.
-
-```python
-resultado = workflow.executar(
-    dados_transicao=execucao,
-    contexto=contexto,
-)
-```
-
-O método retorna um dicionário com informações da execução, incluindo:
-
-- Identificador da execução.
-- Estado anterior.
-- Ação executada.
-- Próximo estado.
-- Indicador de terminalidade.
-- Indicador de sucesso.
-- Mensagem do resultado.
-- Data e hora de início e término.
-- Autor responsável.
-- Contexto associado.
-
-Os valores de data e hora permanecem como objetos `datetime`, não sendo convertidos automaticamente para strings.
-
-## 7. Atualizando o estado da entidade
+## 5. Atualizando o estado da entidade
 
 O SDK não altera o estado persistido da entidade e não realiza operações de banco de dados.
 
@@ -132,56 +122,48 @@ if resultado["sucesso"]:
 
 A aplicação também é responsável por decidir como tratar falhas de negócio e garantir a consistência das operações de persistência.
 
-## 8. Exemplo completo de integração
+## 6. Exemplo completo de integração
 
-O exemplo abaixo reúne as etapas de validação, execução das regras de negócio, criação do contexto e geração do resultado.
+O exemplo demonstra a declaração, a inicialização e a chamada de um método decorado:
 
 ```python
-from sme_workflow_sdk import (
-    ContextoExecucao,
-    get_workflow,
+from sme_workflow_sdk import configure, processar_transicao
+from sme_workflow_sdk.integracao import workflow
+
+
+class SolicitacaoService:
+    @workflow(estado="pendente", acao="aprovar")
+    def aprovar(self, *, solicitacao, usuario):
+        # Regras de negócio específicas da aplicação.
+        self.validar_aprovacao(solicitacao, usuario)
+
+        resultado = processar_transicao(
+            estado=solicitacao.status,
+            acao="aprovar",
+            autor=str(usuario.id),
+        )
+
+        if resultado["sucesso"]:
+            solicitacao.status = resultado["proximo_estado"]
+            solicitacao.save()
+
+        return resultado
+
+
+# Inicialização independente dos módulos que declaram decorators.
+configure("workflow.yaml")
+
+servico = SolicitacaoService()
+resultado = servico.aprovar(
+    estado=solicitacao.status,
+    solicitacao=solicitacao,
+    usuario=usuario,
 )
-
-
-def aprovar_solicitacao(solicitacao, usuario):
-    workflow = get_workflow()
-
-    # 1. Validar a ação no estado atual.
-    execucao = workflow.validar(
-        estado_atual=solicitacao.situacao,
-        acao="aprovar",
-    )
-
-    # 2. Executar as regras de negócio da aplicação.
-    # A operação deve ser concluída com sucesso antes
-    # da geração do resultado do workflow.
-    registrar_aprovacao(solicitacao, usuario)
-
-    # 3. Criar o contexto da execução.
-    contexto = ContextoExecucao(
-        autor=str(usuario.id),
-        dados={
-            "id_solicitacao": solicitacao.id,
-        },
-    )
-
-    # 4. Gerar o resultado da transição.
-    resultado = workflow.executar(
-        dados_transicao=execucao,
-        contexto=contexto,
-    )
-
-    # 5. Atualizar o estado da entidade na aplicação.
-    if resultado["sucesso"]:
-        solicitacao.situacao = resultado["proximo_estado"]
-        solicitacao.save()
-
-    return resultado
 ```
 
-No exemplo, `registrar_aprovacao()` representa uma operação de negócio pertencente à aplicação consumidora. Ela não faz parte do SDK.
+`validar_aprovacao()` representa uma regra de negócio da aplicação e não faz parte do SDK.
 
-## 9. Encerrando o runtime
+## 7. Encerrando o runtime
 
 Quando necessário, utilize `shutdown()` para encerrar o runtime e remover a referência global ao motor.
 
@@ -191,24 +173,23 @@ from sme_workflow_sdk import shutdown
 shutdown()
 ```
 
-Após o encerramento, chamadas a `get_workflow()` lançarão `RuntimeError` até que o runtime seja inicializado novamente.
+Após o encerramento, chamadas a `processar_transicao()` falharão porque o runtime não estará inicializado. Uma nova chamada a `configure()` poderá inicializá-lo novamente.
 
-Referências ao motor que tenham sido armazenadas externamente não são invalidadas automaticamente.
-
-## 10. Responsabilidades da integração
+## 8. Responsabilidades da integração
 
 A integração deve respeitar a separação de responsabilidades entre o SDK e a aplicação consumidora.
 
 | Responsabilidade | Responsável |
 |---|---|
-| Carregar e validar a configuração YAML | SDK |
-| Verificar se a ação é permitida no estado atual | SDK |
-| Validar a consistência da transição | SDK |
-| Executar regras de negócio específicas | Aplicação consumidora |
-| Criar o contexto da execução | Aplicação consumidora |
-| Produzir o resultado da transição | SDK |
-| Atualizar o estado da entidade | Aplicação consumidora |
-| Persistir as alterações | Aplicação consumidora |
+| Declarar associações entre métodos, estados e ações | Aplicação, por meio de `@workflow` |
+| Registrar as declarações | SDK |
+| Verificar estado informado na chamada do método decorado | SDK |
+| Verificar compatibilidade do estado na chamada do método | Decorator do SDK |
+| Executar regras de negócio | Aplicação consumidora |
+| Solicitar o processamento da transição | Aplicação consumidora |
+| Validar a ação e resolver a transição | SDK |
+| Atualizar e persistir a entidade | Aplicação consumidora |
+| Registrar histórico, auditoria e notificações | Aplicação consumidora |
 
 Para conhecer os detalhes das classes e métodos utilizados neste guia, consulte a [Referência da API](api/index.rst).
 
