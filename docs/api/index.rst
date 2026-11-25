@@ -15,5 +15,6 @@ assinaturas presentes no código-fonte.
    runtime
    configuracao
    aplicacao
+   integracao
    dominio
    excecoes

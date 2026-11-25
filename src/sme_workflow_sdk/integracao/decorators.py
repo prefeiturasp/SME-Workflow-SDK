@@ -49,23 +49,24 @@ def workflow[Retorno](
         uma função que valida a transição antes de executar o método original.
 
     Example:
-        ```python
-        class SolicitacaoService:
-            @workflow(estado="pendente", acao="aprovar")
-            def aprovar(self, solicitacao, usuario):
-                # Regras de negócio da aplicação consumidora.
-                return solicitacao
-        ```
+        .. code-block:: python
+
+            class SolicitacaoService:
+                @workflow(estado="pendente", acao="aprovar")
+                def aprovar(self, solicitacao, usuario):
+                    # Regras de negócio da aplicação consumidora.
+                    return solicitacao
 
         A chamada do método exige o estado atual:
 
-        ```python
-        resultado = servico.aprovar(
-            estado=solicitacao.status,
-            solicitacao=solicitacao,
-            usuario=usuario,
-        )
-        ```
+       .. code-block:: python
+
+            resultado = servico.aprovar(
+                estado=solicitacao.status,
+                solicitacao=solicitacao,
+                usuario=usuario,
+            )
+
     """
     if not isinstance(estado, str) or not estado.strip():
         raise DeclaracaoWorkflowInvalidaError(
