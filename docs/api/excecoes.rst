@@ -28,3 +28,12 @@ Exceções de workflow
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+Exceções de integração
+----------------------
+
+.. automodule:: sme_workflow_sdk.excecoes.integracao
+   :members:
+   :undoc-members:
+   :show-inheritance:
