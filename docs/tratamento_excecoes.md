@@ -1,6 +1,6 @@
 # Tratamento de exceções
 
-O SME Workflow SDK utiliza exceções específicas para indicar problemas relacionados à configuração do workflow e à execução de suas operações.
+O SME Workflow SDK utiliza exceções específicas para indicar problemas na configuração, nas declarações dos decorators, na inicialização do runtime e no processamento das transições.
 
 O tratamento adequado dessas exceções permite que a aplicação consumidora identifique a causa da falha e apresente uma resposta apropriada, sem expor detalhes internos do SDK.
 
@@ -41,39 +41,61 @@ Entre as exceções utilizadas nesse contexto estão:
 
 Consulte o módulo `sme_workflow_sdk.excecoes.workflow` para conhecer a implementação dessas exceções.
 
-## 2. Tratando exceções na validação
 
-A aplicação consumidora deve tratar as exceções que podem ser lançadas durante a validação da ação.
+## Exceções de integração
+
+O pacote de integração disponibiliza exceções relacionadas às declarações realizadas pelos decorators.
+
+| Exceção | Situação |
+|---|---|
+| `DeclaracaoWorkflowInvalidaError` | O estado ou a ação declarados são inválidos, ou o decorator foi aplicado a um objeto não chamável. |
+| `AcaoDuplicadaError` | Outro método já está registrado para a mesma combinação de estado e ação. |
+| `EstadoWorkflowIncompativelError` | O estado recebido na chamada do método decorado é diferente do estado declarado. |
+
+Essas exceções podem ocorrer durante a execução de `processar_transicao()`, quando o estado ou a ação solicitados não forem compatíveis com a configuração YAML. A inicialização não compara as declarações dos decorators com o YAML.
+
+
+## 2. Falhas no processamento
+
+A aplicação solicita o processamento por meio de `processar_transicao()`:
 
 ```python
-from sme_workflow_sdk import get_workflow
+from sme_workflow_sdk import processar_transicao
+
+resultado = processar_transicao(
+    estado="aguardando_analise",
+    acao="aprovar",
+    autor="usuario_sistema",
+)
+```
+
+A chamada pode lançar exceções quando o runtime não estiver inicializado, o estado não existir, a ação não estiver disponível ou a transição for inválida.
+
+Exemplo de tratamento:
+
+```python
+from sme_workflow_sdk import processar_transicao
 from sme_workflow_sdk.excecoes.workflow import (
     AcaoInvalidaError,
     EstadoInvalidoError,
     TransicaoInvalidaError,
 )
 
-
-def validar_acao(estado_atual, acao):
-    motor = get_workflow()
-
-    try:
-        return motor.validar(
-            estado_atual=estado_atual,
-            acao=acao,
-        )
-
-    except EstadoInvalidoError:
-        # Tratar estado não reconhecido.
-        raise
-
-    except AcaoInvalidaError:
-        # Tratar ação não disponível para o estado.
-        raise
-
-    except TransicaoInvalidaError:
-        # Tratar inconsistência na transição.
-        raise
+try:
+    resultado = processar_transicao(
+        estado="aguardando_analise",
+        acao="aprovar",
+        autor="usuario_sistema",
+    )
+except EstadoInvalidoError:
+    # Tratar estado não reconhecido.
+    raise
+except AcaoInvalidaError:
+    # Tratar ação não permitida.
+    raise
+except TransicaoInvalidaError:
+    # Tratar transição inconsistente.
+    raise
 ```
 
 Os tratamentos apresentados são ilustrativos. A aplicação deve definir como cada situação será convertida em uma resposta adequada ao seu contexto.
@@ -102,35 +124,18 @@ O exemplo utiliza `Exception` apenas para ilustrar o tratamento geral de uma fal
 
 ## 4. Runtime não inicializado
 
-As funções `get_workflow()` e operações que dependem do runtime exigem que o SDK tenha sido inicializado previamente.
+`processar_transicao()` depende do runtime configurado. Se a aplicação tentar processar uma transição antes de chamar `configure()`, será lançada `RuntimeError`.
 
-Caso a aplicação tente recuperar o motor antes da inicialização, será lançada uma exceção `RuntimeError`.
-
-```python
-from sme_workflow_sdk import get_workflow
-
-
-try:
-    motor = get_workflow()
-
-except RuntimeError:
-    # O runtime ainda não foi inicializado.
-    raise
-```
-
-Garanta que `configure()` seja executado antes de disponibilizar operações que dependam do workflow.
+Garanta que o SDK seja inicializado antes de disponibilizar operações que dependam do workflow.
 
 ## 5. Boas práticas
 
-Ao integrar o tratamento de exceções do SDK à aplicação, considere as seguintes recomendações:
-
-- Inicialize o SDK antes de executar operações de workflow.
-- Trate as exceções específicas sempre que precisar diferenciar os motivos da falha.
-- Evite capturar exceções genéricas sem registrar ou tratar adequadamente o erro.
-- Não exponha mensagens técnicas internas diretamente ao usuário final.
-- Registre informações suficientes para permitir a investigação de falhas.
-- Não atualize o estado persistido da entidade quando a validação ou as regras de negócio falharem.
-- Mantenha as regras de tratamento e apresentação de erros sob responsabilidade da aplicação consumidora.
+- Garanta que os módulos que contêm serviços decorados sejam importados normalmente pela aplicação antes de utilizar esses serviços.
+- Inicialize o SDK antes de processar transições.
+- Trate exceções específicas quando precisar diferenciar as causas da falha.
+- Registre informações suficientes para investigar erros.
+- Não atualize o estado persistido quando o processamento ou as regras de negócio falharem.
+- Mantenha o tratamento e a apresentação de erros sob responsabilidade da aplicação consumidora.
 
 ## 6. Referência da API
 
