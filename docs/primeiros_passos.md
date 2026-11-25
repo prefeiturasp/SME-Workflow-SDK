@@ -1,6 +1,6 @@
 # Primeiros passos
 
-Este guia apresenta o processo inicial para instalar o SME Workflow SDK, configurar um workflow e realizar a primeira integração em uma aplicação Python.
+Este guia apresenta a instalação do SME Workflow SDK, a configuração de um workflow e a primeira integração utilizando decorators.
 
 ## Instalação
 
@@ -106,87 +106,85 @@ O campo `terminal` deve receber um valor booleano (`true` ou `false`).
 
 Um estado terminal deve possuir `acoes: null`, indicando que não existem novas ações disponíveis.
 
+
+## Declarar uma ação com decorator
+
+O decorator `@workflow` associa um método da aplicação consumidora a um estado e uma ação definidos no YAML.
+
+```python
+from sme_workflow_sdk import processar_transicao
+from sme_workflow_sdk.integracao import workflow
+
+
+class SolicitacaoService:
+    @workflow(estado="aguardando_analise", acao="aprovar")
+    def aprovar(self, *, solicitacao, usuario):
+        # Executar as regras de negócio da aplicação.
+        # ...
+
+        return processar_transicao(
+            estado=solicitacao.status,
+            acao="aprovar",
+            autor=str(usuario.id),
+        )
+```
+
+O decorator registra a associação quando o módulo é importado. Na chamada do método, o argumento nomeado `estado` é obrigatório e deve corresponder ao estado declarado. Esse argumento é consumido pelo decorator e não é repassado ao método original.
+
+O decorator não executa automaticamente a transição. A aplicação chama `processar_transicao()` explicitamente dentro do método, no momento adequado às suas regras de negócio.
+
+
 ## Inicializar o SDK
 
-O SDK disponibiliza um runtime para gerenciar a inicialização e o acesso à instância compartilhada do motor de workflow.
+A aplicação consumidora precisa apenas informar o caminho do arquivo YAML:
 
 ```python
-from sme_workflow_sdk import configure, get_workflow
+from sme_workflow_sdk import configure
 
 configure("workflow.yaml")
-
-workflow = get_workflow()
 ```
 
-A função `configure()` carrega e valida a configuração YAML antes de inicializar o workflow.
+Durante a inicialização, o SDK carrega e valida a configuração YAML e disponibiliza o motor. Não verifica nesse momento se os estados e as ações declarados nos decorators estão presentes no YAML. Também não exige importações manuais dos serviços que utilizam `@workflow`.
 
-A inicialização não gera efeitos adicionais quando realizada novamente com o mesmo caminho de configuração. Caso o runtime já esteja inicializado com outro caminho, uma exceção será lançada.
+## Executar uma ação
 
-## Validar uma ação
-
-Com o workflow inicializado, a aplicação pode verificar se uma ação está disponível para o estado atual.
-
-Por exemplo, para enviar uma solicitação que está em rascunho para análise:
+Após inicializar o SDK, utilize o serviço da aplicação:
 
 ```python
-execucao = workflow.validar(
-    estado_atual="rascunho",
-    acao="enviar_para_analise",
+servico = SolicitacaoService()
+
+resultado = servico.aprovar(
+    estado=solicitacao.status,
+    solicitacao=solicitacao,
+    usuario=usuario,
 )
 ```
 
-O método `validar()` verifica:
+O método executa as regras de negócio da aplicação e chama `processar_transicao()`, que valida a ação e retorna o resultado.
 
-- Se o estado informado existe na configuração.
-- Se a ação está disponível para o estado atual.
-- Se a transição configurada respeita as regras de consistência do workflow.
-
-Se a validação for bem-sucedida, o método retorna uma instância de `ExecucaoValidada`, que contém os dados necessários para produzir o resultado da transição.
-
-## Produzir o resultado da execução
-
-Após validar a ação, a aplicação consumidora deve executar sua própria regra de negócio.
-
-Quando a regra de negócio for concluída com sucesso, o resultado da transição pode ser produzido pelo SDK:
+A função recebe o estado atual, a ação e o autor:
 
 ```python
-from sme_workflow_sdk import ContextoExecucao
-
-contexto = ContextoExecucao(
+resultado = processar_transicao(
+    estado="aguardando_analise",
+    acao="aprovar",
     autor="usuario_sistema",
-    dados={
-        "origem": "aplicacao_consumidora",
-    },
 )
+```
 
-resultado = workflow.executar(execucao, contexto)
+O retorno é um dicionário. A aplicação pode utilizar `proximo_estado` para atualizar sua entidade:
 
+```python
 if resultado["sucesso"]:
-    novo_estado = resultado["proximo_estado"]
+    solicitacao.status = resultado["proximo_estado"]
+    solicitacao.save()
 ```
-
-O método `executar()` recebe os dados da transição previamente validados e o contexto da execução.
-
-O resultado é um dicionário Python com informações como:
-
-- Estado anterior.
-- Ação executada.
-- Próximo estado.
-- Indicador de terminalidade.
-- Indicador de sucesso.
-- Identificador da execução.
-- Autor e contexto.
-- Horários de início e término.
-
 ```{important}
-O SDK não executa regras de negócio específicas da aplicação, não altera o estado persistido da entidade e não realiza operações de persistência.
+A persistência e o histórico permanecem sob responsabilidade da aplicação consumidora.
 ```
-
-A aplicação consumidora é responsável por persistir o novo estado e o histórico do processo após a conclusão bem-sucedida da operação.
-
 ## Encerrar o runtime
 
-Quando necessário, a aplicação pode encerrar o runtime:
+Quando necessário:
 
 ```python
 from sme_workflow_sdk import shutdown
@@ -194,11 +192,9 @@ from sme_workflow_sdk import shutdown
 shutdown()
 ```
 
-Após o encerramento, uma nova chamada a `get_workflow()` lançará `RuntimeError` até que o runtime seja inicializado novamente.
-
 ## Próximos passos
 
-- [Configuração de workflows](configurando_workflow)
-- [Integração com a aplicação](integrando_aplicacao)
-- [Tratamento de exceções](tratamento_excecoes)
-- [Referência da API](api/index)
+- [Configurando o workflow](configurando_workflow.md)
+- [Integrando com a aplicação](integrando_aplicacao.md)
+- [Tratamento de exceções](tratamento_excecoes.md)
+- [Referência da API](api/index.rst)
