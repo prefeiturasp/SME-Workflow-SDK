@@ -42,7 +42,7 @@ Entre as exceções utilizadas nesse contexto estão:
 Consulte o módulo `sme_workflow_sdk.excecoes.workflow` para conhecer a implementação dessas exceções.
 
 
-## Exceções de integração
+### Exceções de integração
 
 O pacote de integração disponibiliza exceções relacionadas às declarações realizadas pelos decorators.
 
