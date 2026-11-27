@@ -5,41 +5,40 @@
 
 ## Objetivo e escopo
 
-O **SME-Workflow-SDK** é uma biblioteca Python para gerenciamento de workflows configuráveis, responsável por validar ações e controlar transições entre estados de um processo.
+O **SME-Workflow-SDK** é uma biblioteca Python para gerenciamento de workflows configuráveis. Utiliza arquivos YAML para declarar estados, ações e transições e oferece recursos para associar métodos da aplicação consumidora às ações do fluxo.
 
-A biblioteca utiliza arquivos YAML para declarar os estados, as ações disponíveis e as transições permitidas, reduzindo o acoplamento entre as regras do fluxo e o código das aplicações consumidoras.
-
-O SDK é independente do domínio de negócio e pode ser utilizado em aplicações Python, incluindo sistemas desenvolvidos com Django.
+O SDK é independente do domínio de negócio e de frameworks específicos, podendo ser utilizado em aplicações Python, incluindo sistemas desenvolvidos com Django.
 
 ### Responsabilidades do SDK
 
 - Carregar e validar configurações de workflow em YAML.
-- Verificar se uma ação está disponível no estado atual.
-- Validar a transição configurada e seu estado de destino.
-- Identificar transições terminais.
-- Produzir um resultado estruturado da execução, incluindo estados, ação, horários, contexto e status.
+- Registrar as associações declaradas com `@workflow`.
+- Verificar a compatibilidade entre o estado recebido na chamada de um método decorado e o estado declarado.
+- Validar a ação solicitada e resolver a transição.
+- Retornar o resultado estruturado do processamento.
 
 ### Responsabilidades da aplicação consumidora
 
-- Executar as regras de negócio relacionadas à ação solicitada.
-- Controlar a persistência do estado atual e do histórico do processo.
-- Gerenciar permissões de usuários e regras específicas do domínio.
-- Realizar auditoria, notificações e demais efeitos externos, quando aplicáveis.
+- Implementar e executar as regras de negócio dos métodos decorados.
+- Chamar `processar_transicao()` no momento adequado do fluxo da aplicação.
+- Persistir o novo estado e o histórico do processo.
+- Gerenciar permissões, auditoria, notificações e demais efeitos externos.
 
-O SDK não executa regras de negócio específicas da aplicação nem persiste alterações no processo.
+O decorator não executa automaticamente a transição no motor. Ele registra a associação e verifica a compatibilidade do estado informado na chamada. O processamento da transição é solicitado explicitamente pela aplicação por meio de `processar_transicao()`.
 
 ## Funcionalidades
 
 - Configuração declarativa de workflows por YAML.
 - Validação estrutural e semântica da configuração.
-- Validação de estados e ações disponíveis.
-- Resolução e validação de transições.
-- Tratamento de exceções específicas para configuração e execução.
-- Contexto de execução com identificador, autor e dados adicionais.
-- Resultado estruturado com informações da transição e horários.
-- Separação entre gerenciamento do workflow e regras de negócio.
+- Declaração de ações por meio do decorator `@workflow`.
+- Registro centralizado das combinações de estado e ação.
+- Validação do estado informado na chamada de métodos decorados.
+- Prevenção de registros duplicados para a mesma combinação.
+- Processamento de transições por uma interface pública.
+- Resultado estruturado com informações da transição.
+- Separação entre controle do workflow e regras de negócio.
 
-## Instalação e configuração
+## Instalação
 
 ### Pré-requisitos
 
@@ -47,21 +46,21 @@ O SDK não executa regras de negócio específicas da aplicação nem persiste a
 - Git, para instalação diretamente do repositório.
 - Acesso ao repositório do projeto.
 
-### Instalação
-
-Instale o SDK diretamente do GitHub:
+Atualmente, a instalação do SDK deve ser realizada informando explicitamente a branch `homolog`, que é a branch padrão disponibilizada para instalação.
 
 ```bash
-pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git
+pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git@homolog
 ```
 
-Para instalar uma branch específica, utilize:
+Para instalar uma branch específica:
 
 ```bash
 pip install git+https://github.com/prefeiturasp/SME-Workflow-SDK.git@NOME_DA_BRANCH
 ```
 
 Substitua `NOME_DA_BRANCH` pelo nome da branch desejada.
+
+> Futuramente, a instalação poderá ser realizada sem informar a branch, utilizando diretamente o repositório.
 
 ## Configuração do workflow
 
@@ -91,8 +90,6 @@ estados:
     acoes: null
 ```
 
-### Estrutura da configuração
-
 | Campo | Descrição |
 |---|---|
 | `estados` | Define os estados disponíveis no workflow. |
@@ -100,92 +97,140 @@ estados:
 | `proximo_estado` | Informa o estado de destino da ação. |
 | `terminal` | Indica se a transição encerra o fluxo. |
 
-O campo `terminal` deve receber um valor booleano (`true` ou `false`).
-
-Um estado com `acoes: null` representa um estado sem ações disponíveis e pode ser utilizado como destino de uma transição terminal.
-
-As transições devem respeitar as regras de consistência: o destino precisa existir, transições terminais devem apontar para estados sem ações e transições não terminais devem apontar para estados com ações configuradas.
+O campo `terminal` deve receber um valor booleano (`true` ou `false`). Estados sem ações disponíveis devem ser declarados com `acoes: null`.
 
 ## Integração com a aplicação
 
-A aplicação consumidora utiliza o motor de workflow para validar ações e obter os resultados das transições.
+### 1. Inicialize o SDK
 
-### Inicialização
-
-Inicialize o SDK informando o caminho do arquivo YAML:
+A aplicação consumidora precisa apenas informar o caminho do arquivo YAML. Não é necessário importar previamente os serviços que utilizam `@workflow`, nem informar diretórios ou pacotes para descoberta de módulos.
 
 ```python
-from sme_workflow_sdk import configure, get_workflow
+from sme_workflow_sdk import configure
 
 configure("workflow.yaml")
-
-workflow = get_workflow()
 ```
 
-### Validação e execução de uma ação
+Durante a inicialização, o SDK carrega e valida a estrutura e a consistência da configuração YAML e, em seguida, disponibiliza o motor. A inicialização não verifica se as declarações dos decorators correspondem ao YAML.
 
-Antes de executar uma ação, a aplicação deve validar se ela está disponível para o estado atual.
+### 2. Declare os métodos associados às ações
+
+Utilize `@workflow` para associar um método a uma combinação de estado e ação:
 
 ```python
-from sme_workflow_sdk import ContextoExecucao
+from sme_workflow_sdk import processar_transicao
+from sme_workflow_sdk.integracao import workflow
 
-# Validar a ação solicitada.
-execucao = workflow.validar(
-    estado_atual="pendente",
-    acao="aprovar",
-)
 
-# A aplicação consumidora executa aqui suas regras de negócio.
-# Exemplo: verificar as condições necessárias para aprovação.
+class SolicitacaoService:
+    @workflow(estado="pendente", acao="aprovar")
+    def aprovar(self, *, solicitacao, usuario):
+        # Regras de negócio da aplicação consumidora.
+        # ...
 
-# Criar o contexto da execução.
-contexto = ContextoExecucao(
-    autor="usuario_sistema",
-    dados={
-        "origem": "aplicacao_consumidora",
-    },
-)
-
-# Gerar o resultado da transição.
-resultado = workflow.executar(execucao, contexto)
-
-if resultado["sucesso"]:
-    novo_estado = resultado["proximo_estado"]
-
-    # A aplicação consumidora é responsável por persistir
-    # o novo estado e o histórico do processo.
+        return processar_transicao(
+            estado=solicitacao.status,
+            acao="aprovar",
+            autor=str(usuario.id),
+        )
 ```
 
-**Importante:** o SDK não executa regras de negócio específicas nem realiza operações de persistência. A aplicação consumidora deve atualizar o estado somente após a conclusão bem-sucedida das regras de negócio, respeitando suas próprias regras transacionais.
+O decorator exige que a chamada do método receba o argumento nomeado `estado`. Esse argumento é utilizado para verificar se o estado atual corresponde ao declarado e não é repassado ao método original.
 
-## Resultado da execução
+Os demais argumentos são destinados à implementação do método e podem representar a entidade, o usuário ou outras informações necessárias às regras de negócio.
 
-O método `MotorWorkflow.executar()` retorna um dicionário com informações sobre a transição realizada.
+### 3. Chame o método e processe a transição
 
-Entre os principais campos estão:
+```python
+servico = SolicitacaoService()
+
+resultado = servico.aprovar(
+    estado=solicitacao.status,
+    solicitacao=solicitacao,
+    usuario=usuario,
+)
+```
+
+O método decorado executa as regras de negócio da aplicação e solicita explicitamente o processamento da transição por meio de `processar_transicao()`.
+
+A função recebe:
+
+- `estado`: estado atual do processo;
+- `acao`: ação configurada para o estado;
+- `autor`: identificação textual do responsável.
+
+A função retorna um dicionário com o resultado da transição. Por exemplo:
+
+```python
+if resultado["sucesso"]:
+    solicitacao.status = resultado["proximo_estado"]
+    solicitacao.save()
+```
+
+A persistência continua sendo responsabilidade da aplicação consumidora.
+
+## Comportamento do decorator e do registro
+
+- Uma mesma ação pode ser declarada em estados diferentes.
+- A mesma combinação de estado e ação não pode ser registrada por métodos diferentes.
+- O registro da mesma função para a mesma combinação é idempotente.
+- O estado recebido na chamada do método decorado deve ser igual ao estado declarado.
+- A declaração do decorator é registrada quando o módulo que a contém é importado pelo fluxo normal da aplicação.
+- O decorator verifica, na chamada do método, se o estado recebido corresponde ao estado declarado.
+- A consistência da transição com o YAML é verificada quando `processar_transicao()` é executado.
+
+## Resultado do processamento
+
+`processar_transicao()` retorna um dicionário com informações da transição, incluindo:
 
 | Campo | Descrição |
 |---|---|
-| `sucesso` | Indica se a execução foi bem-sucedida. |
+| `sucesso` | Indica se o processamento foi concluído. |
 | `estado_anterior` | Estado em que a ação foi solicitada. |
-| `acao` | Ação executada. |
+| `acao` | Ação processada. |
 | `proximo_estado` | Estado de destino da transição. |
 | `terminal` | Indica se a transição é terminal. |
-| `identificador` | Identificador da execução. |
+| `identificador` | Identificador gerado para a execução. |
+| `autor` | Identificação do responsável. |
+| `inicio` / `fim` | Datas e horários do processamento. |
 
-A aplicação consumidora pode utilizar essas informações para atualizar o estado da entidade e registrar o histórico do processo.
+Os campos de data e hora são objetos `datetime`; a aplicação deve convertê-los caso precise serializar o resultado em JSON.
 
-Os campos `inicio` e `fim` são retornados como objetos `datetime`. Caso o resultado precise ser serializado em JSON, a aplicação deve realizar a conversão desses valores.
+## Ciclo de vida do runtime
+
+Inicialize o SDK uma vez durante a inicialização da aplicação:
+
+```python
+from sme_workflow_sdk import configure
+
+configure("workflow.yaml")
+```
+
+Quando necessário, encerre o runtime:
+
+```python
+from sme_workflow_sdk import shutdown
+
+shutdown()
+```
+
+A inicialização é idempotente para o mesmo caminho de configuração. Uma tentativa de inicializar o runtime com outro caminho enquanto ele já estiver ativo gera `RuntimeError`.
 
 ## Tratamento de exceções
 
-O SDK disponibiliza exceções específicas para identificar falhas na leitura e validação da configuração e nas operações do workflow.
+O SDK disponibiliza exceções específicas para falhas de configuração, declarações dos decorators e processamento de transições. A aplicação consumidora deve tratar essas exceções de acordo com seu contexto.
 
-A aplicação consumidora deve tratar essas exceções conforme sua política de tratamento de erros, evitando considerar uma operação concluída quando ocorrer uma falha durante o processamento.
+Entre os erros possíveis estão:
+
+- Estado ou ação inexistente na configuração.
+- Declaração duplicada para a mesma combinação de estado e ação.
+- Estado recebido diferente do estado declarado no decorator.
+- Runtime ainda não inicializado.
+- Falhas na leitura ou validação do YAML.
+
+Consulte [Tratamento de exceções](docs/tratamento_excecoes.md) para mais detalhes.
 
 ## Desenvolvimento
-
-### Preparação do ambiente
 
 Clone o repositório:
 
@@ -224,15 +269,10 @@ Instale os hooks de pre-commit:
 pre-commit install
 ```
 
-### Executar os testes
+Execute os testes e verificações:
 
 ```bash
 pytest
-```
-
-### Verificar a qualidade do código
-
-```bash
 ruff check .
 mypy src/
 pre-commit run --all-files
@@ -240,9 +280,7 @@ pre-commit run --all-files
 
 ## Documentação
 
-A documentação técnica do projeto é desenvolvida com **Sphinx** e está organizada no diretório `docs/`. Ela reúne os guias de utilização, configuração, integração e arquitetura do SDK, além da referência da API.
-
-Os principais documentos são:
+A documentação técnica utiliza **Sphinx** e está organizada no diretório `docs/`.
 
 - [Primeiros passos](docs/primeiros_passos.md)
 - [Configuração do workflow](docs/configurando_workflow.md)
@@ -254,30 +292,15 @@ Os principais documentos são:
 A documentação também está disponível online, permitindo consultar os guias e a referência da API.
 Para consultar a documentação publicada, acesse **[Documentação do SME-Workflow-SDK](https://prefeiturasp.github.io/SME-Workflow-SDK/)**
 
-
-### Gerar a documentação localmente
-
-Para limpar os arquivos gerados anteriormente e iniciar a documentação em modo de visualização automática, execute os comandos abaixo, na ordem apresentada:
+Para gerar a documentação localmente:
 
 ```bash
-# Limpa os arquivos de build anteriores
 make -C docs clean
-
-# Inicia a documentação com atualização automática
-make -C docs livehtml
-```
-
-O comando `livehtml` inicia um servidor local para visualizar a documentação no navegador, atualizando a página conforme os arquivos são modificados.
-
-Para gerar apenas a versão HTML estática, execute:
-
-```bash
 make -C docs html
 ```
 
-Os arquivos HTML serão gerados no diretório `docs/_build/html/`.
+Os arquivos HTML serão gerados em `docs/_build/html/`. Para visualizar com atualização automática, utilize `make -C docs livehtml`.
 
 ## Licença
 
-GNU Affero General Public License v3.0 (AGPL-3.0). Texto completo em
-[`LICENSE`](LICENSE).
+GNU Affero General Public License v3.0 (AGPL-3.0). Texto completo em [`LICENSE`](LICENSE).
