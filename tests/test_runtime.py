@@ -10,7 +10,6 @@ from sme_workflow_sdk import runtime
 from sme_workflow_sdk.configuracao.configurador import (
     ConfiguradorWorkflow,
 )
-from sme_workflow_sdk.integracao import registro_acoes
 
 
 class TestRuntime:
@@ -47,11 +46,6 @@ class TestRuntime:
                 return_value=None,
             ) as validar,
             patch.object(
-                registro_acoes,
-                "validar_declaracoes",
-                return_value=None,
-            ) as validar_declaracoes,
-            patch.object(
                 runtime,
                 "MotorWorkflow",
             ) as motor,
@@ -60,7 +54,6 @@ class TestRuntime:
 
             carregar.assert_called_once_with(str(caminho.resolve()))
             validar.assert_called_once_with(workflow_exemplo_dict)
-            validar_declaracoes.assert_called_once_with(workflow_exemplo_dict)
             motor.assert_called_once_with(workflow_exemplo_dict)
 
             assert runtime.get_workflow() is motor.return_value
@@ -182,48 +175,6 @@ class TestRuntime:
         ):
             runtime.configure(caminho)
             runtime.shutdown()
-
-        with pytest.raises(RuntimeError) as exc:
-            runtime.get_workflow()
-
-        assert (
-            str(exc.value)
-            == "O runtime do workflow ainda não foi inicializado."
-        )
-
-    def test_deve_manter_runtime_nao_inicializado_se_declaracoes_falharem(
-        self,
-        tmp_path: Path,
-        workflow_exemplo_dict: dict[str, Any],
-    ) -> None:
-        """Não deve inicializar o runtime se as declarações forem inválidas."""
-        caminho = tmp_path / "workflow.yaml"
-
-        with (
-            patch.object(
-                ConfiguradorWorkflow,
-                "carregar",
-                return_value=workflow_exemplo_dict,
-            ),
-            patch.object(
-                ConfiguradorWorkflow,
-                "validar",
-                return_value=None,
-            ),
-            patch.object(
-                registro_acoes,
-                "validar_declaracoes",
-                side_effect=ValueError("Declaração incompatível com YAML"),
-            ),
-            patch.object(runtime, "MotorWorkflow") as motor,
-            pytest.raises(
-                ValueError,
-                match="Declaração incompatível com YAML",
-            ),
-        ):
-            runtime.configure(caminho)
-
-        motor.assert_not_called()
 
         with pytest.raises(RuntimeError) as exc:
             runtime.get_workflow()

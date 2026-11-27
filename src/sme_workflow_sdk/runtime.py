@@ -29,7 +29,6 @@ from typing import Any
 
 from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
 from sme_workflow_sdk.configuracao.configurador import ConfiguradorWorkflow
-from sme_workflow_sdk.integracao import registro_acoes
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +99,6 @@ def configure(caminho: str | Path) -> None:
         configurador = ConfiguradorWorkflow()
         configuracao = configurador.carregar(str(caminho))
         configurador.validar(configuracao)
-        registro_acoes.validar_declaracoes(configuracao)
         workflow = MotorWorkflow(configuracao)
 
         _RUNTIME_CONTEXT = RuntimeContext(

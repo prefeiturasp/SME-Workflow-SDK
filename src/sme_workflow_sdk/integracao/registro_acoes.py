@@ -3,10 +3,6 @@
 from collections.abc import Callable
 from typing import Any
 
-from sme_workflow_sdk.excecoes.configuracao import (
-    AcaoInvalidaError,
-    EstadoInvalidoError,
-)
 from sme_workflow_sdk.excecoes.integracao import AcaoDuplicadaError
 
 # Tipo utilizado para representar os métodos registrados para as ações.
@@ -98,44 +94,6 @@ class RegistroAcoes:
         registrada nesta instância.
         """
         self._acoes.clear()
-
-    def validar_declaracoes(self, configuracao: dict[str, Any]) -> None:
-        """Verifica se as declarações registradas existem na configuração.
-
-        Percorre as combinações de estado e ação registradas pelos decorators
-        e verifica se cada estado existe no YAML e se a ação está declarada
-        para esse estado.
-
-        Esta validação deve ser executada durante a inicialização do runtime,
-        depois da validação estrutural do YAML e antes da criação do motor.
-        Ela valida a compatibilidade das declarações com a configuração, mas
-        não executa nem resolve as transições.
-
-        Args:
-            configuracao (dict[str, Any]): Configuração do workflow previamente
-                carregada e validada pelo configurador.
-
-        Raises:
-            EstadoInvalidoError: Se algum estado declarado por um decorator
-                não existir na configuração.
-            AcaoInvalidaError: Se a ação declarada não estiver disponível
-                para o estado correspondente na configuração.
-        """
-        estados = configuracao["estados"]
-
-        for estado, acao in self._acoes:
-            if estado not in estados:
-                raise EstadoInvalidoError(
-                    f"O estado '{estado}' declarado no decorator não existe "
-                    "no arquivo de configuração."
-                )
-
-            acoes = estados[estado]["acoes"]
-            if acoes is None or acao not in acoes:
-                raise AcaoInvalidaError(
-                    f"A ação '{acao}' declarada no decorator não está "
-                    f"configurada para o estado '{estado}'."
-                )
 
 
 registro_acoes = RegistroAcoes()
