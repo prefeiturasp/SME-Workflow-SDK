@@ -8,6 +8,7 @@ from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
 from sme_workflow_sdk.runtime import (
     configure,
     get_workflow,
+    processar_transicao,
     shutdown,
 )
 
@@ -19,5 +20,6 @@ __all__ = [
     "ResultadoWorkflow",
     "configure",
     "get_workflow",
+    "processar_transicao",
     "shutdown",
 ]

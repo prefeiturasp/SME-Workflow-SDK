@@ -15,6 +15,7 @@ from sme_workflow_sdk.excecoes.configuracao import (
 from sme_workflow_sdk.excecoes.integracao import (
     AcaoDuplicadaError,
     DeclaracaoWorkflowInvalidaError,
+    EstadoWorkflowIncompativelError,
 )
 from sme_workflow_sdk.excecoes.workflow import TransicaoInvalidaError
 
@@ -30,4 +31,5 @@ __all__ = [
     "TransicaoInvalidaError",
     "AcaoDuplicadaError",
     "DeclaracaoWorkflowInvalidaError",
+    "EstadoWorkflowIncompativelError",
 ]

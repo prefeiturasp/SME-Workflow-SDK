@@ -25,6 +25,7 @@ Funções públicas:
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from sme_workflow_sdk.aplicacao.motor_workflow import MotorWorkflow
 from sme_workflow_sdk.configuracao.configurador import ConfiguradorWorkflow
@@ -125,6 +126,30 @@ def get_workflow() -> MotorWorkflow:
         raise RuntimeError("O runtime do workflow ainda não foi inicializado.")
 
     return _RUNTIME_CONTEXT.workflow
+
+
+def processar_transicao(
+    *,
+    estado: str,
+    acao: str,
+    autor: str,
+) -> dict[str, Any]:
+    """Processa uma transição de estado do workflow.
+
+    Args:
+        estado: Estado atual do workflow.
+        acao: Ação solicitada para a transição.
+        autor: Identificação do responsável pela operação.
+
+    Returns:
+        ResultadoWorkflow: Resultado da transição processada.
+    """
+    workflow = get_workflow()
+    return workflow.processar_transicao(
+        estado=estado,
+        acao=acao,
+        autor=autor,
+    )
 
 
 def shutdown() -> None:

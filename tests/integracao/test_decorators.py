@@ -1,14 +1,19 @@
 from collections.abc import Callable
+from inspect import unwrap
+from pathlib import Path
 from typing import Any, cast
+from unittest.mock import Mock, patch
 
 import pytest
 
 from sme_workflow_sdk.excecoes.integracao import (
     AcaoDuplicadaError,
     DeclaracaoWorkflowInvalidaError,
+    EstadoWorkflowIncompativelError,
 )
 from sme_workflow_sdk.integracao import registro_acoes, workflow
 from sme_workflow_sdk.integracao.registro_acoes import RegistroAcoes
+from sme_workflow_sdk.runtime import configure, shutdown
 
 
 class TestRegistroAcoes:
@@ -190,6 +195,30 @@ class TestRegistroAcoes:
             is None
         )
 
+    def test_listar_retorna_copia_dos_registros(self) -> None:
+        """Alterações na cópia não modificam o registro original."""
+        registro = RegistroAcoes()
+
+        def aprovar() -> None:
+            return None
+
+        registro.registrar(
+            estado="pendente",
+            acao="aprovar",
+            metodo=aprovar,
+        )
+
+        registros = registro.listar()
+        registros.clear()
+
+        assert (
+            registro.obter(
+                estado="pendente",
+                acao="aprovar",
+            )
+            is aprovar
+        )
+
 
 class TestDecorators:
     @pytest.mark.parametrize("parametro", ["estado", "acao"])
@@ -224,15 +253,13 @@ class TestDecorators:
             def obter_dados(self) -> str:
                 return "dados"
 
-        assert (
-            registro_acoes.obter(estado="pendente", acao="aprovar")
-            is Servico.aprovar
-        )
+        assert registro_acoes.obter(
+            estado="pendente", acao="aprovar"
+        ) is unwrap(Servico.aprovar)
 
-        assert (
-            registro_acoes.obter(estado="pendente", acao="reprovar")
-            is Servico.reprovar
-        )
+        assert registro_acoes.obter(
+            estado="pendente", acao="reprovar"
+        ) is unwrap(Servico.reprovar)
 
         assert (
             registro_acoes.obter(
@@ -264,7 +291,17 @@ class TestDecorators:
 
         servico = Servico()
 
-        assert servico.aprovar(10) == 20
+        motor = Mock()
+        with patch(
+            "sme_workflow_sdk.runtime.get_workflow",
+            return_value=motor,
+        ):
+            resultado = servico.aprovar(
+                estado="pendente",
+                valor=10,
+            )
+
+        assert resultado == 20
 
     @pytest.mark.parametrize(
         ("estado", "acao"),
@@ -290,8 +327,90 @@ class TestDecorators:
             workflow,
         )
 
-        with pytest.raises(DeclaracaoWorkflowInvalidaError):
+        with pytest.raises(DeclaracaoWorkflowInvalidaError) as exc:
             workflow_generico(
                 estado=estado,
                 acao=acao,
             )
+        assert "deve ser uma string não vazia." in str(exc.value)
+
+    def test_decorator_rejeita_estado_diferente_do_declarado(
+        self,
+        yaml_valido: Path,
+    ) -> None:
+        """Rejeita estado diferente daquele declarado no decorator."""
+        configure(yaml_valido)
+        chamadas: list[int] = []
+
+        class Servico:
+            @workflow(estado="aberto", acao="aprovar")
+            def aprovar(self, valor: int) -> int:
+                chamadas.append(valor)
+                return valor * 2
+
+        with pytest.raises(EstadoWorkflowIncompativelError) as exc:
+            Servico().aprovar(estado="aprovado", valor=10)
+
+        assert (
+            str(exc.value)
+            == "A ação 'aprovar' foi declarada para o estado 'aberto', mas "
+            "recebeu o estado 'aprovado'."
+        )
+        assert chamadas == []
+
+    def test_decorator_exige_estado_na_chamada(
+        self,
+        yaml_valido: Path,
+    ) -> None:
+        """Exige o parâmetro estado ao chamar um método decorado."""
+        configure(yaml_valido)
+
+        class Servico:
+            @workflow(estado="aberto", acao="aprovar")
+            def aprovar(self, valor: int) -> int:
+                return valor * 2
+
+        with pytest.raises(TypeError) as exc:
+            Servico().aprovar(valor=10)
+
+        assert "missing 1 required keyword-only argument: 'estado'" in str(
+            exc.value
+        )
+
+    def test_decorator_nao_depende_runtime_configurado(self) -> None:
+        """Executa o método decorado sem depender do runtime"""
+
+        shutdown()
+
+        class Servico:
+            @workflow(estado="aberto", acao="aprovar")
+            def aprovar(self, valor: int) -> int:
+                return valor * 2
+
+        resultado = Servico().aprovar(
+            estado="aberto",
+            valor=10,
+        )
+
+        assert resultado == 20
+
+    def test_decorator_rejeita_metodos_com_mesma_combinacao(self) -> None:
+        """Não permite métodos diferentes para a mesma combinação."""
+
+        class Servico:
+            @workflow(estado="pendente", acao="aprovar")
+            def aprovar(self) -> None:
+                return None
+
+        with pytest.raises(AcaoDuplicadaError) as exc:
+
+            class OutroServico:
+                @workflow(estado="pendente", acao="aprovar")
+                def aprovar(self) -> None:
+                    return None
+
+        assert (
+            str(exc.value)
+            == "Já existe um método registrado para o estado 'pendente' e a "
+            "ação 'aprovar': aprovar."
+        )

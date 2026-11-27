@@ -10,7 +10,6 @@ from sme_workflow_sdk.dominio.contexto import ContextoExecucao
 from sme_workflow_sdk.dominio.entidades import Acao, Estado
 from sme_workflow_sdk.dominio.execucao_validada import ExecucaoValidada
 from sme_workflow_sdk.dominio.resultado import ResultadoWorkflow
-from sme_workflow_sdk.excecoes.workflow import TransicaoInvalidaError
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +48,11 @@ class MotorWorkflow:
         >>> configuracao = configurador.carregar("workflow.yaml")
         >>> configurador.validar(configuracao)
         >>> motor = MotorWorkflow(configuracao)
-        >>> execucao = motor.validar("pendente", "aprovar")
+        >>> resultado = motor.processar_transicao(
+        ...     estado="pendente",
+        ...     acao="aprovar",
+        ...     autor="usuario_sistema",
+        ... )
     """
 
     def __init__(self, configuracao: dict[str, Any]) -> None:
@@ -175,109 +178,97 @@ class MotorWorkflow:
             )
             raise
 
-    def executar(
+    def processar_transicao(
         self,
-        dados_transicao: ExecucaoValidada,
-        contexto: ContextoExecucao,
+        *,
+        estado: str,
+        acao: str,
+        autor: str,
     ) -> dict[str, Any]:
-        """Produz o resultado de uma execução do workflow.
+        """Valida e processa uma transição do workflow.
 
-        Recebe os dados previamente validados e o contexto da execução para
-        montar o resultado da transição, incluindo os estados envolvidos, a
-        ação, os horários, o autor e os dados de contexto.
+        Recebe o estado atual, a ação solicitada e a identificação do autor.
+        Valida a disponibilidade da ação e a consistência da transição e,
+        quando todas as validações são concluídas, produz o resultado
+        estruturado da operação.
 
-        Deve ser chamado após a aplicação consumidora executar com sucesso as
-        regras de negócio associadas à ação.
+        O identificador da execução e o contexto são criados internamente
+        pelo motor. A aplicação consumidora não precisa criar ou fornecer
+        instâncias de :class:`ExecucaoValidada` ou
+        :class:`ContextoExecucao`.
 
         Este método não executa regras de negócio, não altera o estado
         persistido da entidade e não realiza operações de persistência.
-
-        Se ocorrer uma :class:`TransicaoInvalidaError
-        <sme_workflow_sdk.excecoes.workflow.TransicaoInvalidaError>` durante a
-        resolução da transição, o método captura a exceção e retorna um
-        resultado indicando que a execução não foi bem-sucedida.
+        A aplicação consumidora é responsável por utilizar o próximo estado
+        retornado e atualizar sua entidade.
 
         Args:
-            dados_transicao (ExecucaoValidada): Dados da transição
-                previamente validados  método validar().
-            contexto (ContextoExecucao): Contexto da execução, incluindo
-                identificador, autor e dados adicionais.
+            estado (str): Nome do estado atual do workflow..
+            acao (str): Nome da ação solicitada para o estado informado.
+            autor (str): Identificação textual do autor responsável pela
+                operação.
 
         Returns:
             dict[str, Any]: Dicionário contendo os dados do resultado da
             execução, incluindo identificador, estado anterior, ação,
             próximo estado, terminalidade, indicador de sucesso, mensagem,
-            horários, autor e contexto.
+            horários e  autor.
 
             Os valores de data e hora permanecem como objetos datetime,
             conforme o comportamento de :meth:`ResultadoWorkflow.para_dict()
             <sme_workflow_sdk.dominio.resultado.ResultadoWorkflow.para_dict>`
 
+        Raises:
+            EstadoInvalidoError: Se o estado não estiver configurado.
+            AcaoInvalidaError: Se a ação não estiver disponível para o estado.
+            TransicaoInvalidaError: Se a transição configurada não respeitar
+                as regras de consistência do workflow.
+            ValidacaoDominioError: Se o autor ou os dados internos do
+                resultado não atenderem às regras de validação do domínio.
+
         Examples:
-            >>> execucao = motor.validar("pendente", "aprovar")
-            >>> resultado = motor.executar(execucao, contexto)
+            >>> resultado = motor.processar_transicao(
+            ...     estado="pendente",
+            ...     acao="aprovar",
+            ...     autor="usuario_sistema",
+            ... )
+            >>> resultado["proximo_estado"]
+            'aprovado'
             >>> resultado["sucesso"]
             True
         """
+        contexto = ContextoExecucao(autor=autor)
         logger.info(
-            "Iniciando execução do workflow. Identificador: %s | "
-            "Estado atual: %s | Ação: %s | Autor: %s",
+            "Iniciando processamento da transição. Identificador: %s | Estado "
+            "atual: %s | Ação: %s | Autor: %s",
             contexto.identificador,
-            dados_transicao.estado_atual,
-            dados_transicao.acao.nome,
+            estado,
+            acao,
             contexto.autor,
         )
-        try:
-            execucao = self._transicao_resolver.resolver(dados_transicao)
-            sucesso = True
-            mensagem = "Transição executada com sucesso!"
-            acao = execucao.acao
-            resultado = ResultadoWorkflow(
-                identificador=contexto.identificador,
-                estado_anterior=execucao.estado_atual,
-                acao=acao.nome,
-                proximo_estado=acao.proximo_estado,
-                terminal=acao.terminal,
-                sucesso=sucesso,
-                inicio=execucao.inicio_transicao,
-                fim=datetime.now(UTC),
-                autor=contexto.autor,
-                contexto=contexto,
-                mensagem=mensagem,
-            )
 
-            logger.info(
-                "Workflow executado com sucesso. Identificador: %s | "
-                "Estado anterior: %s | Ação: %s | Próximo estado: %s | "
-                "Terminal: %s",
-                resultado.identificador,
-                resultado.estado_anterior,
-                resultado.acao,
-                resultado.proximo_estado,
-                resultado.terminal,
-            )
-        except TransicaoInvalidaError as exc:
-            estado_atual = dados_transicao.estado_atual
-            resultado = ResultadoWorkflow(
-                identificador=contexto.identificador,
-                estado_anterior=estado_atual,
-                acao=dados_transicao.acao.nome,
-                proximo_estado=estado_atual,
-                terminal=False,
-                sucesso=False,
-                inicio=dados_transicao.inicio_transicao,
-                fim=datetime.now(UTC),
-                autor=contexto.autor,
-                contexto=contexto,
-                mensagem=f"Transição não executada! {str(exc)}",
-            )
-            logger.warning(
-                "Falha na execução do workflow. Identificador: %s | "
-                "Estado atual: %s | Ação: %s | Motivo: %s",
-                contexto.identificador,
-                estado_atual,
-                dados_transicao.acao.nome,
-                exc,
-            )
+        execucao = self.validar(estado, acao)
+        resultado = ResultadoWorkflow(
+            identificador=contexto.identificador,
+            estado_anterior=execucao.estado_atual,
+            acao=execucao.acao.nome,
+            proximo_estado=execucao.acao.proximo_estado,
+            terminal=execucao.acao.terminal,
+            sucesso=True,
+            inicio=execucao.inicio_transicao,
+            fim=datetime.now(UTC),
+            autor=contexto.autor,
+            mensagem="Transição processada com sucesso!",
+        )
 
+        logger.info(
+            "Transição processada com sucesso. Identificador: %s | "
+            "Estado anterior: %s | Ação: %s | Próximo estado: %s | "
+            "Terminal: %s",
+            resultado.identificador,
+            resultado.estado_anterior,
+            resultado.acao,
+            resultado.proximo_estado,
+            resultado.terminal,
+        )
         return resultado.para_dict()

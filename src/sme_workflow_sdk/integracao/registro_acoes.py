@@ -5,6 +5,7 @@ from typing import Any
 
 from sme_workflow_sdk.excecoes.integracao import AcaoDuplicadaError
 
+# Tipo utilizado para representar os métodos registrados para as ações.
 MetodoWorkflow = Callable[..., Any]
 
 
@@ -87,7 +88,11 @@ class RegistroAcoes:
         return self._acoes.copy()
 
     def limpar(self) -> None:
-        """Remove todas as associações do registro."""
+        """Remove todas as associações do registro.
+
+        Após a execução, nenhuma combinação de estado e ação permanecerá
+        registrada nesta instância.
+        """
         self._acoes.clear()
 
 
